@@ -8,9 +8,6 @@
 </style>
 <GeneralMenu></GeneralMenu>
 
-<h1> Bienvenue sur mon site D'Echecs  </h1>
-
-
-<p> coucocu</p>
+<h1> Bienvenue sur mon site D'Echecs </h1>
 
 
