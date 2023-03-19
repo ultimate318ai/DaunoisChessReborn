@@ -1,2 +1,16 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+    import GeneralMenu from "../menu/general_menu.svelte";
+</script>
+
+<style>
+
+
+</style>
+<GeneralMenu></GeneralMenu>
+
+<h1> Bienvenue sur mon site D'Echecs</h1>
+
+
+<p> coucocu</p>
+
+
