@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { select_option } from 'svelte/internal';
+    import {fenStore, gameType, startGame} from '../stores';
     let menu_new_game_open: boolean = false;
     let override_fen: boolean = false;
-    export let fen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
-    function trigger_menu_new_game(): any {
+    function trigger_menu_new_game(): void {
         /**
          * Trigger the "new_game" menu when the user clicks on the button.
         */
@@ -31,7 +32,7 @@
         </div>
         <div class="form-control">
             <label for="select_game"> Game type</label>
-            <select name="game_type" id="select_game">
+            <select name="game_type" id="select_game" bind:value={$gameType}>
                 <option value="">--Please choose an option--</option>
                 <option value="chess">Chess</option>
             </select>
@@ -43,11 +44,11 @@
         {#if override_fen}
         <div class="form-control">
             <label for="fen">Fen : </label>
-            <input type="text" name="fen_text" id="fen_text" value={fen}>
+            <input type="text" name="fen_text" id="fen_text" bind:value={$fenStore}>
         </div>
         {/if}
         <div class="form-control">
-            <input type="submit" value="Start Game">
+            <input type="submit" value="Start Game" on:click={() => startGame.set(true)}>
         </div>
     </form>
 {/if}
