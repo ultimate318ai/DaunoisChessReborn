@@ -1,14 +1,21 @@
 <script lang="ts">
-	import { select_option } from 'svelte/internal';
     import {fenStore, gameType, startGame} from '../stores';
     let menu_new_game_open: boolean = false;
     let override_fen: boolean = false;
 
-    function trigger_menu_new_game(): void {
+    function triggerMenuNewGame(): void {
         /**
          * Trigger the "new_game" menu when the user clicks on the button.
         */
         menu_new_game_open = !menu_new_game_open;
+    }
+
+    function closeMenuAndStartGame(): void {
+        /**
+         * Close the menu and set the start boolean to true -> make the board visible.
+        */
+        startGame.set(true);
+        triggerMenuNewGame();
     }
 
 </script>
@@ -18,7 +25,12 @@
 
 <nav class="menu" id="general menu">
     <ol>
-        <li> <button id="new_game" on:click|trusted={trigger_menu_new_game}> Nouvelle Partie </button></li>
+        {#if !$startGame}
+            <li> <button id="new_game" on:click|trusted={triggerMenuNewGame}> Nouvelle Partie </button></li>
+        {/if}
+        {#if $startGame}
+            <li> <button id="quit" on:click|trusted={() => startGame.set(false)}> Quitter </button></li>
+        {/if}
         <li> Charger une partie </li>
         <li> A Propos</li>
     </ol>
@@ -48,7 +60,7 @@
         </div>
         {/if}
         <div class="form-control">
-            <input type="submit" value="Start Game" on:click={() => startGame.set(true)}>
+            <input type="submit" value="Start Game" on:click|trusted={closeMenuAndStartGame}>
         </div>
     </form>
 {/if}
