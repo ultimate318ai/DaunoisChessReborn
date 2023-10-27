@@ -1,18 +1,13 @@
-# my_website
-I try to learn angular ts, what a perfect opportunity to build a website !
+# DaunoisChess Reborn
+I try to learn angular ts, what a perfect opportunity to build a chess game !
 
-## Website Content
+## Content
 
-This website will contain following sections:
- - Home page (Still useful!)
- - Chess part (Yes I like it)
- - CV part (a lot of things about me)
- - Latex part (This section will contain basic latex course in order to train may html page presentation)
+TODO
 
-## Technologies used
+## Install 
 
-For instance, I will use Angular TS with css and basic html.
+TODO
 
-## Install and build
 
 
