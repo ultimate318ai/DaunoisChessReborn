@@ -23,6 +23,7 @@ export class BoardService {
      * Fen is like this : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
      * //TODO: parse fen and check
      */
+    console.table(fen);
     const boardCells: boardCellsType = {}
     const boardPartFen = fen.split(" ")[0];
     let row = 0;
@@ -36,6 +37,7 @@ export class BoardService {
             cellName = `${this.fromNumberToBoardCellLetter(column + index)}${8 - row}` as boardCellNotation
             boardCells[cellName] = {pieceSymbol: "no piece", pointed: false};
           }
+          column += +fenRowItem;
           continue;
         }
         cellName = `${this.fromNumberToBoardCellLetter(column)}${8 - row}` as boardCellNotation

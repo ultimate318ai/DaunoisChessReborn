@@ -21,4 +21,12 @@ export class ChessService {
   public getMovesFromPiece(cell: boardCellNotation): Move[] {
     return this.chess.moves({square: cell, verbose: true});
   }
+
+  public applyChessMove(fromCell: string, toCell: string): void {
+    this.chess.move({from: fromCell, to: toCell})
+  }
+
+  public getGameFen(): string {
+    return this.chess.fen();
+  }
 }
