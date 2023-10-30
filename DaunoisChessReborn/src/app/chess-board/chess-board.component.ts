@@ -36,5 +36,10 @@ export class ChessBoardComponent implements OnInit {
   onCellClick(cellClicked: string): void {
     const moves = this.chessService.getMovesFromPiece(cellClicked as boardCellNotation);
     console.table(moves);
+    moves.forEach((move) => {
+      const cell = Object.entries(this.boardCells).find((boardCell) => boardCell[0] === move.to);
+      if (cell !== undefined)
+        this.boardCells[cell[0]].pointed = true;
+    })
   }
 }

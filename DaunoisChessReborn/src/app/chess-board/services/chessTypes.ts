@@ -4,7 +4,7 @@ export type boardCellDigitNotation = '1' | '2' |'3' | '4' | '5' | '6' | '7' | '8
 
 export type boardCellNotation = `${boardCellLetterNotation}${boardCellDigitNotation}`;
 
-export type boardCellsType = {[k in boardCellNotation]?: PieceSymbol | "no piece"};//TODO: change "no piece"
+export type boardCellsType = {[k :string]: {pieceSymbol: PieceSymbol | "no piece", pointed: boolean}};//TODO: change "no piece"
 
 export type PieceType =
   | 'PAWN'

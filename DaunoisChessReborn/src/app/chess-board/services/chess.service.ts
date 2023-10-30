@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { Chess } from 'chess.ts';
+import { Chess, Move } from 'chess.ts';
 import { boardCellNotation } from './chessTypes';
 
 @Injectable({
@@ -18,7 +18,7 @@ export class ChessService {
     this.chess = new Chess(fen);
   }
 
-  public getMovesFromPiece(cell: boardCellNotation): string[]{
-    return this.chess.moves({square: cell});
+  public getMovesFromPiece(cell: boardCellNotation): Move[] {
+    return this.chess.moves({square: cell, verbose: true});
   }
 }

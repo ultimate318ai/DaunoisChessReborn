@@ -34,12 +34,12 @@ export class BoardService {
         if (!isNaN(parseFloat(fenRowItem))){
           for (let index = 1; index <= +fenRowItem; index++){
             cellName = `${this.fromNumberToBoardCellLetter(column + index)}${8 - row}` as boardCellNotation
-            boardCells[cellName] = "no piece";
+            boardCells[cellName] = {pieceSymbol: "no piece", pointed: false};
           }
           continue;
         }
         cellName = `${this.fromNumberToBoardCellLetter(column)}${8 - row}` as boardCellNotation
-        boardCells[cellName] = fenRowItem as PieceSymbol
+        boardCells[cellName] = {pieceSymbol: fenRowItem as PieceSymbol,  pointed: false};
         column++;
       }
       row++;
