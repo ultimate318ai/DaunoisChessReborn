@@ -12,5 +12,9 @@
     display: grid;
     grid-template-rows: repeat(8, 1fr);
     grid-template-columns: repeat(8, 1fr);
-    padding: 25px;
+}
+
+.wrapper > div {
+    background-repeat: no-repeat;
+    background-size: cover;
 }
