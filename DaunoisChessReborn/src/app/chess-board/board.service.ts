@@ -6,7 +6,7 @@ export type boardCellDigitNotation = '1' | '2' |'3' | '4' | '5' | '6' | '7' | '8
 
 export type boardCellNotation = `${boardCellLetterNotation}${boardCellDigitNotation}`;
 
-export type boardCellsType = {[k in boardCellNotation]?: PieceSymbol | null};
+export type boardCellsType = {[k in boardCellNotation]?: PieceSymbol | "no piece"};//TODO: change "no piece"
 
 type PieceType =
   | 'PAWN'
@@ -17,7 +17,7 @@ type PieceType =
   | 'QUEEN'
   | 'KING';
 
-export type PieceSymbol = 'p' | 'n' | 'b' | 'r' | 'q' | 'k';
+export type PieceSymbol = 'p' | 'n' | 'b' | 'r' | 'q' | 'k'| 'P' | 'N' | 'B' | 'R' | 'Q' | 'K';
 
 export type PieceName = 'pawn' | 'knight' | 'bishop' | 'rook' | 'queen' | 'king';
 
@@ -43,6 +43,7 @@ export class BoardService {
     /**
      * Put fen pieces into board cells.
      * Fen is like this : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+     * //TODO: parse fen and check
      */
     const boardCells: boardCellsType = {}
     const boardPartFen = fen.split(" ")[0];
@@ -53,8 +54,11 @@ export class BoardService {
       column = 0;
       for (let fenRowItem of fenRow){
         if (!isNaN(parseFloat(fenRowItem))){
-          column += +fenRowItem;
-          continue
+          for (let index = 1; index <= +fenRowItem; index++){
+            cellName = `${this.fromNumberToBoardCellLetter(column + index)}${8 - row}` as boardCellNotation
+            boardCells[cellName] = "no piece";
+          }
+          continue;
         }
         cellName = `${this.fromNumberToBoardCellLetter(column)}${8 - row}` as boardCellNotation
         boardCells[cellName] = fenRowItem as PieceSymbol
@@ -72,7 +76,7 @@ export class BoardService {
     return letter.charCodeAt(0) - 65;
   }
 
-  getUrlFromPieceType(piece: Piece): string {
+  getUrlFromPieceSymbol(pieceSymbol: PieceSymbol): string {
     /**
      * Get piece picture url using piece type and player color.
      * @param piece: The piece used to get the url from.
@@ -80,40 +84,46 @@ export class BoardService {
      */
     const baseUrl = 'https://upload.wikimedia.org/wikipedia/commons';
     let pieceUrl;
-    switch (piece.type) {
-      case 'PAWN':
+    switch (pieceSymbol) {
+      case 'p':
+      case 'P':
         pieceUrl =
-          piece.playerColor === 'White'
+          pieceSymbol.toUpperCase() === pieceSymbol
             ? '/4/45/Chess_plt45.svg'
             : '/c/c7/Chess_pdt45.svg';
         return `${baseUrl}${pieceUrl}`;
-      case 'KNIGHT':
-        pieceUrl =
-          piece.playerColor === 'White'
+        case 'n':
+          case 'N':
+            pieceUrl =
+              pieceSymbol.toUpperCase() === pieceSymbol
             ? '/7/70/Chess_nlt45.svg'
             : '/e/ef/Chess_ndt45.svg';
         return `${baseUrl}${pieceUrl}`;
-      case 'BISHOP':
-        pieceUrl =
-          piece.playerColor === 'White'
+        case 'b':
+          case 'B':
+            pieceUrl =
+              pieceSymbol.toUpperCase() === pieceSymbol
             ? '/b/b1/Chess_blt45.svg'
             : '/9/98/Chess_bdt45.svg';
         return `${baseUrl}${pieceUrl}`;
-      case 'ROOK':
-        pieceUrl =
-          piece.playerColor === 'White'
+        case 'r':
+          case 'R':
+            pieceUrl =
+              pieceSymbol.toUpperCase() === pieceSymbol
             ? '/7/72/Chess_rlt45.svg'
             : '/f/ff/Chess_rdt45.svg';
         return `${baseUrl}${pieceUrl}`;
-      case 'QUEEN':
-        pieceUrl =
-          piece.playerColor === 'White'
+        case 'q':
+          case 'Q':
+            pieceUrl =
+              pieceSymbol.toUpperCase() === pieceSymbol
             ? '/1/15/Chess_qlt45.svg'
             : '/4/47/Chess_qdt45.svg';
         return `${baseUrl}${pieceUrl}`;
-      case 'KING':
-        pieceUrl =
-          piece.playerColor === 'White'
+        case 'k':
+          case 'K':
+            pieceUrl =
+              pieceSymbol.toUpperCase() === pieceSymbol
             ? '/4/42/Chess_klt45.svg'
             : '/f/f0/Chess_kdt45.svg';
         return `${baseUrl}${pieceUrl}`;

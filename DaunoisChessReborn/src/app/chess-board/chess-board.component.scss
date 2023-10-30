@@ -5,3 +5,12 @@
     margin: 10px;
     border: 10px solid saddlebrown;
 }
+
+.wrapper {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
+    grid-template-columns: repeat(8, 1fr);
+    padding: 25px;
+}
