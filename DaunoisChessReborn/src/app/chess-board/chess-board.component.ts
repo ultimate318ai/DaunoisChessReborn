@@ -14,6 +14,8 @@ export class ChessBoardComponent implements OnInit {
 
   private boardCells: boardCellsType = {};
 
+  private pointedCells: string[] = [];
+
   constructor(private boardService: BoardService, private chessService: ChessService){}
 
 
@@ -33,14 +35,23 @@ export class ChessBoardComponent implements OnInit {
     return Object.keys(this.boardCells);
   }
 
-  onCellClick(cellClicked: string): void {
-    const moves = this.chessService.getMovesFromPiece(cellClicked as boardCellNotation);
-    console.table(moves);
-    moves.forEach((move) => {
-      const cell = Object.entries(this.boardCells).find((boardCell) => boardCell[0] === move.to);
-      if (cell !== undefined)
-        this.boardCells[cell[0]].pointed = true;
+  private resetPointedCells (): void {
+    this.pointedCells.forEach((oldPointedCellName: string) => {
+      this.boardCells[oldPointedCellName].pointed = false;
     })
-    console.table(this.boardCells);
+    this.pointedCells = [];
+  }
+
+  onCellClick(cellClicked: string): void {
+    this.resetPointedCells();
+    const moves = this.chessService.getMovesFromPiece(cellClicked as boardCellNotation);
+    moves.forEach((move) => {
+      const pointedCell = Object.entries(this.boardCells).find((boardCell) => boardCell[0] === move.to);
+      if (pointedCell !== undefined){
+        this.boardCells[pointedCell[0]].pointed = true;
+        this.pointedCells = [...this.pointedCells, pointedCell[0]];
+      }
+    })
+
   }
 }
