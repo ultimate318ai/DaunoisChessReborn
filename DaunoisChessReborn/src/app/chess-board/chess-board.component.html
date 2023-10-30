@@ -1,7 +1,7 @@
 <div class="board">
     <div class="wrapper">
         <ng-container *ngFor="let chessBoardCell of chessBoardCellsContents; let index = index">
-            <div *ngIf="chessBoardCell !== 'no piece'; else noPieceBlock" id="{{chessBoardCellsKeys[index]}}" [ngStyle]="{'color': '#15226d', 'background-image': 'url(' + piecePictureUrl(chessBoardCell) + ')'}"></div>
+            <div *ngIf="chessBoardCell !== 'no piece'; else noPieceBlock" id="{{chessBoardCellsKeys[index]}}" [ngStyle]="{'color': '#15226d', 'background-image': 'url(' + piecePictureUrl(chessBoardCell) + ')'}" (click)="onCellClick(chessBoardCellsKeys[index])"></div>
             <ng-template #noPieceBlock><div id="{{chessBoardCellsKeys[index]}}"></div></ng-template>
         </ng-container>
     </div>

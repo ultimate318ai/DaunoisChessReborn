@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { BoardService, PieceSymbol, boardCellNotation, boardCellsType } from './services/board.service';
+import { PieceSymbol, boardCellNotation, boardCellsType } from './services//chessTypes';
+import { BoardService } from './services/board.service';
+import { ChessService } from './services/chess.service';
 
 @Component({
   selector: 'app-chess-board',
@@ -12,7 +14,7 @@ export class ChessBoardComponent implements OnInit {
 
   private boardCells: boardCellsType = {};
 
-  constructor(private boardService: BoardService){}
+  constructor(private boardService: BoardService, private chessService: ChessService){}
 
 
   ngOnInit(): void {
@@ -29,5 +31,10 @@ export class ChessBoardComponent implements OnInit {
 
   get chessBoardCellsKeys() {
     return Object.keys(this.boardCells);
+  }
+
+  onCellClick(cellClicked: string): void {
+    const moves = this.chessService.getMovesFromPiece(cellClicked as boardCellNotation);
+    console.table(moves);
   }
 }

@@ -1,27 +1,5 @@
 import { Injectable } from '@angular/core';
-
-export type boardCellLetterNotation = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
-
-export type boardCellDigitNotation = '1' | '2' |'3' | '4' | '5' | '6' | '7' | '8';
-
-export type boardCellNotation = `${boardCellLetterNotation}${boardCellDigitNotation}`;
-
-export type boardCellsType = {[k in boardCellNotation]?: PieceSymbol | "no piece"};//TODO: change "no piece"
-
-type PieceType =
-  | 'PAWN'
-  | 'PAWN'
-  | 'KNIGHT'
-  | 'BISHOP'
-  | 'ROOK'
-  | 'QUEEN'
-  | 'KING';
-
-export type PieceSymbol = 'p' | 'n' | 'b' | 'r' | 'q' | 'k'| 'P' | 'N' | 'B' | 'R' | 'Q' | 'K';
-
-export type PieceName = 'pawn' | 'knight' | 'bishop' | 'rook' | 'queen' | 'king';
-
-export type PiecePlayerColor = 'White' | 'black';
+import {PieceName, PiecePlayerColor, PieceSymbol, PieceType, boardCellLetterNotation, boardCellNotation, boardCellsType} from './chessTypes'
 
 export type Piece = {
   type: PieceType;
@@ -70,14 +48,14 @@ export class BoardService {
   }
 
   private fromNumberToBoardCellLetter(index: number): boardCellLetterNotation {
-    return String.fromCharCode(65 + index) as boardCellLetterNotation;
+    return String.fromCharCode(97 + index) as boardCellLetterNotation;
   }
 
   private fromBoardCellLetterToNumber(letter: boardCellLetterNotation): number {
-    return letter.charCodeAt(0) - 65;
+    return letter.charCodeAt(0) - 97;
   }
 
-  getUrlFromPieceSymbol(pieceSymbol: PieceSymbol): string {
+  getUrlFromPieceSymbol(pieceSymbol: PieceSymbol): string | undefined {
     /**
      * Get piece picture url using piece type and player color.
      * @param piece: The piece used to get the url from.
