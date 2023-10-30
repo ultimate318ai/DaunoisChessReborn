@@ -18,7 +18,8 @@ export class ChessService {
     this.chess = new Chess(fen);
   }
 
-  public getMovesFromPiece(cell: boardCellNotation): Move[] {
+  public getMovesFromCell(cell: boardCellNotation): Move[] {
+    console.table(this.chess.moves({square: cell, verbose: true}))
     return this.chess.moves({square: cell, verbose: true});
   }
 

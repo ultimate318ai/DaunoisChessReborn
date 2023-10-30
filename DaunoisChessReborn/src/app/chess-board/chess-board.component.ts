@@ -74,7 +74,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   onCellClick(cellClicked: string): void {
     this.resetPointedCells();
-    const moves = this.chessService.getMovesFromPiece(cellClicked as boardCellNotation);
+    const moves = this.chessService.getMovesFromCell(cellClicked as boardCellNotation);
     if (moves.length && this.selectedPieceCell){
       this.chessService.applyChessMove(this.selectedPieceCell, cellClicked);
       this.updateChessBoard();
@@ -90,5 +90,6 @@ export class ChessBoardComponent implements OnInit, OnChanges {
         this.pointedCells = [...this.pointedCells, pointedCell[0]];
       }
     })
+    console.table(this.pointedCells);
   }
 }

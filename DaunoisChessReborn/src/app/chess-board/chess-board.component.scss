@@ -17,8 +17,13 @@
 .wrapper > div {
     background-repeat: no-repeat;
     background-size: cover;
+    z-index: 1;
 }
 
 div[pointed] {
     background: radial-gradient(ellipse at center, #bb00ff 0%,#bb00ff 20%,#bb00ff 20%,#23bc2b00 47%,#23bc2b00 48%);
+}
+
+div[attacked] {
+    background-color: black; //TODO: delete this fucking color -> red cross in the middle
 }
