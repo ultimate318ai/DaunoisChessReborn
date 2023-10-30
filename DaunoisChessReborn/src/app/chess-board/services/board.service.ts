@@ -32,7 +32,7 @@ export class BoardService {
       column = 0;
       for (let fenRowItem of fenRow){
         if (!isNaN(parseFloat(fenRowItem))){
-          for (let index = 1; index <= +fenRowItem; index++){
+          for (let index = 0; index < +fenRowItem; index++){
             cellName = `${this.fromNumberToBoardCellLetter(column + index)}${8 - row}` as boardCellNotation
             boardCells[cellName] = {pieceSymbol: "no piece", pointed: false};
           }

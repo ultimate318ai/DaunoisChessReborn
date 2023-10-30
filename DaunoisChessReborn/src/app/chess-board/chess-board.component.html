@@ -1,8 +1,8 @@
 <div class="board">
     <div class="wrapper">
         <ng-container *ngFor="let chessBoardCell of chessBoardCellsContents; let index = index">
-            <div *ngIf="chessBoardCell.pieceSymbol !== 'no piece'; else noPieceBlock" id="{{chessBoardCellsKeys[index]}}" [ngStyle]="{'color': '#15226d', 'background-image': 'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'}" (click)="onCellClick(chessBoardCellsKeys[index])"></div>
-            <ng-template #noPieceBlock><div id="{{chessBoardCellsKeys[index]}}"></div></ng-template>
+            <div *ngIf="chessBoardCell.pieceSymbol !== 'no piece'; else noPieceBlock" id="{{chessBoardCellsKeys[index]}}" [attr.pointed]="chessBoardCell.pointed? '' : null" [ngStyle]="{'color': '#15226d', 'background-image': 'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'}" (click)="onCellClick(chessBoardCellsKeys[index])"></div>
+            <ng-template #noPieceBlock><div id="{{chessBoardCellsKeys[index]}}" [attr.pointed]="chessBoardCell.pointed? '' : null"></div></ng-template>
         </ng-container>
     </div>
 </div>

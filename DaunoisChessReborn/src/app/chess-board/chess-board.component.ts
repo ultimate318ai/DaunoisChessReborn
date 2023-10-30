@@ -41,5 +41,6 @@ export class ChessBoardComponent implements OnInit {
       if (cell !== undefined)
         this.boardCells[cell[0]].pointed = true;
     })
+    console.table(this.boardCells);
   }
 }
