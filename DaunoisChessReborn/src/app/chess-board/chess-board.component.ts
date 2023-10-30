@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { BoardService, PieceSymbol, boardCellNotation, boardCellsType } from './board.service';
+import { BoardService, PieceSymbol, boardCellNotation, boardCellsType } from './services/board.service';
 
 @Component({
   selector: 'app-chess-board',

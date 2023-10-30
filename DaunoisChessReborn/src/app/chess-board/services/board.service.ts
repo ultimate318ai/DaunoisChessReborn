@@ -68,6 +68,7 @@ export class BoardService {
     }
     return boardCells;
   }
+
   private fromNumberToBoardCellLetter(index: number): boardCellLetterNotation {
     return String.fromCharCode(65 + index) as boardCellLetterNotation;
   }
