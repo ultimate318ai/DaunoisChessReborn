@@ -1,13 +1,5 @@
 import { Injectable } from '@angular/core';
-import {PieceName, PiecePlayerColor, PieceSymbol, PieceType, boardCellLetterNotation, boardCellNotation, boardCellsType} from './chessTypes'
-
-export type Piece = {
-  type: PieceType;
-  playerColor: PiecePlayerColor;
-  symbol: PieceSymbol;
-  name: PieceName;
-  pictureUrl: string;
-};
+import { PieceSymbol, boardCellLetterNotation, boardCellNotation, boardCellsType} from './chessTypes'
 
 @Injectable({
   providedIn: 'root'

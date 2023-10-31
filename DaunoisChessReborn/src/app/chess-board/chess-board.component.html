@@ -1,8 +1,14 @@
 <div class="board">
     <div class="wrapper">
         <ng-container *ngFor="let chessBoardCell of chessBoardCellsContents; let index = index">
-            <div *ngIf="chessBoardCell.pieceSymbol !== 'no piece'; else noPieceBlock" id="{{chessBoardCellsKeys[index]}}" [attr.attacked]="chessBoardCell.pointed? '' : null" [ngStyle]="{'color': '#15226d', 'background-image': 'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'}" (click)="onCellClick(chessBoardCellsKeys[index])"></div>
-            <ng-template #noPieceBlock><div id="{{chessBoardCellsKeys[index]}}" [attr.pointed]="chessBoardCell.pointed? '' : null" (click)="onEmptyCellClick(chessBoardCellsKeys[index])"></div></ng-template>
+            <div *ngIf="chessBoardCell.pieceSymbol !== 'no piece' && isKingCellChecked(chessBoardCell); else noNestedCellBlock" class="nestedCell" id="{{chessBoardCellsKeys[index]}}">
+                <div class="checked"></div>
+                <div [ngStyle]="{'color': '#15226d', 'background-image': 'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'}" (click)="onCellClick(chessBoardCellsKeys[index])"></div>
+            </div>
+            <ng-template #noNestedCellBlock>
+                <div *ngIf="chessBoardCell.pieceSymbol !== 'no piece'; else noPieceBlock" id="{{chessBoardCellsKeys[index]}}" [attr.attacked]="chessBoardCell.pointed? '' : null" [ngStyle]="{'color': '#15226d', 'background-image': 'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'}" (click)="onCellClick(chessBoardCellsKeys[index])"></div>
+                <ng-template #noPieceBlock><div id="{{chessBoardCellsKeys[index]}}" [attr.pointed]="chessBoardCell.pointed? '' : null" (click)="onEmptyCellClick(chessBoardCellsKeys[index])"></div></ng-template>
+            </ng-template>
         </ng-container>
     </div>
 </div>

@@ -6,17 +6,15 @@ export type boardCellNotation = `${boardCellLetterNotation}${boardCellDigitNotat
 
 export type boardCellsType = {[k :string]: {pieceSymbol: PieceSymbol | "no piece", pointed: boolean}};//TODO: change "no piece"
 
-export type PieceType =
-  | 'PAWN'
-  | 'PAWN'
-  | 'KNIGHT'
-  | 'BISHOP'
-  | 'ROOK'
-  | 'QUEEN'
-  | 'KING';
-
 export type PieceSymbol = 'p' | 'n' | 'b' | 'r' | 'q' | 'k'| 'P' | 'N' | 'B' | 'R' | 'Q' | 'K';
 
-export type PieceName = 'pawn' | 'knight' | 'bishop' | 'rook' | 'queen' | 'king';
+export type PlayerColor = 'w' | 'b';
 
-export type PiecePlayerColor = 'White' | 'black';
+export class DaunoisChessError extends Error {
+  constructor(msg: string) {
+      super(msg);
+
+      // Set the prototype explicitly.
+      Object.setPrototypeOf(this, DaunoisChessError.prototype);
+  }
+}

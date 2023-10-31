@@ -94,4 +94,8 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     this.pointedCells = this.boardService.getBoardEntries().filter((boardCell) => !!moves.find((move) => boardCell[0] === move.to)).map((boardCell) => boardCell[0])
     this.boardService.changeCellPointedState(this.pointedCells, true);
   }
+
+  isKingCellChecked(cell: {pieceSymbol: PieceSymbol | "no piece", pointed: boolean}): boolean {
+    return this.chessService.isKingCellChecked(cell);
+  }
 }
