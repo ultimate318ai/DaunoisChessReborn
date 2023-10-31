@@ -91,23 +91,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   private updatePointedBoardCells(moves: Move[]): void {
-
-
-    const pointedCells = moves.map((move) => this.boardService.getBoardEntries().find((boardCell) => boardCell[0] === move.to)
-    ).filter((pointedCell) => pointedCell !== undefined).reduce((pointedCells, pointedCell) =>  {  [...pointedCells, pointedCell?.[0]]
-    },
-      []
-    )
-    // this.boardService.changeCellPointedState(pointedCells, true);
-
-
-    moves.forEach((move) => {
-      const pointedCell = this.boardService.getBoardEntries().find((boardCell) => boardCell[0] === move.to);
-      if (pointedCell !== undefined){
-        this.boardService.changeCellPointedState([pointedCell[]])
-        this.boardCells[pointedCell[0]].pointed = !this.boardCells[pointedCell[0]].pointed;
-        this.pointedCells = [...this.pointedCells, pointedCell[0]];
-      }
-    })
+    this.pointedCells = this.boardService.getBoardEntries().filter((boardCell) => !!moves.find((move) => boardCell[0] === move.to)).map((boardCell) => boardCell[0])
+    this.boardService.changeCellPointedState(this.pointedCells, true);
   }
 }

@@ -62,7 +62,7 @@ export class BoardService {
     return Object.values(this.boardCells);
   }
   
-  public getBoardCellsKeys(): String[] {
+  public getBoardCellsKeys(): string[] {
     return Object.keys(this.boardCells);
   }
 
