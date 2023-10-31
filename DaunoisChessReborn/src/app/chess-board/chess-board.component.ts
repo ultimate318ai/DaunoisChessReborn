@@ -89,6 +89,12 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     return !!fromCellMoves.length && fromCellMoves.every((move) => this.chessService.moveInvolvesPromotion(move));
   }
 
+
+  get potentialsPromotionsPieces(): (PieceSymbol | undefined)[] {
+    const fromCellMoves = this.chessService.getMovesFromCell(this.selectedFromPieceCell as boardCellNotation);
+    return fromCellMoves.flatMap((move) => !!move ? [move.promotion] : [])//TODO: use this in the template !!!
+  }
+
   onEmptyCellClick(cellClick: string) {
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()){
       this.islastMovePromotion = true;
@@ -100,7 +106,6 @@ export class ChessBoardComponent implements OnInit, OnChanges {
         this.updateChessBoardLastMove(move);
       }
     }
-
     this.resetPointedCells();
     this.resetselectedPiece();
     this.updateChessBoard();
