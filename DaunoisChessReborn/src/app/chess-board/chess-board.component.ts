@@ -2,6 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/cor
 import { PieceSymbol, boardCellNotation, boardCellsType } from './services//chessTypes';
 import { BoardService } from './services/board.service';
 import { ChessService } from './services/chess.service';
+import { Move } from 'chess.ts';
 
 @Component({
   selector: 'app-chess-board',
@@ -16,7 +17,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   private pointedCells: string[] = [];
 
-  private selectedPieceCell: string = "";
+  private selectedFromPieceCell: string = "";
 
 
   constructor(private boardService: BoardService, private chessService: ChessService){}
@@ -54,7 +55,10 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       this.boardCells[oldPointedCellName].pointed = false;
     })
     this.pointedCells = [];
-    this.selectedPieceCell = "";
+  }
+
+  private resetselectedPiece (): void {
+    this.selectedFromPieceCell = "";
   }
 
   private updateChessBoard(): void {
@@ -62,34 +66,41 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     this.buildChessBoard();
   }
 
-
-
   onEmptyCellClick(cellClick: string) {
-    if (this.selectedPieceCell){
-      this.chessService.applyChessMove(this.selectedPieceCell, cellClick);
+    if (this.selectedFromPieceCell){
+      this.chessService.applyChessMove(this.selectedFromPieceCell, cellClick);
     }
     this.resetPointedCells();
+    this.resetselectedPiece();
     this.updateChessBoard();
   }
 
   onCellClick(cellClicked: string): void {
-    this.resetPointedCells();
     const moves = this.chessService.getMovesFromCell(cellClicked as boardCellNotation);
-    if (moves.length && this.selectedPieceCell){
-      this.chessService.applyChessMove(this.selectedPieceCell, cellClicked);
-      this.updateChessBoard();
-      return;
+    console.table(moves)
+    if (this.selectedFromPieceCell){
+      const move = this.chessService.applyChessMove(this.selectedFromPieceCell, cellClicked);
+      console.log(`move: ${move}`)
+      if (move !== null) {
+        this.updateChessBoard();
+      }
+      this.resetselectedPiece();
+      this.resetPointedCells();
     }
-    else if (moves.length) {
-      this.selectedPieceCell = moves[0].from;
+    if (moves.length && !this.selectedFromPieceCell) {
+      this.selectedFromPieceCell = moves[0].from;
     }
+    this.updatePointedBoardCells(moves);
+    console.log(this.selectedFromPieceCell)
+  }
+
+  private updatePointedBoardCells(moves: Move[]): void {
     moves.forEach((move) => {
       const pointedCell = Object.entries(this.boardCells).find((boardCell) => boardCell[0] === move.to);
       if (pointedCell !== undefined){
-        this.boardCells[pointedCell[0]].pointed = true;
+        this.boardCells[pointedCell[0]].pointed = !this.boardCells[pointedCell[0]].pointed;
         this.pointedCells = [...this.pointedCells, pointedCell[0]];
       }
     })
-    console.table(this.pointedCells);
   }
 }

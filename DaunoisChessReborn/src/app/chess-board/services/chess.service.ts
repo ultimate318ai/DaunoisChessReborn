@@ -19,15 +19,15 @@ export class ChessService {
   }
 
   public getMovesFromCell(cell: boardCellNotation): Move[] {
-    console.table(this.chess.moves({square: cell, verbose: true}))
     return this.chess.moves({square: cell, verbose: true});
   }
 
-  public applyChessMove(fromCell: string, toCell: string): void {
-    this.chess.move({from: fromCell, to: toCell})
+  public applyChessMove(fromCell: string, toCell: string): Move | null {
+    return this.chess.move({from: fromCell, to: toCell})
   }
 
   public getGameFen(): string {
     return this.chess.fen();
   }
+
 }
