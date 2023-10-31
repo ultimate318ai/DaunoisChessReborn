@@ -13,8 +13,6 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   @Input()
   public fen!: string;
 
-  private boardCells: boardCellsType = {};
-
   private pointedCells: string[] = [];
 
   private selectedFromPieceCell: string = "";
@@ -35,7 +33,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   buildChessBoard(): void {
-    this.boardCells = this.boardService.fromFenToCellsBoards(this.fen);
+    this.boardService.UpdateBoardCells(this.fen);
   }
 
   piecePictureUrl(pieceSymbol: PieceSymbol) {
@@ -43,17 +41,15 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   get chessBoardCellsContents() {
-    return Object.values(this.boardCells);
+    return this.boardService.getBoardCellsValues();
   }
 
   get chessBoardCellsKeys() {
-    return Object.keys(this.boardCells);
+    return this.boardService.getBoardCellsKeys();
   }
 
   private resetPointedCells (): void {
-    this.pointedCells.forEach((oldPointedCellName: string) => {
-      this.boardCells[oldPointedCellName].pointed = false;
-    })
+    this.boardService.changeCellPointedState(this.pointedCells, false);
     this.pointedCells = [];
   }
 
@@ -95,9 +91,20 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   private updatePointedBoardCells(moves: Move[]): void {
+
+
+    const pointedCells = moves.map((move) => this.boardService.getBoardEntries().find((boardCell) => boardCell[0] === move.to)
+    ).filter((pointedCell) => pointedCell !== undefined).reduce((pointedCells, pointedCell) =>  {  [...pointedCells, pointedCell?.[0]]
+    },
+      []
+    )
+    // this.boardService.changeCellPointedState(pointedCells, true);
+
+
     moves.forEach((move) => {
-      const pointedCell = Object.entries(this.boardCells).find((boardCell) => boardCell[0] === move.to);
+      const pointedCell = this.boardService.getBoardEntries().find((boardCell) => boardCell[0] === move.to);
       if (pointedCell !== undefined){
+        this.boardService.changeCellPointedState([pointedCell[]])
         this.boardCells[pointedCell[0]].pointed = !this.boardCells[pointedCell[0]].pointed;
         this.pointedCells = [...this.pointedCells, pointedCell[0]];
       }

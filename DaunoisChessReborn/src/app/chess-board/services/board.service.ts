@@ -14,10 +14,12 @@ export type Piece = {
 })
 export class BoardService {
 
+  private boardCells: boardCellsType = {};
+
   constructor() {
   }
 
-  public fromFenToCellsBoards(fen: string): boardCellsType {
+  public UpdateBoardCells(fen: string): void {
     /**
      * Put fen pieces into board cells.
      * Fen is like this : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -46,7 +48,7 @@ export class BoardService {
       }
       row++;
     }
-    return boardCells;
+    this.boardCells = boardCells;
   }
 
   private fromNumberToBoardCellLetter(index: number): boardCellLetterNotation {
@@ -55,6 +57,23 @@ export class BoardService {
 
   private fromBoardCellLetterToNumber(letter: boardCellLetterNotation): number {
     return letter.charCodeAt(0) - 97;
+  }
+  public getBoardCellsValues() : {pieceSymbol: PieceSymbol | "no piece", pointed: boolean}[] {
+    return Object.values(this.boardCells);
+  }
+  
+  public getBoardCellsKeys(): String[] {
+    return Object.keys(this.boardCells);
+  }
+
+  public getBoardEntries(): [string, {pieceSymbol: PieceSymbol | "no piece", pointed: boolean}][] {
+    return Object.entries(this.boardCells);
+  }
+
+  public changeCellPointedState(pointedCells: string[], state: boolean): void{
+    pointedCells.forEach((oldPointedCellName: string) => {
+      this.boardCells[oldPointedCellName].pointed = state;
+    })
   }
 
   getUrlFromPieceSymbol(pieceSymbol: PieceSymbol): string | undefined {
