@@ -24,6 +24,14 @@ div[pointed] {
     background: radial-gradient(ellipse at center, #bb00ff 0%,#bb00ff 20%,#bb00ff 20%,#23bc2b00 47%,#23bc2b00 48%);
 }
 
-div[attacked] {
-    background-color: black; //TODO: delete this fucking color -> red cross in the middle
+div[attacked]:after {
+    content: "\274c"; /* use the hex value here... */
+    font-size: 30px; 
+    color: #FFF;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    transform: translateY(+24%);
 }
