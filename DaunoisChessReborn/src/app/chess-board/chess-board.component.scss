@@ -55,3 +55,7 @@ div[attacked]:after {
     align-content: center;
     transform: translateY(+24%);
 }
+
+div[last-move] {
+    background-color: rgba(155,199,0,.41);
+}
