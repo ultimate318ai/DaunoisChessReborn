@@ -23,6 +23,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     piece: 'b',
     san: '',
   } // defaut wrong move for typing issue
+  private islastMovePromotion = false;
   
 
 
@@ -82,12 +83,24 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     return this.lastMove.to;
   }
 
+  
+  private potentialMoveEndsInPromotion(): boolean {
+    const fromCellMoves = this.chessService.getMovesFromCell(this.selectedFromPieceCell as boardCellNotation);
+    return !!fromCellMoves.length && fromCellMoves.every((move) => this.chessService.moveInvolvesPromotion(move));
+  }
+
   onEmptyCellClick(cellClick: string) {
+    if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()){
+      this.islastMovePromotion = true;
+      return;
+    }
     if (this.selectedFromPieceCell){
       const move = this.chessService.applyChessMove(this.selectedFromPieceCell, cellClick);
-      if (move)
-      this.updateChessBoardLastMove(move);
+      if (move){
+        this.updateChessBoardLastMove(move);
+      }
     }
+
     this.resetPointedCells();
     this.resetselectedPiece();
     this.updateChessBoard();
@@ -95,7 +108,12 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   onCellClick(cellClicked: string): void {
     const moves = this.chessService.getMovesFromCell(cellClicked as boardCellNotation);
+
     console.table(moves)
+    if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()){
+      this.islastMovePromotion = true;
+      return;
+    }
     if (this.selectedFromPieceCell){
       const move = this.chessService.applyChessMove(this.selectedFromPieceCell, cellClicked);
       console.log(`move: ${move}`)
@@ -120,5 +138,9 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   isKingCellChecked(cell: {pieceSymbol: PieceSymbol | "no piece", pointed: boolean}): boolean {
     return this.chessService.isKingCellChecked(cell);
+  }
+
+  get openPromotionChoices() {
+    return this.islastMovePromotion;
   }
 }

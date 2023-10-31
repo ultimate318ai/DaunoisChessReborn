@@ -53,4 +53,8 @@ export class ChessService {
     return this.chess.inCheck() && (cell.pieceSymbol === 'k' && this.blackToPlay() || cell.pieceSymbol === 'K' && this.whiteToPlay())
   }
 
+  public moveInvolvesPromotion(move: Move): boolean {
+    return this.chess.isPromotion(move);
+  }
+
 }
