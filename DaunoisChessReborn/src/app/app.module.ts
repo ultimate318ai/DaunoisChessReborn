@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChessBoardComponent } from './chess-board/chess-board.component';
 import { PieceComponent } from './piece/piece.component';
+import { ChessService } from './chess-board/services/chess.service';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,7 @@ import { PieceComponent } from './piece/piece.component';
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [ChessService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

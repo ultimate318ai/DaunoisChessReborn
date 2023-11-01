@@ -5,3 +5,85 @@
     margin: 10px;
     border: 10px solid saddlebrown;
 }
+
+.wrapper {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
+    grid-template-columns: repeat(8, 1fr);
+    z-index: 0;
+}
+
+.nestedCell {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    position: relative;
+}
+.nestedCell > .checked {
+    background: radial-gradient(ellipse at center, rgb(255, 0, 0) 0%, rgb(231, 0, 0) 25%, rgba(169, 0, 0, 0) 89%, rgba(158, 0, 0, 0) 100%);
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+.nestedCell > div:not(.checked) {
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: 2;
+}
+
+.wrapper > div:not(.checked) {
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: 1;
+}
+
+div[pointed] {
+    background: radial-gradient(ellipse at center, #bb00ff 0%,#bb00ff 20%,#bb00ff 20%,#23bc2b00 47%,#23bc2b00 48%);
+}
+
+div[attacked]:after {
+    content: "\274c"; /* cross hex value */
+    font-size: 30px; 
+    color: #FFF;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    transform: translateY(+24%);
+}
+
+div[last-move] {
+    background-color: rgba(155,199,0,.41);
+}
+
+#promotion-choice {
+    background: rgba(22,21,18,.7);
+    z-index: 205;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    // top: 0px; 
+    // bottom: 0px;
+    // left: 0px;
+    // right: 0px;
+}
+
+#promotion-choice > div {
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: #b0b0b0;
+  box-shadow: inset 0 0 25px 3px gray;
+  pointer-events: all;
+  transition: all 150ms;
+
+  position: absolute;
+  width: 12.5%;
+  height: 12.5%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
