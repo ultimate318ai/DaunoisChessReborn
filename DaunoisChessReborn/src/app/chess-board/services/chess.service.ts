@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Chess, Move } from 'chess.ts';
-import { DaunoisChessError,PieceSymbol,  PlayerColor, boardCellNotation } from './chessTypes';
+import {
+  DaunoisChessError,
+  PieceSymbol,
+  PlayerColor,
+  boardCellNotation,
+} from './chessTypes';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChessService {
-
   private chess: Chess;
 
   constructor() {
@@ -14,19 +18,31 @@ export class ChessService {
   }
 
   public restartChessGame(fen: string) {
-    this.chess.clear()
+    this.chess.clear();
     this.chess = new Chess(fen);
   }
 
   public getMovesFromCell(cellNotation: boardCellNotation): Move[] {
-    return this.chess.moves({square: cellNotation, verbose: true});
+    return this.chess.moves({ square: cellNotation, verbose: true });
   }
 
-  public applyChessMove(fromCellNotation: string, toCellNotation: string, promotion?: PieceSymbol): Move | null {
-    console.log("kdsfdkfdsdsksjdfb")
-    console.log(promotion)
-    if (promotion) return this.chess.move({from: fromCellNotation, to: toCellNotation, promotion: promotion.toLowerCase() as any}, {sloppy: true})
-    return this.chess.move({from: fromCellNotation, to: toCellNotation})
+  public applyChessMove(
+    fromCellNotation: string,
+    toCellNotation: string,
+    promotion?: PieceSymbol
+  ): Move | null {
+    console.log('kdsfdkfdsdsksjdfb');
+    console.log(promotion);
+    if (promotion)
+      return this.chess.move(
+        {
+          from: fromCellNotation,
+          to: toCellNotation,
+          promotion: promotion.toLowerCase() as any,
+        },
+        { sloppy: true }
+      );
+    return this.chess.move({ from: fromCellNotation, to: toCellNotation });
   }
 
   public getGameFen(): string {
@@ -34,8 +50,8 @@ export class ChessService {
   }
 
   private playerTurn(): PlayerColor {
-    const player = this.chess.fen().split(" ")[1];
-    switch(player){
+    const player = this.chess.fen().split(' ')[1];
+    switch (player) {
       case 'w':
       case 'b':
         return player;
@@ -52,12 +68,18 @@ export class ChessService {
     return this.playerTurn() === 'w';
   }
 
-  public isKingCellChecked(cell: {pieceSymbol: PieceSymbol | "no piece", pointed: boolean}): boolean {
-    return this.chess.inCheck() && (cell.pieceSymbol === 'k' && this.blackToPlay() || cell.pieceSymbol === 'K' && this.whiteToPlay())
+  public isKingCellChecked(cell: {
+    pieceSymbol: PieceSymbol | 'no piece';
+    pointed: boolean;
+  }): boolean {
+    return (
+      this.chess.inCheck() &&
+      ((cell.pieceSymbol === 'k' && this.blackToPlay()) ||
+        (cell.pieceSymbol === 'K' && this.whiteToPlay()))
+    );
   }
 
   public moveInvolvesPromotion(move: Move): boolean {
     return this.chess.isPromotion(move);
   }
-
 }
