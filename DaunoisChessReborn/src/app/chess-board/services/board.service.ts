@@ -20,7 +20,6 @@ export class BoardService {
      * Fen is like this : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
      * //TODO: parse fen and check
      */
-    console.table(fen);
     const boardCells: boardCellsType = {};
     const boardPartFen = fen.split(' ')[0];
     let row = 0;
@@ -31,7 +30,7 @@ export class BoardService {
       for (let fenRowItem of fenRow) {
         if (!isNaN(parseFloat(fenRowItem))) {
           for (let index = 0; index < +fenRowItem; index++) {
-            cellName = `${this.fromCoodinatesToBoardCellNotation([
+            cellName = `${this.fromCoordinatesToBoardCellNotation([
               column + index,
               8 - row,
             ])}` as boardCellNotation;
@@ -40,7 +39,7 @@ export class BoardService {
           column += +fenRowItem;
           continue;
         }
-        cellName = `${this.fromCoodinatesToBoardCellNotation([
+        cellName = `${this.fromCoordinatesToBoardCellNotation([
           column,
           8 - row,
         ])}` as boardCellNotation;
@@ -55,7 +54,7 @@ export class BoardService {
     this.boardCells = boardCells;
   }
 
-  public fromCoodinatesToBoardCellNotation(
+  public fromCoordinatesToBoardCellNotation(
     coordinates: [number, number]
   ): boardCellNotation {
     return String.fromCharCode(97 + coordinates[0]).concat(

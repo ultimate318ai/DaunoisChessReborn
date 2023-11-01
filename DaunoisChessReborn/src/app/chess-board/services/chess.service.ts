@@ -31,8 +31,6 @@ export class ChessService {
     toCellNotation: string,
     promotion?: PieceSymbol
   ): Move | null {
-    console.log('kdsfdkfdsdsksjdfb');
-    console.log(promotion);
     if (promotion)
       return this.chess.move(
         {

@@ -32,11 +32,11 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     flags: '',
     piece: 'b',
     san: '',
-  }; // defaut wrong move for typing issue
+  }; // default wrong move for typing issue
 
   // promotions
 
-  private islastMovePromotion = false;
+  private isLastMovePromotion = false;
   private promotionCellName: string = '';
 
   constructor(
@@ -50,7 +50,6 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     const fenChanged = changes['fen'];
-    console.log('bllblblblb');
     if (fenChanged) this.buildChessBoard();
   }
 
@@ -79,7 +78,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     this.pointedCells = [];
   }
 
-  private resetselectedPiece(): void {
+  private resetSelectedPiece(): void {
     this.selectedFromPieceCell = '';
   }
 
@@ -128,7 +127,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       this.boardService.fromBoardCellLetterNotationToCoordinates(
         this.promotionCellName as boardCellNotation
       );
-    return this.boardService.fromCoodinatesToBoardCellNotation([
+    return this.boardService.fromCoordinatesToBoardCellNotation([
       promotionCellCoordinates[0],
       this.chessService.whiteToPlay()
         ? promotionCellCoordinates[1] - index
@@ -138,9 +137,8 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   onEmptyCellClick(cellClick: string) {
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
-      this.islastMovePromotion = true;
+      this.isLastMovePromotion = true;
       this.promotionCellName = cellClick;
-      console.log('promotion');
       return;
     }
     if (this.selectedFromPieceCell) {
@@ -153,7 +151,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       }
     }
     this.resetPointedCells();
-    this.resetselectedPiece();
+    this.resetSelectedPiece();
     this.updateChessBoard();
   }
 
@@ -162,11 +160,9 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       cellClicked as boardCellNotation
     );
 
-    console.table(moves);
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
-      this.islastMovePromotion = true;
+      this.isLastMovePromotion = true;
       this.promotionCellName = cellClicked;
-      console.log('promotion');
       return;
     }
     if (this.selectedFromPieceCell) {
@@ -174,19 +170,17 @@ export class ChessBoardComponent implements OnInit, OnChanges {
         this.selectedFromPieceCell,
         cellClicked
       );
-      console.log(`move: ${move}`);
       if (move !== null) {
         this.updateChessBoard();
         this.updateChessBoardLastMove(move);
       }
-      this.resetselectedPiece();
+      this.resetSelectedPiece();
       this.resetPointedCells();
     }
     if (moves.length && !this.selectedFromPieceCell) {
       this.selectedFromPieceCell = moves[0].from;
     }
     this.updatePointedBoardCells(moves);
-    console.log(this.selectedFromPieceCell);
   }
 
   onPromotionPieceClick(
@@ -195,17 +189,16 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   ): void {
     const promotionMove = this.chessService.applyChessMove(
       this.selectedFromPieceCell,
-      cellClicked,
+      this.promotionCellName,
       promotionPiece
     );
-    console.log(promotionMove);
     if (promotionMove) {
       this.updateChessBoard();
       this.updateChessBoardLastMove(promotionMove);
-      this.islastMovePromotion = false;
-      this.promotionCellName = '';
     }
-    this.resetselectedPiece();
+    this.isLastMovePromotion = false;
+    this.promotionCellName = '';
+    this.resetSelectedPiece();
     this.resetPointedCells();
   }
 
@@ -225,6 +218,6 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   get openPromotionChoices() {
-    return this.islastMovePromotion;
+    return this.isLastMovePromotion;
   }
 }
