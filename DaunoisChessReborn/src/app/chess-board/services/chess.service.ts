@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Chess, Move } from 'chess.ts';
-import { DaunoisChessError, PieceSymbol, PlayerColor, boardCellNotation } from './chessTypes';
+import { DaunoisChessError,PieceSymbol,  PlayerColor, boardCellNotation } from './chessTypes';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,10 @@ export class ChessService {
     return this.chess.moves({square: cellNotation, verbose: true});
   }
 
-  public applyChessMove(fromCellNotation: string, toCellNotation: string): Move | null {
+  public applyChessMove(fromCellNotation: string, toCellNotation: string, promotion?: PieceSymbol): Move | null {
+    console.log("kdsfdkfdsdsksjdfb")
+    console.log(promotion)
+    if (promotion) return this.chess.move({from: fromCellNotation, to: toCellNotation, promotion: promotion.toLowerCase() as any}, {sloppy: true})
     return this.chess.move({from: fromCellNotation, to: toCellNotation})
   }
 

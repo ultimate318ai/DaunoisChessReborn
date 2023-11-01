@@ -112,6 +112,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()){
       this.islastMovePromotion = true;
       this.promotionCellName = cellClick;
+      console.log("promotion")
       return;
     }
     if (this.selectedFromPieceCell){
@@ -132,6 +133,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()){
       this.islastMovePromotion = true;
       this.promotionCellName = cellClicked;
+      console.log("promotion")
       return;
     }
     if (this.selectedFromPieceCell){
@@ -149,6 +151,19 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     }
     this.updatePointedBoardCells(moves);
     console.log(this.selectedFromPieceCell)
+  }
+
+  onPromotionPieceClick(cellClicked: string, promotionPiece: PieceSymbol): void {
+    const promotionMove = this.chessService.applyChessMove(this.selectedFromPieceCell, cellClicked, promotionPiece);
+    console.log(promotionMove)
+    if (promotionMove){
+      this.updateChessBoard();
+      this.updateChessBoardLastMove(promotionMove);
+      this.islastMovePromotion = false;
+      this.promotionCellName = "";
+    }
+    this.resetselectedPiece();
+    this.resetPointedCells();
   }
 
   private updatePointedBoardCells(moves: Move[]): void {

@@ -2,7 +2,7 @@
     <div class="wrapper">
         <div *ngIf="openPromotionChoices" id="promotion-choice">
             <ng-container *ngFor="let promotionPiece of potentialsPromotionsPieces; let index = index">
-                <div [id]="promotionSquarePositionFromIndex(index)" [ngStyle]="{'background-image': 'url(' + piecePictureUrl(promotionPiece) + ')', left: ''+12.5*(promotionSquarePositionFromIndex(index)[0].charCodeAt(0) - 97)+'%', bottom: ''+12.5*(+promotionSquarePositionFromIndex(index)[1]-1)+'%'}"></div>
+                <div [id]="promotionSquarePositionFromIndex(index)" [ngStyle]="{'background-image': 'url(' + piecePictureUrl(promotionPiece) + ')', left: ''+12.5*(promotionSquarePositionFromIndex(index)[0].charCodeAt(0) - 97)+'%', bottom: ''+12.5*(+promotionSquarePositionFromIndex(index)[1]-1)+'%'}" (click)="onPromotionPieceClick(promotionSquarePositionFromIndex(index), promotionPiece)"></div>
             </ng-container>
         </div>
         <ng-container *ngFor="let chessBoardCell of chessBoardCellsContents; let index = index">
