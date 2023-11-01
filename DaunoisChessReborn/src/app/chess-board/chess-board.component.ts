@@ -23,7 +23,12 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     piece: 'b',
     san: '',
   } // defaut wrong move for typing issue
+
+
+  // promotions
+
   private islastMovePromotion = false;
+  private promotionCellName: string  = "";
   
 
 
@@ -55,6 +60,10 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   get chessBoardCellsKeys() {
     return this.boardService.getBoardCellsKeys();
+  }
+
+  get chessBoardPromotionSquare() {
+    return this.promotionCellName;
   }
 
   private resetPointedCells (): void {
@@ -89,15 +98,20 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     return !!fromCellMoves.length && fromCellMoves.every((move) => this.chessService.moveInvolvesPromotion(move));
   }
 
-
-  get potentialsPromotionsPieces(): (PieceSymbol | undefined)[] {
+  get potentialsPromotionsPieces(): Set<PieceSymbol> {
     const fromCellMoves = this.chessService.getMovesFromCell(this.selectedFromPieceCell as boardCellNotation);
-    return fromCellMoves.flatMap((move) => !!move ? [move.promotion] : [])//TODO: use this in the template !!!
+    return new Set(fromCellMoves.flatMap((move) => !!move.promotion ? [move.promotion] : []))
+  }
+
+  promotionSquarePositionFromIndex(index: number) : boardCellNotation{
+    const promotionCellCoordinates = this.boardService.fromBoardCellLetterNotationToCoordinates(this.promotionCellName as boardCellNotation);
+    return this.boardService.fromCoodinatesToBoardCellNotation([promotionCellCoordinates[0], this.chessService.whiteToPlay() ? promotionCellCoordinates[1] - index : promotionCellCoordinates[1] + index])
   }
 
   onEmptyCellClick(cellClick: string) {
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()){
       this.islastMovePromotion = true;
+      this.promotionCellName = cellClick;
       return;
     }
     if (this.selectedFromPieceCell){
@@ -117,6 +131,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     console.table(moves)
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()){
       this.islastMovePromotion = true;
+      this.promotionCellName = cellClicked;
       return;
     }
     if (this.selectedFromPieceCell){

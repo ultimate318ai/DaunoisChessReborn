@@ -1,6 +1,10 @@
 <div class="board">
     <div class="wrapper">
-        <div *ngIf="openPromotionChoices" id="promotion-choice"></div>
+        <div *ngIf="openPromotionChoices" id="promotion-choice">
+            <ng-container *ngFor="let promotionPiece of potentialsPromotionsPieces; let index = index">
+                <div [id]="promotionSquarePositionFromIndex(index)">{{promotionPiece}}</div>
+            </ng-container>
+        </div>
         <ng-container *ngFor="let chessBoardCell of chessBoardCellsContents; let index = index">
             <div *ngIf="chessBoardCell.pieceSymbol !== 'no piece' && isKingCellChecked(chessBoardCell); else noNestedCellBlock" class="nestedCell" id="{{chessBoardCellsKeys[index]}}">
                 <div class="checked"></div>

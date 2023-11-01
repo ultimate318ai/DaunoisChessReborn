@@ -28,13 +28,13 @@ export class BoardService {
       for (let fenRowItem of fenRow){
         if (!isNaN(parseFloat(fenRowItem))){
           for (let index = 0; index < +fenRowItem; index++){
-            cellName = `${this.fromNumberToBoardCellLetter(column + index)}${8 - row}` as boardCellNotation
+            cellName = `${this.fromCoodinatesToBoardCellNotation([column + index, 8 - row])}` as boardCellNotation
             boardCells[cellName] = {pieceSymbol: "no piece", pointed: false};
           }
           column += +fenRowItem;
           continue;
         }
-        cellName = `${this.fromNumberToBoardCellLetter(column)}${8 - row}` as boardCellNotation
+        cellName = `${this.fromCoodinatesToBoardCellNotation([column, 8 - row])}` as boardCellNotation
         boardCells[cellName] = {pieceSymbol: fenRowItem as PieceSymbol,  pointed: false};
         column++;
       }
@@ -43,13 +43,14 @@ export class BoardService {
     this.boardCells = boardCells;
   }
 
-  private fromNumberToBoardCellLetter(index: number): boardCellLetterNotation {
-    return String.fromCharCode(97 + index) as boardCellLetterNotation;
+  public fromCoodinatesToBoardCellNotation(coordinates: [number, number]): boardCellNotation {
+    return String.fromCharCode(97 + coordinates[0]).concat("" + coordinates[1]) as boardCellNotation;
   }
 
-  private fromBoardCellLetterToNumber(letter: boardCellLetterNotation): number {
-    return letter.charCodeAt(0) - 97;
+  public fromBoardCellLetterNotationToCoordinates(cellNotation: boardCellNotation): [number, number] {
+    return [cellNotation[0].charCodeAt(0) - 97, +cellNotation[1]];
   }
+
   public getBoardCellsValues() : {pieceSymbol: PieceSymbol | "no piece", pointed: boolean}[] {
     return Object.values(this.boardCells);
   }
