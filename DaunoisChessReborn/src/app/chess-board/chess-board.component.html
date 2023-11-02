@@ -22,12 +22,7 @@
               12.5 * (+promotionSquarePositionFromIndex(index)[1] - 1) +
               '%'
           }"
-          (click)="
-            onPromotionPieceClick(
-              promotionSquarePositionFromIndex(index),
-              promotionPiece
-            )
-          "
+          (click)="onPromotionPieceClick(promotionPiece)"
         ></div>
       </ng-container>
     </div>
@@ -50,6 +45,8 @@
               'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
           }"
           (click)="onCellClick(chessBoardCellsKeys[index])"
+          cdkDragBoundary=".wrapper"
+          cdkDrag
         ></div>
       </div>
       <ng-template #noNestedCellBlock>
@@ -67,7 +64,11 @@
             'background-image':
               'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
           }"
+          cdkDragBoundary=".wrapper"
+          cdkDrag
           (click)="onCellClick(chessBoardCellsKeys[index])"
+          (cdkDragStarted)="onPieceDrag($event)"
+          (cdkDragEnded)="onPieceDrop($event)"
         ></div>
         <ng-template #noPieceBlock
           ><div

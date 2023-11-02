@@ -6,10 +6,11 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import {
-  PieceSymbol,
-  boardCellNotation,
-  boardCellsType,
-} from './services//chessTypes';
+  CdkDragEnd,
+  CdkDragStart,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { PieceSymbol, boardCellNotation } from './services//chessTypes';
 import { BoardService } from './services/board.service';
 import { ChessService } from './services/chess.service';
 import { Move } from 'chess.ts';
@@ -69,6 +70,10 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     return this.boardService.getBoardCellsKeys();
   }
 
+  get chessBoardCells() {
+    return this.boardService.getBoardEntries();
+  }
+
   get chessBoardPromotionSquare() {
     return this.promotionCellName;
   }
@@ -99,6 +104,21 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     return this.lastMove.to;
   }
 
+  get potentialsPromotionsPieces(): Set<PieceSymbol> {
+    const fromCellMoves = this.chessService.getMovesFromCell(
+      this.selectedFromPieceCell as boardCellNotation
+    );
+    return new Set(
+      fromCellMoves.flatMap((move) =>
+        !!move.promotion ? [move.promotion] : []
+      )
+    );
+  }
+
+  get openPromotionChoices() {
+    return this.isLastMovePromotion;
+  }
+
   private potentialMoveEndsInPromotion(): boolean {
     const fromCellMoves = this.chessService.getMovesFromCell(
       this.selectedFromPieceCell as boardCellNotation
@@ -107,17 +127,6 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       !!fromCellMoves.length &&
       fromCellMoves.every((move) =>
         this.chessService.moveInvolvesPromotion(move)
-      )
-    );
-  }
-
-  get potentialsPromotionsPieces(): Set<PieceSymbol> {
-    const fromCellMoves = this.chessService.getMovesFromCell(
-      this.selectedFromPieceCell as boardCellNotation
-    );
-    return new Set(
-      fromCellMoves.flatMap((move) =>
-        !!move.promotion ? [move.promotion] : []
       )
     );
   }
@@ -133,6 +142,31 @@ export class ChessBoardComponent implements OnInit, OnChanges {
         ? promotionCellCoordinates[1] - index
         : promotionCellCoordinates[1] + index,
     ]);
+  }
+
+  private updatePointedBoardCells(moves: Move[]): void {
+    this.pointedCells = this.boardService
+      .getBoardEntries()
+      .filter((boardCell) => !!moves.find((move) => boardCell[0] === move.to))
+      .map((boardCell) => boardCell[0]);
+    this.boardService.changeCellPointedState(this.pointedCells, true);
+  }
+
+  isKingCellChecked(cellName: {
+    pieceSymbol: PieceSymbol | 'no piece';
+    pointed: boolean;
+  }): boolean {
+    return this.chessService.isKingCellChecked(cellName);
+  }
+
+  isCellOccupied(cellName: string): boolean {
+    return (
+      this.chessBoardCells.find(
+        (chessBoardCell) =>
+          chessBoardCell[0] === cellName &&
+          chessBoardCell[1].pieceSymbol !== 'no piece'
+      ) !== undefined
+    );
   }
 
   onEmptyCellClick(cellClick: string) {
@@ -183,10 +217,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     this.updatePointedBoardCells(moves);
   }
 
-  onPromotionPieceClick(
-    cellClicked: string,
-    promotionPiece: PieceSymbol
-  ): void {
+  onPromotionPieceClick(promotionPiece: PieceSymbol): void {
     const promotionMove = this.chessService.applyChessMove(
       this.selectedFromPieceCell,
       this.promotionCellName,
@@ -202,22 +233,39 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     this.resetPointedCells();
   }
 
-  private updatePointedBoardCells(moves: Move[]): void {
-    this.pointedCells = this.boardService
-      .getBoardEntries()
-      .filter((boardCell) => !!moves.find((move) => boardCell[0] === move.to))
-      .map((boardCell) => boardCell[0]);
-    this.boardService.changeCellPointedState(this.pointedCells, true);
+  onPieceDrag(event: CdkDragStart<any>) {
+    const cellClicked = event.source.element.nativeElement.id;
+    this.onCellClick(cellClicked);
   }
 
-  isKingCellChecked(cell: {
-    pieceSymbol: PieceSymbol | 'no piece';
-    pointed: boolean;
-  }): boolean {
-    return this.chessService.isKingCellChecked(cell);
-  }
+  onPieceDrop(event: CdkDragEnd<any>) {
+    console.group('drop event');
+    console.table(event.dropPoint);
 
-  get openPromotionChoices() {
-    return this.isLastMovePromotion;
+    const { x, y } = event.dropPoint;
+
+    const boardRow = Math.max(
+      Math.round(Math.min(Math.max(x, 0), 480) / 60),
+      1
+    ); //TODO: height and with resizable in variable with multiple of 60 (ie 480)
+    const boardColumn = Math.max(
+      Math.round(8 - Math.min(Math.max(y, 0), 480) / 60),
+      1
+    );
+    console.log(boardRow);
+    console.log(boardColumn);
+
+    const boardCell = this.boardService.fromCoordinatesToBoardCellNotation([
+      boardRow - 1,
+      boardColumn,
+    ]);
+    console.log(boardCell);
+
+    if (this.isCellOccupied(boardCell)) {
+      this.onCellClick(boardCell);
+      return;
+    }
+    this.onEmptyCellClick(boardCell);
+    console.groupEnd();
   }
 }
