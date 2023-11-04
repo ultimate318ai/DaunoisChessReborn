@@ -235,37 +235,39 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   onPieceDrag(event: CdkDragStart<any>) {
     const cellClicked = event.source.element.nativeElement.id;
-    this.onCellClick(cellClicked);
+    const moves = this.chessService.getMovesFromCell(
+      cellClicked as boardCellNotation
+    );
+    if (moves.length) {
+      this.resetPointedCells();
+      this.selectedFromPieceCell = cellClicked;
+    }
+    this.updatePointedBoardCells(moves);
   }
 
   onPieceDrop(event: CdkDragEnd<any>) {
-    console.group('drop event');
-    console.table(event.dropPoint);
-
     const { x, y } = event.dropPoint;
 
-    const boardRow = Math.max(
-      Math.round(Math.min(Math.max(x, 0), 480) / 60),
-      1
-    ); //TODO: height and with resizable in variable with multiple of 60 (ie 480)
-    const boardColumn = Math.max(
-      Math.round(8 - Math.min(Math.max(y, 0), 480) / 60),
-      1
-    );
+    console.log(x);
+    console.log(y);
+
+    const boardRow = Math.min(Math.max(Math.floor(x / 60), 0), 7); //TODO: height and with resizable in variable with multiple of 60 (ie 480)
+    const boardColumn = 8 - Math.min(Math.max(Math.floor(y / 60), 0), 7);
     console.log(boardRow);
     console.log(boardColumn);
 
     const boardCell = this.boardService.fromCoordinatesToBoardCellNotation([
-      boardRow - 1,
+      boardRow,
       boardColumn,
     ]);
     console.log(boardCell);
 
     if (this.isCellOccupied(boardCell)) {
       this.onCellClick(boardCell);
+      this.updateChessBoard();
       return;
     }
     this.onEmptyCellClick(boardCell);
-    console.groupEnd();
+    this.updateChessBoard();
   }
 }
