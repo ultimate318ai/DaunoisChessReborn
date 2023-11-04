@@ -248,19 +248,13 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   onPieceDrop(event: CdkDragEnd<any>) {
     const { x, y } = event.dropPoint;
 
-    console.log(x);
-    console.log(y);
-
     const boardRow = Math.min(Math.max(Math.floor(x / 60), 0), 7); //TODO: height and with resizable in variable with multiple of 60 (ie 480)
     const boardColumn = 8 - Math.min(Math.max(Math.floor(y / 60), 0), 7);
-    console.log(boardRow);
-    console.log(boardColumn);
 
     const boardCell = this.boardService.fromCoordinatesToBoardCellNotation([
       boardRow,
       boardColumn,
     ]);
-    console.log(boardCell);
 
     if (this.isCellOccupied(boardCell)) {
       this.onCellClick(boardCell);

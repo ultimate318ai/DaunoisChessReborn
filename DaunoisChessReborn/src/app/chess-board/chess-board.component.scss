@@ -40,8 +40,10 @@
   background-size: cover;
   z-index: 2;
 }
-
-.wrapper > div:not(.checked) {
+.wrapper > div > span:not(.checked) {
+  display: inline flow-root;
+  width: 100%;
+  height: 100%;
   background-repeat: no-repeat;
   background-size: cover;
   z-index: 1;
@@ -67,7 +69,7 @@ div[attacked]:after {
   justify-content: center;
   align-items: center;
   align-content: center;
-  transform: translateY(+88%);
+  transform: translateY(-224%);
 }
 
 div[last-move] {

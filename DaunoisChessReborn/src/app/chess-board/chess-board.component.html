@@ -36,7 +36,7 @@
           else noNestedCellBlock
         "
         class="nestedCell"
-        id="{{ chessBoardCellsKeys[index] }}"
+        [id]="chessBoardCellsKeys[index]"
       >
         <div class="checked"></div>
         <div
@@ -45,6 +45,8 @@
               'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
           }"
           (click)="onCellClick(chessBoardCellsKeys[index])"
+          (cdkDragStarted)="onPieceDrag($event)"
+          (cdkDragEnded)="onPieceDrop($event)"
           cdkDragBoundary=".wrapper"
           cdkDrag
         ></div>
@@ -52,7 +54,7 @@
       <ng-template #noNestedCellBlock>
         <div
           *ngIf="chessBoardCell.pieceSymbol !== 'no piece'; else noPieceBlock"
-          id="{{ chessBoardCellsKeys[index] }}"
+          [id]="chessBoardCellsKeys[index]"
           [attr.last-move]="
             boardLastMoveFrom === chessBoardCellsKeys[index] ||
             boardLastMoveTo === chessBoardCellsKeys[index]
@@ -60,19 +62,23 @@
               : null
           "
           [attr.attacked]="chessBoardCell.pointed ? '' : null"
-          [ngStyle]="{
-            'background-image':
-              'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
-          }"
-          cdkDragBoundary=".wrapper"
-          cdkDrag
           (click)="onCellClick(chessBoardCellsKeys[index])"
-          (cdkDragStarted)="onPieceDrag($event)"
-          (cdkDragEnded)="onPieceDrop($event)"
-        ></div>
+        >
+          <span
+            [id]="chessBoardCellsKeys[index]"
+            [ngStyle]="{
+              'background-image':
+                'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
+            }"
+            cdkDragBoundary=".wrapper"
+            cdkDrag
+            (cdkDragStarted)="onPieceDrag($event)"
+            (cdkDragEnded)="onPieceDrop($event)"
+          ></span>
+        </div>
         <ng-template #noPieceBlock
           ><div
-            id="{{ chessBoardCellsKeys[index] }}"
+            [id]="chessBoardCellsKeys[index]"
             [attr.last-move]="
               boardLastMoveFrom === chessBoardCellsKeys[index] ||
               boardLastMoveTo === chessBoardCellsKeys[index]
