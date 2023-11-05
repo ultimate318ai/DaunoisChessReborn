@@ -102,3 +102,24 @@ div[last-move] {
   background-repeat: no-repeat;
   background-size: cover;
 }
+
+#primaryCanvas {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  opacity: 0.8;
+  padding: 2px;
+  width: 480px;
+  height: 480px;
+  z-index: -2;
+}
+#drawingCanvas {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  opacity: 0.8;
+  padding: 2px;
+  width: 480px;
+  height: 480px;
+  z-index: -3;
+}

@@ -1,5 +1,7 @@
 <div class="board">
   <div class="wrapper">
+    <canvas id="primaryCanvas" width="480" height="480"></canvas>
+    <canvas id="drawingCanvas" width="480" height="480"></canvas>
     <div *ngIf="openPromotionChoices" id="promotion-choice">
       <ng-container
         *ngFor="

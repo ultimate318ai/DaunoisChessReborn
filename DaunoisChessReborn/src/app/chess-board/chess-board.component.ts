@@ -4,15 +4,13 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
+  HostListener,
 } from '@angular/core';
-import {
-  CdkDragEnd,
-  CdkDragStart,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
+import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
 import { PieceSymbol, boardCellNotation } from './services//chessTypes';
 import { BoardService } from './services/board.service';
 import { ChessService } from './services/chess.service';
+import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
 import { Move } from 'chess.ts';
 
 @Component({
@@ -42,11 +40,13 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   constructor(
     private boardService: BoardService,
-    private chessService: ChessService
+    private chessService: ChessService,
+    private arrowService: ChessboardArrowService
   ) {}
 
   ngOnInit(): void {
     this.buildChessBoard();
+    this.arrowService.initializeCanvas();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -263,5 +263,42 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     }
     this.onEmptyCellClick(boardCell);
     this.updateChessBoard();
+  }
+
+  dispatchEventToChessBoard(event: any) {
+    //TODO: use this when I have understood event dispatch from canvas
+    event.stopPropagation();
+    console.log('high', event);
+    const cusEvent = new MouseEvent(event, {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+    // lowElmRef.dispatchEvent(cusEvent);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboard(event: KeyboardEvent) {
+    this.arrowService.manageKeyPressed(event);
+  }
+
+  @HostListener('document:mousedown', ['$event'])
+  handleMouseDown(event: MouseEvent) {
+    this.arrowService.drawBoardLightCircle(event);
+  }
+
+  @HostListener('document:mouseup', ['$event'])
+  handleMouseUp(event: MouseEvent) {
+    this.arrowService.drawBoardFullCircle(event);
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  handleMouseMove(event: MouseEvent) {
+    this.arrowService.drawingArrow(event);
+  }
+
+  @HostListener('document:contextmenu', ['$event'])
+  handleContextMenu(event: any) {
+    event.preventDefault();
   }
 }
