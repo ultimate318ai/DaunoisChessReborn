@@ -5,6 +5,7 @@ import {
   OnChanges,
   SimpleChanges,
   HostListener,
+  Output,
 } from '@angular/core';
 import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
 import { PieceSymbol, boardCellNotation } from './services//chessTypes';
@@ -21,6 +22,9 @@ import { Move } from 'chess.ts';
 export class ChessBoardComponent implements OnInit, OnChanges {
   @Input()
   public fen!: string;
+
+  @Output()
+  public moves: Array<Move> = new Array();
 
   private pointedCells: string[] = [];
   private selectedFromPieceCell: string = '';
@@ -181,6 +185,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
         cellClick
       );
       if (move) {
+        this.moves.push(move);
         this.updateChessBoardLastMove(move);
       }
     }
@@ -204,7 +209,8 @@ export class ChessBoardComponent implements OnInit, OnChanges {
         this.selectedFromPieceCell,
         cellClicked
       );
-      if (move !== null) {
+      if (move) {
+        this.moves.push(move);
         this.updateChessBoard();
         this.updateChessBoardLastMove(move);
       }
@@ -224,6 +230,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       promotionPiece
     );
     if (promotionMove) {
+      this.moves.push(promotionMove);
       this.updateChessBoard();
       this.updateChessBoardLastMove(promotionMove);
     }

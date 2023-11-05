@@ -123,3 +123,8 @@ div[last-move] {
   height: 480px;
   z-index: -3;
 }
+
+section > section {
+  height: 100%;
+  width: 50%;
+}

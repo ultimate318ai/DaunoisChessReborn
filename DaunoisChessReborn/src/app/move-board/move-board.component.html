@@ -1,0 +1,5 @@
+<div class="moves" *ngFor="let move of chessMoves">
+  <span [id]="move.san" [ngClass]="move === lastMove ? ['activeMove'] : null">{{
+    move.san
+  }}</span>
+</div>
