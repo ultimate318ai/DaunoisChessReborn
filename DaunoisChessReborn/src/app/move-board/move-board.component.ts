@@ -18,4 +18,8 @@ export class MoveBoardComponent {
     if (!this.moves.length) return undefined;
     return this.moves[this.moves.length - 1];
   }
+
+  moveBoardIndex(moveIndex: number): number {
+    return moveIndex / 2 + 1;
+  }
 }

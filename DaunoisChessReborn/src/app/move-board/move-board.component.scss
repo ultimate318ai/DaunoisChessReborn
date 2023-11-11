@@ -1,16 +1,27 @@
-div .moves {
+:host {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.move {
   flex: 2 1 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow-y: auto;
   overflow-x: hidden;
-  border-top: 1px solid #404040;
+  // border-top: 1px solid #404040;
   width: 100%;
   height: 100%;
 }
+.indexed > span {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
 
-span .activeMove {
+.activeMove {
   font-weight: bold;
   background: #2a4053;
   color: #ccc;
