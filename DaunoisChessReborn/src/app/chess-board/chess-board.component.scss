@@ -123,8 +123,19 @@ div[last-move] {
   height: 480px;
   z-index: -3;
 }
+section:first-of-type {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+}
 
 section > section {
   height: 100%;
   width: 50%;
+}
+
+app-move-board {
+  overflow: scroll;
+  width: 460px;
+  height: 460px;
 }
