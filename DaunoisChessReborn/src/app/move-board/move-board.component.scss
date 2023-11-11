@@ -5,23 +5,27 @@
 }
 
 .move {
-  flex: 2 1 0;
+  flex: 2 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: nowrap;
   justify-content: space-between;
   overflow-y: auto;
   overflow-x: hidden;
-  // border-top: 1px solid #404040;
   width: 100%;
   height: 100%;
 }
-.indexed > span {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
 
 .activeMove {
+  flex: 2 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
   font-weight: bold;
   background: #2a4053;
   color: #ccc;

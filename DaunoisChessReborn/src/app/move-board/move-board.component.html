@@ -1,10 +1,4 @@
 <div *ngFor="let move of chessMoves; let index = index">
-  <!-- <div id="moveIndex">
-        {{ moveBoardIndex(index) }}
-      </div> -->
-  <!-- <div [ngClass]="move === lastMove ? ['activeMove'] : ['move']">
-        <span [id]="move.san">{{ move.san }}</span>
-      </div> -->
   <div
     *ngIf="index % 2 === 0; else moveBlock"
     [ngClass]="
@@ -15,8 +9,10 @@
     <span [id]="move.san">{{ move.san }}</span>
   </div>
   <ng-template #moveBlock>
-    <div [ngClass]="move === lastMove ? ['activeMove'] : ['move']">
-      <span [id]="move.san">{{ move.san }}</span>
-    </div>
+    <span
+      [ngClass]="move === lastMove ? ['activeMove'] : ['move']"
+      [id]="move.san"
+      >{{ move.san }}</span
+    >
   </ng-template>
 </div>
