@@ -84,4 +84,14 @@ export class ChessService {
   public moveInvolvesPromotion(move: Move): boolean {
     return this.chess.isPromotion(move);
   }
+
+  public isGameFinished(): boolean {
+    return this.chess.gameOver();
+  }
+
+  public getEndGameStatus(): string {
+    if (this.whiteToPlay() && this.chess.inCheckmate()) return '0 - 1';
+    if (this.blackToPlay() && this.chess.inCheckmate()) return '1 - 0';
+    return '1/2 - 1/2';
+  }
 }
