@@ -26,6 +26,10 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   @Output()
   public moves: Array<Move> = new Array();
 
+  private displayedMoves: Array<Move> = new Array();
+
+  private stateValid: boolean = true;
+
   private pointedCells: string[] = [];
   private selectedFromPieceCell: string = '';
   private lastMove: Move = {
@@ -36,8 +40,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     piece: 'b',
     san: '',
   }; // default wrong move for typing issue
-
-  // promotions
+  private lastMoveIndex: number = -1;
 
   private isLastMovePromotion = false;
   private promotionCellName: string = '';
@@ -97,6 +100,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   private updateChessBoardLastMove(move: Move): void {
+    this.lastMoveIndex++;
     this.lastMove = move;
   }
 
@@ -174,6 +178,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   onEmptyCellClick(cellClick: string) {
+    if (!this.stateValid) return;
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
       this.isLastMovePromotion = true;
       this.promotionCellName = cellClick;
@@ -186,6 +191,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       );
       if (move) {
         this.moves.push(move);
+        this.displayedMoves.push(move);
         this.updateChessBoardLastMove(move);
       }
     }
@@ -195,6 +201,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   onCellClick(cellClicked: string): void {
+    if (!this.stateValid) return;
     const moves = this.chessService.getMovesFromCell(
       cellClicked as boardCellNotation
     );
@@ -211,6 +218,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       );
       if (move) {
         this.moves.push(move);
+        this.displayedMoves.push(move);
         this.updateChessBoard();
         this.updateChessBoardLastMove(move);
       }
@@ -224,6 +232,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   onPromotionPieceClick(promotionPiece: PieceSymbol): void {
+    if (!this.stateValid) return;
     const promotionMove = this.chessService.applyChessMove(
       this.selectedFromPieceCell,
       this.promotionCellName,
@@ -231,6 +240,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     );
     if (promotionMove) {
       this.moves.push(promotionMove);
+      this.displayedMoves.push(promotionMove);
       this.updateChessBoard();
       this.updateChessBoardLastMove(promotionMove);
     }
@@ -241,6 +251,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   onPieceDrag(event: CdkDragStart<any>) {
+    if (!this.stateValid) return;
     const cellClicked = event.source.element.nativeElement.id;
     const moves = this.chessService.getMovesFromCell(
       cellClicked as boardCellNotation
@@ -253,6 +264,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   onPieceDrop(event: CdkDragEnd<any>) {
+    if (!this.stateValid) return;
     const { x, y } = event.dropPoint;
 
     const boardRow = Math.min(Math.max(Math.floor(x / 60), 0), 7); //TODO: height and with resizable in variable with multiple of 60 (ie 480)
@@ -307,5 +319,29 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   @HostListener('document:contextmenu', ['$event'])
   handleContextMenu(event: any) {
     event.preventDefault();
+  }
+
+  @HostListener('document:wheel', ['$event'])
+  handleMouseWheel(event: WheelEvent) {
+    if (event.deltaY > 0) {
+      //scroll on bottom
+      this.displayedMoves = this.displayedMoves.slice(0, -1);
+      const move = this.chessService.undoLastChessMove();
+      if (move) this.updateChessBoardLastMove(move);
+      this.stateValid = false;
+    } else {
+      if (this.displayedMoves.length < this.moves.length) {
+        this.displayedMoves = [
+          ...this.displayedMoves,
+          this.moves[this.displayedMoves.length],
+        ];
+        const move = this.displayedMoves[this.displayedMoves.length - 1];
+        this.chessService.applyChessMove(move.from, move.to);
+        this.updateChessBoardLastMove(move);
+      } else {
+        this.stateValid = true;
+      }
+    }
+    this.updateChessBoard();
   }
 }

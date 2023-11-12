@@ -43,6 +43,10 @@ export class ChessService {
     return this.chess.move({ from: fromCellNotation, to: toCellNotation });
   }
 
+  public undoLastChessMove(): Move | null {
+    return this.chess.undo();
+  }
+
   public getGameFen(): string {
     return this.chess.fen();
   }
