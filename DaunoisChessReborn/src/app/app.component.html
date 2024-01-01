@@ -1,2 +1,11 @@
-<app-chess-board [fen]="fen"></app-chess-board>
-<app-game-status></app-game-status>
+<app-game-menu
+  [style]="{ 'z-index': 50, display: gameLaunched ? 'none' : '' }"
+  (gameLaunched)="gameStart()"
+></app-game-menu>
+<section
+  id="game-content"
+  [style]="{ filter: gameLaunched ? '' : 'blur(4px)' }"
+>
+  <app-chess-board [fen]="fen"></app-chess-board>
+  <app-game-status></app-game-status>
+</section>

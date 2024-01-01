@@ -1,0 +1,17 @@
+<section id="game form">
+  <div formGroupName="gameForm">
+    <h2>Address</h2>
+
+    <label for="gameType">Game Type: </label>
+    <input id="gameType" type="text" formControlName="gameType" />
+
+    <label for="gameWith">Opponent: </label>
+    <input id="gameWith" type="text" formControlName="gameWith" />
+
+    <label for="difficulty">Difficulty: </label>
+    <input id="difficulty" type="text" formControlName="difficulty" />
+    <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">
+      Submit
+    </button>
+  </div>
+</section>
