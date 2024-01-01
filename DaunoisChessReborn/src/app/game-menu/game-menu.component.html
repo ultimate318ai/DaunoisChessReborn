@@ -2,14 +2,19 @@
   <div formGroupName="gameForm">
     <h2>Address</h2>
 
-    <label for="gameType">Game Type: </label>
-    <input id="gameType" type="text" formControlName="gameType" />
+    <label for="gameType">Game Types: </label>
+    <select id="gameType" type="text" formControlName="gameType">
+      <option *ngFor="let gameType of gameTypes" [value]="gameType">
+        {{ gameType }}
+      </option>
+    </select>
 
     <label for="gameWith">Opponent: </label>
-    <input id="gameWith" type="text" formControlName="gameWith" />
-
-    <label for="difficulty">Difficulty: </label>
-    <input id="difficulty" type="text" formControlName="difficulty" />
+    <select id="gameWith" type="text" formControlName="gameWith">
+      <option *ngFor="let opponent of opponents" [value]="opponent">
+        {{ opponent }}
+      </option>
+    </select>
     <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">
       Submit
     </button>

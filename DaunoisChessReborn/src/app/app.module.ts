@@ -18,8 +18,9 @@ import { GameMenuComponent } from './game-menu/game-menu.component';
     ChessBoardComponent,
     MoveBoardComponent,
     GameStatusComponent,
+    GameMenuComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, DragDropModule, GameMenuComponent],
+  imports: [BrowserModule, AppRoutingModule, DragDropModule],
   providers: [ChessService, ChessboardArrowService],
   bootstrap: [AppComponent],
 })
