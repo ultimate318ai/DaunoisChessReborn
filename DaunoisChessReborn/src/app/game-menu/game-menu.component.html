@@ -1,5 +1,5 @@
 <section id="game form">
-  <div formGroupName="gameForm">
+  <form [formGroup]="gameForm">
     <h2>Address</h2>
 
     <label for="gameType">Game Types: </label>
@@ -15,8 +15,18 @@
         {{ opponent }}
       </option>
     </select>
+
+    <label for="fen">Fen: </label>
+    <input
+      id="fen"
+      type="text"
+      formControlName="fen"
+      [style.width.ch]="fen.length"
+      [(ngModel)]="fen"
+    />
+
     <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">
       Submit
     </button>
-  </div>
+  </form>
 </section>

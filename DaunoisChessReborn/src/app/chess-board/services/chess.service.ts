@@ -94,4 +94,8 @@ export class ChessService {
     if (this.blackToPlay() && this.chess.inCheckmate()) return '1 - 0';
     return '1/2 - 1/2';
   }
+
+  public isFenValid(fen: string): boolean {
+    return this.chess.validateFen(fen).valid;
+  }
 }

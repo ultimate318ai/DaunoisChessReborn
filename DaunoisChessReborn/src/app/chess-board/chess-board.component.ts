@@ -58,7 +58,10 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     const fenChanged = changes['fen'];
-    if (fenChanged) this.buildChessBoard();
+    if (fenChanged) {
+      this.chessService.restartChessGame(fenChanged.currentValue);
+      this.buildChessBoard();
+    }
   }
 
   buildChessBoard(): void {

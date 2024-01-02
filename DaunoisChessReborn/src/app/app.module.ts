@@ -11,6 +11,7 @@ import { ChessboardArrowService } from './chess-board-arrow/board-arrow.service'
 import { MoveBoardComponent } from './move-board/move-board.component';
 import { GameStatusComponent } from './game-status/game-status.component';
 import { GameMenuComponent } from './game-menu/game-menu.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,13 @@ import { GameMenuComponent } from './game-menu/game-menu.component';
     GameStatusComponent,
     GameMenuComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, DragDropModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    DragDropModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
   providers: [ChessService, ChessboardArrowService],
   bootstrap: [AppComponent],
 })
