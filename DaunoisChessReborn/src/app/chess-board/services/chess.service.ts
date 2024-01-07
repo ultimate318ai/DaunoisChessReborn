@@ -4,7 +4,7 @@ import {
   DaunoisChessError,
   PieceSymbol,
   PlayerColor,
-  boardCellNotation,
+  BoardCellNotation,
 } from './chessTypes';
 
 @Injectable({
@@ -22,7 +22,7 @@ export class ChessService {
     this.chess = new Chess(fen);
   }
 
-  public getMovesFromCell(cellNotation: boardCellNotation): Move[] {
+  public getMovesFromCell(cellNotation: BoardCellNotation): Move[] {
     return this.chess.moves({ square: cellNotation, verbose: true });
   }
 

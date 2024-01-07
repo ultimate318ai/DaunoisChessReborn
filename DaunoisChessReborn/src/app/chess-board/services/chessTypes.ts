@@ -18,10 +18,10 @@ export type boardCellDigitNotation =
   | '7'
   | '8';
 
-export type boardCellNotation =
+export type BoardCellNotation =
   `${boardCellLetterNotation}${boardCellDigitNotation}`;
 
-export type boardCellsType = {
+export type BoardCellsType = {
   [k: string]: { pieceSymbol: PieceSymbol | 'no piece'; pointed: boolean };
 }; //TODO: change "no piece"
 

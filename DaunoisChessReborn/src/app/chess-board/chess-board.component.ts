@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
-import { PieceSymbol, boardCellNotation } from './services//chessTypes';
+import { PieceSymbol, BoardCellNotation } from './services//chessTypes';
 import { BoardService } from './services/board.service';
 import { ChessService } from './services/chess.service';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
@@ -117,7 +117,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   get potentialsPromotionsPieces(): Set<PieceSymbol> {
     const fromCellMoves = this.chessService.getMovesFromCell(
-      this.selectedFromPieceCell as boardCellNotation
+      this.selectedFromPieceCell as BoardCellNotation
     );
     return new Set(
       fromCellMoves.flatMap((move) =>
@@ -132,7 +132,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   private potentialMoveEndsInPromotion(): boolean {
     const fromCellMoves = this.chessService.getMovesFromCell(
-      this.selectedFromPieceCell as boardCellNotation
+      this.selectedFromPieceCell as BoardCellNotation
     );
     return (
       !!fromCellMoves.length &&
@@ -142,10 +142,10 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     );
   }
 
-  promotionSquarePositionFromIndex(index: number): boardCellNotation {
+  promotionSquarePositionFromIndex(index: number): BoardCellNotation {
     const promotionCellCoordinates =
       this.boardService.fromBoardCellLetterNotationToCoordinates(
-        this.promotionCellName as boardCellNotation
+        this.promotionCellName as BoardCellNotation
       );
     return this.boardService.fromCoordinatesToBoardCellNotation([
       promotionCellCoordinates[0],
@@ -206,7 +206,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   onCellClick(cellClicked: string): void {
     if (!this.stateValid) return;
     const moves = this.chessService.getMovesFromCell(
-      cellClicked as boardCellNotation
+      cellClicked as BoardCellNotation
     );
 
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
@@ -257,7 +257,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     if (!this.stateValid) return;
     const cellClicked = event.source.element.nativeElement.id;
     const moves = this.chessService.getMovesFromCell(
-      cellClicked as boardCellNotation
+      cellClicked as BoardCellNotation
     );
     if (moves.length) {
       this.resetPointedCells();

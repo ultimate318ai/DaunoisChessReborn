@@ -1,16 +1,11 @@
 import { Injectable } from '@angular/core';
-import {
-  PieceSymbol,
-  boardCellLetterNotation,
-  boardCellNotation,
-  boardCellsType,
-} from './chessTypes';
+import { PieceSymbol, BoardCellNotation, BoardCellsType } from './chessTypes';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BoardService {
-  private boardCells: boardCellsType = {};
+  private boardCells: BoardCellsType = {};
 
   constructor() {}
 
@@ -20,11 +15,11 @@ export class BoardService {
      * Fen is like this : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
      * //TODO: parse fen and check
      */
-    const boardCells: boardCellsType = {};
+    const boardCells: BoardCellsType = {};
     const boardPartFen = fen.split(' ')[0];
     let row = 0;
     let column = 0;
-    let cellName: boardCellNotation;
+    let cellName: BoardCellNotation;
     for (let fenRow of boardPartFen.split('/')) {
       column = 0;
       for (let fenRowItem of fenRow) {
@@ -33,7 +28,7 @@ export class BoardService {
             cellName = `${this.fromCoordinatesToBoardCellNotation([
               column + index,
               8 - row,
-            ])}` as boardCellNotation;
+            ])}` as BoardCellNotation;
             boardCells[cellName] = { pieceSymbol: 'no piece', pointed: false };
           }
           column += +fenRowItem;
@@ -42,7 +37,7 @@ export class BoardService {
         cellName = `${this.fromCoordinatesToBoardCellNotation([
           column,
           8 - row,
-        ])}` as boardCellNotation;
+        ])}` as BoardCellNotation;
         boardCells[cellName] = {
           pieceSymbol: fenRowItem as PieceSymbol,
           pointed: false,
@@ -56,14 +51,14 @@ export class BoardService {
 
   public fromCoordinatesToBoardCellNotation(
     coordinates: [number, number]
-  ): boardCellNotation {
+  ): BoardCellNotation {
     return String.fromCharCode(97 + coordinates[0]).concat(
       '' + coordinates[1]
-    ) as boardCellNotation;
+    ) as BoardCellNotation;
   }
 
   public fromBoardCellLetterNotationToCoordinates(
-    cellNotation: boardCellNotation
+    cellNotation: BoardCellNotation
   ): [number, number] {
     return [cellNotation[0].charCodeAt(0) - 97, +cellNotation[1]];
   }
