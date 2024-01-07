@@ -8,10 +8,10 @@ import {
   Output,
 } from '@angular/core';
 import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
-import { PieceSymbol, BoardCellNotation } from './services//chessTypes';
-import { BoardService } from './services/board.service';
-import { ChessService } from './services/chess.service';
-import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
+import { PieceSymbol, BoardCellNotation } from '../services/chessTypes';
+import { BoardService } from '../services/board.service';
+import { ChessService } from '../services/chess.service';
+import { ChessboardArrowService } from '../../chess-board-arrow/board-arrow.service';
 import { Move } from 'chess.ts';
 
 @Component({
