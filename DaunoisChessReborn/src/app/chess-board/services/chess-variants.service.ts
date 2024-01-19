@@ -1,7 +1,5 @@
 import * as ffish from 'ffish';
-// @ts-ignore
-import * as stockfish from 'stockfish';
-import { Injectable, booleanAttribute } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   DaunoisChessError,
   PieceSymbol,
@@ -25,10 +23,17 @@ export class ChessVariantsService {
     });
   }
 
+  public coordinatesToMoveSan(from: string, to: string): string | undefined {
+    return this.chessMoveSanList.find((moveSan) => {
+      const _move = this.sanToMove(moveSan);
+      return from === _move.from && to === _move.to;
+    });
+  }
+
   public sanToMove(sanMove: string): {
-    piece: PieceSymbol | null;
-    from: BoardCellNotation | null;
-    to: BoardCellNotation | null;
+    piece: PieceSymbol;
+    from: BoardCellNotation;
+    to: BoardCellNotation;
     promotion: PieceSymbol | null;
   } {
     const cleanMove = sanMove.replace(/=/, '').replace(/[+#]?[?!]*$/, '');
@@ -51,20 +56,20 @@ export class ChessVariantsService {
       promotion: promotion as PieceSymbol,
     };
   }
+  get chessMoveSanList(): string[] {
+    return this.chess.legalMovesSan().split(' ');
+  }
 
   public restartChessGame(fen: string, variant: ChessVariant) {
     this.chess = new this.ffish.Board(variant, fen);
   }
 
   public getMovesSanFromCell(cellNotation: BoardCellNotation): string[] {
-    return this.chess
-      .legalMovesSan()
-      .split(' ')
-      .filter((sanMove) => {
-        const { from } = this.sanToMove(sanMove);
+    return this.chessMoveSanList.filter((sanMove) => {
+      const { from } = this.sanToMove(sanMove);
 
-        return from && from === cellNotation;
-      });
+      return from && from === cellNotation;
+    });
   }
 
   public applyChessMoveSan(moveSan: string): void {
