@@ -12,6 +12,14 @@ import platform
 import stockfish
 
 
+class Config:
+    """Configuration for backend API."""
+
+    BACKEND_PORT = 8080
+    FRONTEND_PORT = 4200
+    ORIGIN_IP_ADDRESS = f"http://localhost:{FRONTEND_PORT}"
+
+
 class Server(BaseHTTPRequestHandler):
     """
     Server using stockfish to get the best moves from a fen given. Also used for chess variants.
@@ -77,7 +85,7 @@ class Server(BaseHTTPRequestHandler):
         self.__stockfish.set_fen_position(self.DEFAULT_FEN)
 
     def do_GET(self):
-        """Perform a get for the backend API."""
+        """Handle a get for the backend API."""
         if not "_Server__stockfish" in locals():
             self.init_stockfish()
 
@@ -90,17 +98,33 @@ class Server(BaseHTTPRequestHandler):
                     404,
                     f"No Move found for fen : {self.__stockfish.get_fen_position()}",
                 )
-            self.send_header("Access-Control-Allow-Origin", "http://localhost:5201/")
+            self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
             self.end_headers()
             self.wfile.write(json.dumps(f"move: {stockfish_move}").encode())
         else:
             self.send_response(200, "OK")
-            self.send_header("Access-Control-Allow-Origin", "http://localhost:5201/")
+            self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
             self.end_headers()
 
+    def do_POST(self):
+        """Handle post in the backend API"""
+        if not "_Server__stockfish" in locals():
+            self.init_stockfish()
 
-port = 5201
-httpd = HTTPServer(("localhost", port), Server)
-print(f"Server listening on port {port}")
+        match self.path:
+            case "/fen":
+                bytes_received = int(self.headers["Content-Length"])
+                post_data = self.rfile.read(bytes_received)
+
+                print(post_data)
+            case _ as wrong_path:
+                self.send_response(404, f"Path Not found {wrong_path}")
+        self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
+        self.end_headers()
+        self.send_response(200, "OK")
+
+
+httpd = HTTPServer(("localhost", Config.BACKEND_PORT), Server)
+print(f"Server listening on port {Config.BACKEND_PORT}")
 
 httpd.serve_forever()
