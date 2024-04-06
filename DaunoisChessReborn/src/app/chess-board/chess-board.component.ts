@@ -13,6 +13,7 @@ import { BoardService } from './services/board.service';
 import { ChessService } from './services/chess.service';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
 import { Move } from 'chess.ts';
+import { chessApiService } from './services/chess.api.service';
 
 @Component({
   selector: 'app-chess-board',
@@ -48,13 +49,15 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   constructor(
     private boardService: BoardService,
     private chessService: ChessService,
+    private chessRepository: chessApiService,
     private arrowService: ChessboardArrowService
   ) {}
 
   ngOnInit(): void {
     this.buildChessBoard();
     this.arrowService.initializeCanvas();
-    this.chessService.getBestStockFishMove();
+    this.chessRepository.fetchBestStockFishMove();
+    this.chessRepository.updateStockFishFen();
   }
 
   ngOnChanges(changes: SimpleChanges): void {

@@ -7,6 +7,7 @@ and put on fen changes.
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import os
+import io
 import pathlib
 import platform
 import stockfish
@@ -84,6 +85,14 @@ class Server(BaseHTTPRequestHandler):
         self.__stockfish = stockfish.Stockfish(str(self.__engine_path))
         self.__stockfish.set_fen_position(self.DEFAULT_FEN)
 
+    def do_OPTIONS(self):
+        self.send_response(200, "OK")
+        self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
+        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Access-Control-Allow-Origin")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
     def do_GET(self):
         """Handle a get for the backend API."""
         if not "_Server__stockfish" in locals():
@@ -111,17 +120,27 @@ class Server(BaseHTTPRequestHandler):
         if not "_Server__stockfish" in locals():
             self.init_stockfish()
 
+        old_fen = self.__stockfish.get_fen_position()
+
         match self.path:
             case "/fen":
                 bytes_received = int(self.headers["Content-Length"])
-                post_data = self.rfile.read(bytes_received)
-
-                print(post_data)
+                new_fen: str = json.load(
+                    io.BytesIO(self.rfile.read(bytes_received).replace(b"'", b'"'))
+                ).get("fen", None)
             case _ as wrong_path:
                 self.send_response(404, f"Path Not found {wrong_path}")
+                self.send_header(
+                    "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
+                )
+                self.end_headers()
+                return
+        self.send_response(200, "OK")
         self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
         self.end_headers()
-        self.send_response(200, "OK")
+        self.wfile.write(
+            json.dumps(f"fen changed from [{old_fen}] to [{new_fen}]").encode()
+        )
 
 
 httpd = HTTPServer(("localhost", Config.BACKEND_PORT), Server)

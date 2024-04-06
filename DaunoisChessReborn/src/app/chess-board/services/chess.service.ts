@@ -14,7 +14,7 @@ import {
 export class ChessService {
   private chess: Chess;
 
-  constructor(private httpClient: HttpClient) {
+  constructor() {
     this.chess = new Chess();
   }
 
@@ -98,11 +98,5 @@ export class ChessService {
 
   public isFenValid(fen: string): boolean {
     return this.chess.validateFen(fen).valid;
-  }
-
-  public getBestStockFishMove() {
-    this.httpClient
-      .get('http://localhost:5201/move')
-      .subscribe((move) => console.log(move));
   }
 }
