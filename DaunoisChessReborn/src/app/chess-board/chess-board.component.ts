@@ -56,8 +56,6 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.buildChessBoard();
     this.arrowService.initializeCanvas();
-    this.chessRepository.fetchBestStockFishMove();
-    this.chessRepository.updateStockFishFen();
   }
 
   ngOnChanges(changes: SimpleChanges): void {

@@ -6,7 +6,6 @@ import { Chess } from 'chess.ts';
   providedIn: 'root',
 })
 export class chessApiService {
-  private chess: Chess;
   private readonly ipAddress = 'http://localhost:8080';
   private _options = {
     headers: new HttpHeaders({
@@ -15,9 +14,7 @@ export class chessApiService {
     }),
   };
 
-  constructor(private httpClient: HttpClient) {
-    this.chess = new Chess();
-  }
+  constructor(private httpClient: HttpClient) {}
 
   public fetchBestStockFishMove() {
     this.httpClient
@@ -26,14 +23,6 @@ export class chessApiService {
   }
 
   public updateStockFishFen() {
-    // const headers = new HttpHeaders().set(
-    //   'access-control-allow-origin',
-    //   'http://localhost:8080/'
-    // );
-    // const headers = {
-    //   'Access-Control-Allow-Origin': 'http://localhost:5201/',
-    //   'Content-Type': 'application/json',
-    // };
     this.httpClient
       .post(
         `${this.ipAddress}/fen`,
