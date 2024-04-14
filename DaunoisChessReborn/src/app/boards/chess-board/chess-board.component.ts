@@ -8,12 +8,12 @@ import {
   Output,
 } from '@angular/core';
 import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
-import { PieceSymbol, boardCellNotation } from './services//chessTypes';
-import { BoardService } from './services/board.service';
-import { ChessService } from './services/chess.service';
+import { PieceSymbol, boardCellNotation } from '../services/chessTypes';
+import { BoardService } from '../services/board.service';
+import { ChessService } from '../services/chess.service';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
 import { Move } from 'chess.ts';
-import { chessApiService } from './services/chess.api.service';
+import { chessApiService } from '../services/chess.api.service';
 
 @Component({
   selector: 'app-chess-board',

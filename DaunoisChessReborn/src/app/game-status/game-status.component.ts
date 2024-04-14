@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ChessService } from '../chess-board/services/chess.service';
+import { ChessService } from '../boards/services/chess.service';
 
 @Component({
   selector: 'app-game-status',

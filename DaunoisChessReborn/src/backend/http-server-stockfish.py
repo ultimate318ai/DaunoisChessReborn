@@ -63,7 +63,6 @@ class Server(BaseHTTPRequestHandler):
             for directory in os.listdir(path)
             if os.path.isdir(os.path.join(path, directory))
         ]
-
         matches = [file for file in list_files_only if file == target]
 
         if len(matches):

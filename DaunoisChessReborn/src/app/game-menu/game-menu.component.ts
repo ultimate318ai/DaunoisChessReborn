@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { GAME_TYPES, OPPONENTS, SKILL_LEVEL } from './gameSettings';
-import { ChessService } from '../chess-board/services/chess.service';
+import { ChessService } from '../boards/services/chess.service';
 import { fenValidator } from './fen-validator.directive';
 
 @Component({
