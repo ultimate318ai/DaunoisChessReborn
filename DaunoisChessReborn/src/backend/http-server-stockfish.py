@@ -96,23 +96,36 @@ class Server(BaseHTTPRequestHandler):
         """Handle a get for the backend API."""
         if not "_Server__stockfish" in locals():
             self.init_stockfish()
-
-        if self.path == "/move":
-            stockfish_move = self.__stockfish.get_best_move()
-            if stockfish_move:
+        match self.path:
+            case "/fen":
+                stockfish_fen = self.__stockfish.get_fen_position()
                 self.send_response(200, "OK")
-            else:
-                self.send_response(
-                    404,
-                    f"No Move found for fen : {self.__stockfish.get_fen_position()}",
+                self.send_header(
+                    "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
                 )
-            self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
-            self.end_headers()
-            self.wfile.write(json.dumps(f"move: {stockfish_move}").encode())
-        else:
-            self.send_response(200, "OK")
-            self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
-            self.end_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps(f"{stockfish_fen}").encode())
+
+            case "/move":
+                stockfish_move = self.__stockfish.get_best_move()
+                if stockfish_move:
+                    self.send_response(200, "OK")
+                else:
+                    self.send_response(
+                        404,
+                        f"No Move found for fen : {self.__stockfish.get_fen_position()}",
+                    )
+                self.send_header(
+                    "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
+                )
+                self.end_headers()
+                self.wfile.write(json.dumps(f"move: {stockfish_move}").encode())
+            case _ as wrong_path:
+                self.send_response(404, f"Path Not found {wrong_path}")
+                self.send_header(
+                    "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
+                )
+                self.end_headers()
 
     def do_POST(self):
         """Handle post in the backend API"""
@@ -127,19 +140,20 @@ class Server(BaseHTTPRequestHandler):
                 new_fen: str = json.load(
                     io.BytesIO(self.rfile.read(bytes_received).replace(b"'", b'"'))
                 ).get("fen", None)
+                self.send_response(200, "OK")
+                self.send_header(
+                    "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
+                )
+                self.end_headers()
+                self.wfile.write(
+                    json.dumps(f"fen changed from [{old_fen}] to [{new_fen}]").encode()
+                )
             case _ as wrong_path:
                 self.send_response(404, f"Path Not found {wrong_path}")
                 self.send_header(
                     "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
                 )
                 self.end_headers()
-                return
-        self.send_response(200, "OK")
-        self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
-        self.end_headers()
-        self.wfile.write(
-            json.dumps(f"fen changed from [{old_fen}] to [{new_fen}]").encode()
-        )
 
 
 httpd = HTTPServer(("localhost", Config.BACKEND_PORT), Server)
