@@ -4,13 +4,24 @@ The purpose of this backend is to manage get on chess move and post on stockfish
 and put on fen changes.
 """
 
+from dataclasses import dataclass
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from math import inf
 import json
 import os
 import io
 import pathlib
 import platform
 import stockfish
+
+
+@dataclass
+class StockFishMove:
+    """Class Representing abstract stockfish chess move"""
+
+    move: str
+    centipawn: int | None
+    mate: int | None
 
 
 class Config:
@@ -112,7 +123,7 @@ class Server(BaseHTTPRequestHandler):
                     self.send_response(200, "OK")
                 else:
                     self.send_response(
-                        404,
+                        200,
                         f"No Move found for fen : {self.__stockfish.get_fen_position()}",
                     )
                 self.send_header(
@@ -120,6 +131,29 @@ class Server(BaseHTTPRequestHandler):
                 )
                 self.end_headers()
                 self.wfile.write(json.dumps(f"move: {stockfish_move}").encode())
+
+            case "/moves":
+                stockfish_move_list = [
+                    StockFishMove(
+                        **{key.lower(): value for key, value in top_move.keys()}
+                    )
+                    for top_move in self.__stockfish.get_top_moves(
+                        num_top_moves=inf.as_integer_ratio()[0]
+                    )
+                ]
+
+                if stockfish_move_list:
+                    self.send_response(200, "OK")
+                else:
+                    self.send_response(
+                        200,
+                        f"No Moves found for fen : {self.__stockfish.get_fen_position()}",
+                    )
+                self.send_header(
+                    "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
+                )
+                self.end_headers()
+                self.wfile.write(json.dumps(f"moves: {stockfish_move_list}").encode())
             case _ as wrong_path:
                 self.send_response(404, f"Path Not found {wrong_path}")
                 self.send_header(
