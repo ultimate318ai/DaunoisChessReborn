@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Chess } from 'chess.ts';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { filter, map, Observable } from 'rxjs';
+
+type StockFishMove = {
+  move: string;
+  centipawn: number | null;
+  mate: number | null;
+};
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +22,51 @@ export class chessApiService {
 
   constructor(private httpClient: HttpClient) {}
 
-  public fetchBestStockFishMove() {
-    this.httpClient
-      .get(`${this.ipAddress}/move`)
-      .subscribe((move) => console.log(move));
+  public fetchBestStockFishMove(): Observable<string> {
+    const httpResponse = this.httpClient.get(`${this.ipAddress}/move`, {
+      observe: 'response',
+    }) as Observable<HttpResponse<{ move: string }>>;
+
+    return httpResponse.pipe(
+      map((httpResponse) => {
+        const move = httpResponse.body?.move;
+        if (!move) {
+          throw new Error('No moves in response body.');
+        }
+        return move;
+      })
+    );
+  }
+
+  public fetchBestStockFishMoveList(): Observable<StockFishMove[]> {
+    const httpResponse = this.httpClient.get(`${this.ipAddress}/moves`, {
+      observe: 'response',
+    }) as Observable<HttpResponse<{ moves: StockFishMove[] }>>;
+
+    return httpResponse.pipe(
+      map((httpResponse) => {
+        const moveList = httpResponse.body?.moves;
+        if (!moveList) {
+          throw new Error('No moves in response body.');
+        }
+        return moveList;
+      })
+    );
+  }
+
+  public fetchStockFishFen(): Observable<string> {
+    return this.httpClient
+      .get(`${this.ipAddress}/move`, { observe: 'response' })
+      .pipe(
+        filter((httpResponseContent) => this.ifChessFen(httpResponseContent))
+      );
+  }
+
+  private ifChessFen(value: Object): value is string {
+    const fenValidation = new RegExp(
+      /^(?:(?:[PNBRQK]+|[1-8])\/){7}(?:[PNBRQK]+|[1-8])$/gim
+    );
+    return value.toString().match(fenValidation) !== null;
   }
 
   public updateStockFishFen() {
