@@ -49,7 +49,6 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   constructor(
     private boardService: BoardService,
     private chessService: ChessService,
-    private chessRepository: chessApiService,
     private arrowService: ChessboardArrowService
   ) {}
 
