@@ -6,52 +6,62 @@ import {
   SimpleChanges,
   HostListener,
   Output,
+  OnDestroy,
 } from '@angular/core';
 import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
 import { PieceSymbol, boardCellNotation } from '../services/chessTypes';
 import { BoardService } from '../services/board.service';
-import { ChessService } from '../services/chess.service';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
-import { Move } from 'chess.ts';
-import { chessApiService } from '../services/chess.api.service';
+import { chessApiService, StockFishMove } from '../services/chess.api.service';
+import { BehaviorSubject, mergeMap, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-stockfish-board',
   templateUrl: './stockfish-board.component.html',
   styleUrls: ['./stockfish-board.component.scss'],
 })
-export class StockfishBoardComponent implements OnInit, OnChanges {
+export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   public fen!: string;
 
   @Output()
-  public moves: Array<Move> = new Array();
+  public moveMadeList: Array<StockFishMove> = new Array();
 
-  private displayedMoves: Array<Move> = new Array();
+  private displayedMoves: Array<StockFishMove> = new Array();
 
   private stateValid: boolean = true;
 
   private pointedCells: string[] = [];
   private selectedFromPieceCell: string = '';
-  private lastMove: Move = {
-    to: '',
-    from: '',
-    color: 'w',
-    flags: '',
-    piece: 'b',
-    san: '',
-  }; // default wrong move for typing issue
+  private lastMove: StockFishMove | null = null;
+
   private lastMoveIndex: number = -1;
 
   private isLastMovePromotion = false;
   private promotionCellName: string = '';
 
+  private isMovesFromCellArePromotion: BehaviorSubject<boolean> =
+    new BehaviorSubject(false);
+
+  private promotionPiecesSet: BehaviorSubject<Set<PieceSymbol>> =
+    new BehaviorSubject(new Set());
+
+  subscriptionList: Subscription = new Subscription();
+
+  onStockFishMoveListUpdate = new Subject<void>();
+  stockFishMoveList: StockFishMove[] = [];
+
   constructor(
     private boardService: BoardService,
-    private chessService: ChessService,
-    private chessRepository: chessApiService,
+    private chessService: chessApiService,
     private arrowService: ChessboardArrowService
-  ) {}
+  ) {
+    this.onStockFishMoveListUpdate
+      .pipe(mergeMap(() => this.chessService.fetchBestStockFishMoveList()))
+      .subscribe(
+        (stockFishMoveList) => (this.stockFishMoveList = stockFishMoveList)
+      );
+  }
 
   ngOnInit(): void {
     this.buildChessBoard();
@@ -61,9 +71,26 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const fenChanged = changes['fen'];
     if (fenChanged) {
-      this.chessService.restartChessGame(fenChanged.currentValue);
       this.buildChessBoard();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptionList.unsubscribe();
+  }
+
+  getStockFishMoveListFromCell(cell: string): StockFishMove[] {
+    return this.stockFishMoveList.filter(
+      (chessMove) => chessMove.coordinates.from === cell
+    );
+  }
+
+  get playerTurn(): 'w' | 'b' {
+    const fenPlayerTurnPart = this.fen.split(' ')[2];
+    if (fenPlayerTurnPart !== 'w' && fenPlayerTurnPart !== 'b') {
+      throw new Error('Fen is not valid.');
+    }
+    return fenPlayerTurnPart;
   }
 
   buildChessBoard(): void {
@@ -100,32 +127,27 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
   }
 
   private updateChessBoard(): void {
-    this.fen = this.chessService.getGameFen();
+    this.chessService
+      .fetchStockFishFen()
+      .subscribe((newFen) => (this.fen = newFen));
     this.buildChessBoard();
   }
 
-  private updateChessBoardLastMove(move: Move): void {
+  private updateChessBoardLastMove(move: StockFishMove): void {
     this.lastMoveIndex++;
     this.lastMove = move;
   }
 
-  get boardLastMoveFrom() {
-    return this.lastMove.from;
+  get boardLastMoveFrom(): string {
+    return this.lastMove !== null ? this.lastMove.coordinates.from : '';
   }
 
-  get boardLastMoveTo() {
-    return this.lastMove.to;
+  get boardLastMoveTo(): string {
+    return this.lastMove !== null ? this.lastMove.coordinates.to : '';
   }
 
   get potentialsPromotionsPieces(): Set<PieceSymbol> {
-    const fromCellMoves = this.chessService.getMovesFromCell(
-      this.selectedFromPieceCell as boardCellNotation
-    );
-    return new Set(
-      fromCellMoves.flatMap((move) =>
-        !!move.promotion ? [move.promotion] : []
-      )
-    );
+    return this.promotionPiecesSet.getValue();
   }
 
   get openPromotionChoices() {
@@ -133,15 +155,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
   }
 
   private potentialMoveEndsInPromotion(): boolean {
-    const fromCellMoves = this.chessService.getMovesFromCell(
-      this.selectedFromPieceCell as boardCellNotation
-    );
-    return (
-      !!fromCellMoves.length &&
-      fromCellMoves.every((move) =>
-        this.chessService.moveInvolvesPromotion(move)
-      )
-    );
+    return this.isMovesFromCellArePromotion.getValue();
   }
 
   promotionSquarePositionFromIndex(index: number): boardCellNotation {
@@ -151,16 +165,19 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
       );
     return this.boardService.fromCoordinatesToBoardCellNotation([
       promotionCellCoordinates[0],
-      this.chessService.whiteToPlay()
+      this.playerTurn === 'w'
         ? promotionCellCoordinates[1] - index
         : promotionCellCoordinates[1] + index,
     ]);
   }
 
-  private updatePointedBoardCells(moves: Move[]): void {
+  private updatePointedBoardCells(moves: StockFishMove[]): void {
     this.pointedCells = this.boardService
       .getBoardEntries()
-      .filter((boardCell) => !!moves.find((move) => boardCell[0] === move.to))
+      .filter(
+        (boardCell) =>
+          !!moves.find((move) => boardCell[0] === move.coordinates.to)
+      )
       .map((boardCell) => boardCell[0]);
     this.boardService.changeCellPointedState(this.pointedCells, true);
   }
@@ -169,7 +186,9 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
     pieceSymbol: PieceSymbol | 'no piece';
     pointed: boolean;
   }): boolean {
-    return this.chessService.isKingCellChecked(cellName);
+    return (
+      (cellName.pieceSymbol === 'K' || cellName.pieceSymbol === 'k') && true
+    );
   }
 
   isCellOccupied(cellName: string): boolean {
@@ -190,15 +209,16 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
       return;
     }
     if (this.selectedFromPieceCell) {
-      const move = this.chessService.applyChessMove(
-        this.selectedFromPieceCell,
-        cellClick
-      );
-      if (move) {
-        this.moves.push(move);
-        this.displayedMoves.push(move);
-        this.updateChessBoardLastMove(move);
-      }
+      this.chessService
+        .applyChessMove(this.selectedFromPieceCell, cellClick)
+        .subscribe((move) => {
+          if (move) {
+            this.moveMadeList.push(move);
+            this.displayedMoves.push(move);
+            this.updateChessBoardLastMove(move);
+            this.onStockFishMoveListUpdate.next();
+          }
+        });
     }
     this.resetPointedCells();
     this.resetSelectedPiece();
@@ -207,9 +227,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
 
   onCellClick(cellClicked: string): void {
     if (!this.stateValid) return;
-    const moves = this.chessService.getMovesFromCell(
-      cellClicked as boardCellNotation
-    );
+    const moves = this.getStockFishMoveListFromCell(cellClicked);
 
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
       this.isLastMovePromotion = true;
@@ -217,38 +235,43 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
       return;
     }
     if (this.selectedFromPieceCell) {
-      const move = this.chessService.applyChessMove(
-        this.selectedFromPieceCell,
-        cellClicked
-      );
-      if (move) {
-        this.moves.push(move);
-        this.displayedMoves.push(move);
-        this.updateChessBoard();
-        this.updateChessBoardLastMove(move);
-      }
-      this.resetSelectedPiece();
-      this.resetPointedCells();
+      this.chessService
+        .applyChessMove(this.selectedFromPieceCell, cellClicked)
+        .subscribe((move) => {
+          if (move) {
+            this.moveMadeList.push(move);
+            this.displayedMoves.push(move);
+            this.updateChessBoard();
+            this.updateChessBoardLastMove(move);
+            this.onStockFishMoveListUpdate.next();
+          }
+          this.resetSelectedPiece();
+          this.resetPointedCells();
+        });
     }
     if (moves.length && !this.selectedFromPieceCell) {
-      this.selectedFromPieceCell = moves[0].from;
+      this.selectedFromPieceCell = cellClicked;
     }
     this.updatePointedBoardCells(moves);
   }
 
   onPromotionPieceClick(promotionPiece: PieceSymbol): void {
     if (!this.stateValid) return;
-    const promotionMove = this.chessService.applyChessMove(
-      this.selectedFromPieceCell,
-      this.promotionCellName,
-      promotionPiece
-    );
-    if (promotionMove) {
-      this.moves.push(promotionMove);
-      this.displayedMoves.push(promotionMove);
-      this.updateChessBoard();
-      this.updateChessBoardLastMove(promotionMove);
-    }
+    this.chessService
+      .applyChessMove(
+        this.selectedFromPieceCell,
+        this.promotionCellName,
+        promotionPiece
+      )
+      .subscribe((promotionMove) => {
+        if (promotionMove) {
+          this.moveMadeList.push(promotionMove);
+          this.displayedMoves.push(promotionMove);
+          this.updateChessBoard();
+          this.updateChessBoardLastMove(promotionMove);
+          this.onStockFishMoveListUpdate.next();
+        }
+      });
     this.isLastMovePromotion = false;
     this.promotionCellName = '';
     this.resetSelectedPiece();
@@ -258,9 +281,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
   onPieceDrag(event: CdkDragStart<any>) {
     if (!this.stateValid) return;
     const cellClicked = event.source.element.nativeElement.id;
-    const moves = this.chessService.getMovesFromCell(
-      cellClicked as boardCellNotation
-    );
+    const moves = this.getStockFishMoveListFromCell(cellClicked);
     if (moves.length) {
       this.resetPointedCells();
       this.selectedFromPieceCell = cellClicked;
@@ -325,28 +346,28 @@ export class StockfishBoardComponent implements OnInit, OnChanges {
   handleContextMenu(event: any) {
     event.preventDefault();
   }
-
-  @HostListener('document:wheel', ['$event'])
-  handleMouseWheel(event: WheelEvent) {
-    if (event.deltaY > 0) {
-      //scroll on bottom
-      this.displayedMoves = this.displayedMoves.slice(0, -1);
-      const move = this.chessService.undoLastChessMove();
-      if (move) this.updateChessBoardLastMove(move);
-      this.stateValid = false;
-    } else {
-      if (this.displayedMoves.length < this.moves.length) {
-        this.displayedMoves = [
-          ...this.displayedMoves,
-          this.moves[this.displayedMoves.length],
-        ];
-        const move = this.displayedMoves[this.displayedMoves.length - 1];
-        this.chessService.applyChessMove(move.from, move.to);
-        this.updateChessBoardLastMove(move);
-      } else {
-        this.stateValid = true;
-      }
-    }
-    this.updateChessBoard();
-  }
+  // TODO: handle this from backend
+  // @HostListener('document:wheel', ['$event'])
+  // handleMouseWheel(event: WheelEvent) {
+  //   if (event.deltaY > 0) {
+  //     //scroll on bottom
+  //     this.displayedMoves = this.displayedMoves.slice(0, -1);
+  //     const move = this.chessService.undoLastChessMove();
+  //     if (move) this.updateChessBoardLastMove(move);
+  //     this.stateValid = false;
+  //   } else {
+  //     if (this.displayedMoves.length < this.moves.length) {
+  //       this.displayedMoves = [
+  //         ...this.displayedMoves,
+  //         this.moves[this.displayedMoves.length],
+  //       ];
+  //       const move = this.displayedMoves[this.displayedMoves.length - 1];
+  //       this.chessService.applyChessMove(move.from, move.to);
+  //       this.updateChessBoardLastMove(move);
+  //     } else {
+  //       this.stateValid = true;
+  //     }
+  //   }
+  //   this.updateChessBoard();
+  // }
 }

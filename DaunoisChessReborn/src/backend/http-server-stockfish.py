@@ -182,6 +182,9 @@ class Server(BaseHTTPRequestHandler):
                 self.wfile.write(
                     json.dumps(f"fen changed from [{old_fen}] to [{new_fen}]").encode()
                 )
+            case "/move":
+                # TODO: implement instance of chess board and apply move here
+                pass
             case _ as wrong_path:
                 self.send_response(404, f"Path Not found {wrong_path}")
                 self.send_header(

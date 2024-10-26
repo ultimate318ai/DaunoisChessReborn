@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { filter, map, Observable } from 'rxjs';
+import { PieceSymbol } from './chessTypes';
 
-type StockFishMove = {
+export type StockFishMove = {
   move: string;
   centipawn: number | null;
   mate: number | null;
+  coordinates: { from: string; to: string };
+  promotion: PieceSymbol;
 };
 
 @Injectable({
@@ -82,5 +85,27 @@ export class chessApiService {
         next: (response) => console.log(response),
         error: (error) => console.log(error),
       });
+  }
+
+  public applyChessMove(
+    fromCellNotation: string,
+    toCellNotation: string,
+    promotion?: PieceSymbol
+  ): Observable<StockFishMove | null> {
+    return this.httpClient
+      .post(
+        `${this.ipAddress}/move`,
+        {
+          from: fromCellNotation,
+          to: toCellNotation,
+          promotion: promotion !== undefined ? promotion.toLowerCase() : null,
+        },
+        { observe: 'response', responseType: 'json' }
+      )
+      .pipe(
+        map((httpResponse): StockFishMove | null => {
+          return httpResponse.body as StockFishMove | null;
+        })
+      );
   }
 }

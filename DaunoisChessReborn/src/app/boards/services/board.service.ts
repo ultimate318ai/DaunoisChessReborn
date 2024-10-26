@@ -1,10 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  PieceSymbol,
-  boardCellLetterNotation,
-  boardCellNotation,
-  boardCellsType,
-} from './chessTypes';
+import { PieceSymbol, boardCellNotation, boardCellsType } from './chessTypes';
 import { Move } from 'chess.ts';
 import { BehaviorSubject } from 'rxjs';
 
