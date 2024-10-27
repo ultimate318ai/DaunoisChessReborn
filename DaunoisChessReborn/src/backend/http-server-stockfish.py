@@ -12,6 +12,10 @@ import os
 import io
 import pathlib
 import platform
+import socket
+from socketserver import BaseServer
+from typing import Any
+import chess
 import stockfish
 
 
@@ -38,6 +42,7 @@ class Server(BaseHTTPRequestHandler):
     """
 
     __stockfish: stockfish.Stockfish
+    __board: chess.Board
     __engine_path: pathlib.Path
 
     DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 "
@@ -57,6 +62,19 @@ class Server(BaseHTTPRequestHandler):
     )
 
     IA_EXE_FILE_PATH_SEP = "/" if platform.system() != "Windows" else "\\"
+
+    def __init__(
+        self,
+        request: socket.socket | tuple[bytes, socket.socket],
+        client_address: Any,
+        server: BaseServer,
+    ) -> None:
+        super().__init__(request, client_address, server)
+        self.__board = chess.Board(self.DEFAULT_FEN)
+        self.__find_ia_path(self.IA_EXE_NAME)
+        # print(self.__engine_path)
+        self.__stockfish = stockfish.Stockfish(str(self.__engine_path))
+        self.__stockfish.set_fen_position(self.DEFAULT_FEN)
 
     def __find_ia_path(self, target: str, path="", sep=IA_EXE_FILE_PATH_SEP) -> None:
         """
@@ -86,15 +104,6 @@ class Server(BaseHTTPRequestHandler):
             self.__find_ia_path(target, path=_path, sep=sep)
             _path = ""
 
-    def init_stockfish(self):
-        """
-        Initialize stockfish attributes and fen.
-        """
-        self.__find_ia_path(self.IA_EXE_NAME)
-        print(self.__engine_path)
-        self.__stockfish = stockfish.Stockfish(str(self.__engine_path))
-        self.__stockfish.set_fen_position(self.DEFAULT_FEN)
-
     def do_OPTIONS(self):
         self.send_response(200, "OK")
         self.send_header("Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS)
@@ -105,8 +114,6 @@ class Server(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handle a get for the backend API."""
-        if not "_Server__stockfish" in locals():
-            self.init_stockfish()
         match self.path:
             case "/fen":
                 stockfish_fen = self.__stockfish.get_fen_position()
@@ -163,8 +170,6 @@ class Server(BaseHTTPRequestHandler):
 
     def do_POST(self):
         """Handle post in the backend API"""
-        if not "_Server__stockfish" in locals():
-            self.init_stockfish()
 
         old_fen = self.__stockfish.get_fen_position()
 
@@ -183,8 +188,21 @@ class Server(BaseHTTPRequestHandler):
                     json.dumps(f"fen changed from [{old_fen}] to [{new_fen}]").encode()
                 )
             case "/move":
-                # TODO: implement instance of chess board and apply move here
-                pass
+                bytes_received = int(self.headers["Content-Length"])
+                move_object = json.load(
+                    io.BytesIO(self.rfile.read(bytes_received).replace(b"'", b'"'))
+                )
+                move = chess.Move(
+                    from_square=move_object["from"],
+                    to_square=move_object["to"],
+                    promotion=move_object["promotion"],
+                )
+                self.__board.push(move)
+                self.send_response(200, "OK")
+                self.send_header(
+                    "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
+                )
+                self.end_headers()
             case _ as wrong_path:
                 self.send_response(404, f"Path Not found {wrong_path}")
                 self.send_header(
