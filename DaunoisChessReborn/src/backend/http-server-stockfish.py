@@ -63,18 +63,15 @@ class Server(BaseHTTPRequestHandler):
 
     IA_EXE_FILE_PATH_SEP = "/" if platform.system() != "Windows" else "\\"
 
-    def __init__(
-        self,
-        request: socket.socket | tuple[bytes, socket.socket],
-        client_address: Any,
-        server: BaseServer,
-    ) -> None:
-        super().__init__(request, client_address, server)
+    init_variables: bool = True
+
+    def __init_variables(self) -> None:
         self.__board = chess.Board(self.DEFAULT_FEN)
         self.__find_ia_path(self.IA_EXE_NAME)
         # print(self.__engine_path)
         self.__stockfish = stockfish.Stockfish(str(self.__engine_path))
         self.__stockfish.set_fen_position(self.DEFAULT_FEN)
+        self.init_variables = False
 
     def __find_ia_path(self, target: str, path="", sep=IA_EXE_FILE_PATH_SEP) -> None:
         """
@@ -114,6 +111,10 @@ class Server(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handle a get for the backend API."""
+
+        if self.init_variables:
+            self.__init_variables()
+
         match self.path:
             case "/fen":
                 stockfish_fen = self.__stockfish.get_fen_position()
@@ -160,7 +161,19 @@ class Server(BaseHTTPRequestHandler):
                     "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
                 )
                 self.end_headers()
-                self.wfile.write(json.dumps(f"moves: {stockfish_move_list}").encode())
+                self.wfile.write(json.dumps(f"{stockfish_move_list}").encode())
+            case "/boardInformation":
+
+                board_state = {
+                    "is_check": self.__board.is_check(),
+                    "turn": self.__board.turn,
+                }
+                self.send_response(200, "OK")
+                self.send_header(
+                    "Access-Control-Allow-Origin", Config.ORIGIN_IP_ADDRESS
+                )
+                self.end_headers()
+                self.wfile.write(json.dumps(f"{board_state}").encode())
             case _ as wrong_path:
                 self.send_response(404, f"Path Not found {wrong_path}")
                 self.send_header(
@@ -170,6 +183,9 @@ class Server(BaseHTTPRequestHandler):
 
     def do_POST(self):
         """Handle post in the backend API"""
+
+        if self.init_variables:
+            self.__init_variables()
 
         old_fen = self.__stockfish.get_fen_position()
 

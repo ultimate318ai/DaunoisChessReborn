@@ -5,7 +5,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ChessBoardComponent } from './boards/chess-board/chess-board.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ChessService } from './boards/services/chess.service';
 import { ChessboardArrowService } from './boards/chess-board-arrow/board-arrow.service';
@@ -18,7 +17,6 @@ import { StockfishBoardComponent } from './boards/stockfish-board/stockfish-boar
 @NgModule({
   declarations: [
     AppComponent,
-    ChessBoardComponent,
     MoveBoardComponent,
     GameStatusComponent,
     GameMenuComponent,

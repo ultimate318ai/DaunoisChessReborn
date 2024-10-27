@@ -12,8 +12,18 @@ import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
 import { PieceSymbol, boardCellNotation } from '../services/chessTypes';
 import { BoardService } from '../services/board.service';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
-import { chessApiService, StockFishMove } from '../services/chess.api.service';
-import { BehaviorSubject, mergeMap, Subject, Subscription } from 'rxjs';
+import {
+  BoardInformation,
+  chessApiService,
+  StockFishMove,
+} from '../services/chess.api.service';
+import {
+  BehaviorSubject,
+  forkJoin,
+  mergeMap,
+  Subject,
+  Subscription,
+} from 'rxjs';
 
 @Component({
   selector: 'app-stockfish-board',
@@ -48,19 +58,29 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
 
   subscriptionList: Subscription = new Subscription();
 
-  onStockFishMoveListUpdate = new Subject<void>();
+  onStockFishBoardStateUpdate = new Subject<void>();
   stockFishMoveList: StockFishMove[] = [];
+
+  private boardInformation: BoardInformation | null = null;
 
   constructor(
     private boardService: BoardService,
     private chessService: chessApiService,
     private arrowService: ChessboardArrowService
   ) {
-    this.onStockFishMoveListUpdate
-      .pipe(mergeMap(() => this.chessService.fetchBestStockFishMoveList()))
-      .subscribe(
-        (stockFishMoveList) => (this.stockFishMoveList = stockFishMoveList)
-      );
+    this.onStockFishBoardStateUpdate
+      .pipe(
+        mergeMap(() =>
+          forkJoin({
+            stockFishMoveList: this.chessService.fetchBestStockFishMoveList(),
+            boardInformation: this.chessService.fetchBoardInformation(),
+          })
+        )
+      )
+      .subscribe(({ stockFishMoveList, boardInformation }) => {
+        this.stockFishMoveList = stockFishMoveList;
+        this.boardInformation = boardInformation;
+      });
   }
 
   ngOnInit(): void {
@@ -186,9 +206,17 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     pieceSymbol: PieceSymbol | 'no piece';
     pointed: boolean;
   }): boolean {
-    return (
-      (cellName.pieceSymbol === 'K' || cellName.pieceSymbol === 'k') && true
-    );
+    const whiteKingIsCheckInTurn =
+      cellName.pieceSymbol === 'K' &&
+      this.boardInformation !== null &&
+      this.boardInformation.is_check &&
+      this.boardInformation.turn;
+    const blackKingIsCheckInTurn =
+      cellName.pieceSymbol === 'k' &&
+      this.boardInformation !== null &&
+      this.boardInformation.is_check &&
+      !this.boardInformation.turn;
+    return whiteKingIsCheckInTurn || blackKingIsCheckInTurn;
   }
 
   isCellOccupied(cellName: string): boolean {
@@ -216,7 +244,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
             this.moveMadeList.push(move);
             this.displayedMoves.push(move);
             this.updateChessBoardLastMove(move);
-            this.onStockFishMoveListUpdate.next();
+            this.onStockFishBoardStateUpdate.next();
           }
         });
     }
@@ -243,7 +271,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
             this.displayedMoves.push(move);
             this.updateChessBoard();
             this.updateChessBoardLastMove(move);
-            this.onStockFishMoveListUpdate.next();
+            this.onStockFishBoardStateUpdate.next();
           }
           this.resetSelectedPiece();
           this.resetPointedCells();
@@ -269,7 +297,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
           this.displayedMoves.push(promotionMove);
           this.updateChessBoard();
           this.updateChessBoardLastMove(promotionMove);
-          this.onStockFishMoveListUpdate.next();
+          this.onStockFishBoardStateUpdate.next();
         }
       });
     this.isLastMovePromotion = false;

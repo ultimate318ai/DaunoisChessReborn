@@ -11,6 +11,11 @@ export type StockFishMove = {
   promotion: PieceSymbol;
 };
 
+export type BoardInformation = {
+  is_check: boolean;
+  turn: boolean;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -43,12 +48,14 @@ export class chessApiService {
 
   public fetchBestStockFishMoveList(): Observable<StockFishMove[]> {
     const httpResponse = this.httpClient.get(`${this.ipAddress}/moves`, {
+      ...this._options,
+      responseType: 'json',
       observe: 'response',
-    }) as Observable<HttpResponse<{ moves: StockFishMove[] }>>;
+    });
 
     return httpResponse.pipe(
       map((httpResponse) => {
-        const moveList = httpResponse.body?.moves;
+        const moveList = httpResponse.body as StockFishMove[];
         if (!moveList) {
           throw new Error('No moves in response body.');
         }
@@ -59,10 +66,22 @@ export class chessApiService {
 
   public fetchStockFishFen(): Observable<string> {
     return this.httpClient
-      .get(`${this.ipAddress}/move`, { observe: 'response' })
-      .pipe(
-        filter((httpResponseContent) => this.ifChessFen(httpResponseContent))
-      );
+      .get(`${this.ipAddress}/move`, {
+        ...this._options,
+        responseType: 'json',
+        observe: 'response',
+      })
+      .pipe(map((httpResponse) => httpResponse.body as string));
+  }
+
+  public fetchBoardInformation(): Observable<BoardInformation> {
+    return this.httpClient
+      .get(`${this.ipAddress}/boardInformation`, {
+        ...this._options,
+        responseType: 'json',
+        observe: 'response',
+      })
+      .pipe(map((httpResponse) => httpResponse.body as BoardInformation));
   }
 
   private ifChessFen(value: Object): value is string {
@@ -79,7 +98,7 @@ export class chessApiService {
         {
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0',
         },
-        this._options
+        { ...this._options, responseType: 'json', observe: 'response' }
       )
       .subscribe({
         next: (response) => console.log(response),
@@ -100,7 +119,7 @@ export class chessApiService {
           to: toCellNotation,
           promotion: promotion !== undefined ? promotion.toLowerCase() : null,
         },
-        { observe: 'response', responseType: 'json' }
+        { ...this._options, responseType: 'json', observe: 'response' }
       )
       .pipe(
         map((httpResponse): StockFishMove | null => {
