@@ -14,7 +14,7 @@ import pathlib
 import platform
 import socket
 from socketserver import BaseServer
-from typing import Any
+from typing import Any, override
 import chess
 import stockfish
 
@@ -64,6 +64,11 @@ class Server(BaseHTTPRequestHandler):
     IA_EXE_FILE_PATH_SEP = "/" if platform.system() != "Windows" else "\\"
 
     init_variables: bool = True
+
+    @override
+    def address_string(self):
+        host, _ = self.client_address[:2]
+        return host
 
     def __init_variables(self) -> None:
         self.__board = chess.Board(self.DEFAULT_FEN)
@@ -143,11 +148,9 @@ class Server(BaseHTTPRequestHandler):
             case "/moves":
                 stockfish_move_list = [
                     StockFishMove(
-                        **{key.lower(): value for key, value in top_move.keys()}
+                        **{key.lower(): value for key, value in top_move.items()}
                     )
-                    for top_move in self.__stockfish.get_top_moves(
-                        num_top_moves=inf.as_integer_ratio()[0]
-                    )
+                    for top_move in self.__stockfish.get_top_moves(num_top_moves=50)
                 ]
 
                 if stockfish_move_list:
@@ -227,7 +230,7 @@ class Server(BaseHTTPRequestHandler):
                 self.end_headers()
 
 
-httpd = HTTPServer(("localhost", Config.BACKEND_PORT), Server)
+httpd = HTTPServer(("127.0.0.1", Config.BACKEND_PORT), Server)
 print(f"Server listening on port {Config.BACKEND_PORT}")
 
 httpd.serve_forever()
