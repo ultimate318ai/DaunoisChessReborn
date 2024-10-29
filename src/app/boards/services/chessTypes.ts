@@ -39,6 +39,21 @@ export type PieceSymbol =
   | 'Q'
   | 'K';
 
+export const PieceSymbolList = [
+  'p',
+  'n',
+  'b',
+  'r',
+  'q',
+  'k',
+  'P',
+  'N',
+  'B',
+  'R',
+  'Q',
+  'K',
+];
+
 export type PlayerColor = 'w' | 'b';
 
 export class DaunoisChessError extends Error {

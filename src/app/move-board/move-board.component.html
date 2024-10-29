@@ -6,13 +6,13 @@
     "
   >
     <span id="moveIndex"> {{ moveBoardIndex(index) }} </span>
-    <span [id]="move.san">{{ move.san }}</span>
+    <span [id]="move.uci">{{ move.uci }}</span>
   </div>
   <ng-template #moveBlock>
     <span
       [ngClass]="move === lastMove ? ['activeMove'] : ['move']"
-      [id]="move.san"
-      >{{ move.san }}</span
+      [id]="move.uci"
+      >{{ move.uci }}</span
     >
   </ng-template>
 </div>

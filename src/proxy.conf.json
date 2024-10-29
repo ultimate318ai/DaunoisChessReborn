@@ -1,0 +1,7 @@
+{
+    "/move": {
+        "target": "http://localhost:5201/move",
+        "secure": false,
+        "logLevel": "debug"
+    }
+}

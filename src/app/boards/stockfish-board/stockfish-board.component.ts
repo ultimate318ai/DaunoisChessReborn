@@ -6,25 +6,37 @@ import {
   SimpleChanges,
   HostListener,
   Output,
+  OnDestroy,
 } from '@angular/core';
 import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
-import { PieceSymbol, boardCellNotation } from './services//chessTypes';
-import { BoardService } from './services/board.service';
-import { ChessService } from './services/chess.service';
+import { PieceSymbol, boardCellNotation } from '../services/chessTypes';
+import { BoardService } from '../services/board.service';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
-import { Move } from 'chess.ts';
+import {
+  BoardInformation,
+  chessApiService,
+  Move,
+} from '../services/chess.api.service';
+import {
+  BehaviorSubject,
+  forkJoin,
+  mergeMap,
+  Subject,
+  Subscription,
+  switchMap,
+} from 'rxjs';
 
 @Component({
-  selector: 'app-chess-board',
-  templateUrl: './chess-board.component.html',
-  styleUrls: ['./chess-board.component.scss'],
+  selector: 'app-stockfish-board',
+  templateUrl: './stockfish-board.component.html',
+  styleUrls: ['./stockfish-board.component.scss'],
 })
-export class ChessBoardComponent implements OnInit, OnChanges {
+export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   public fen!: string;
 
   @Output()
-  public moves: Array<Move> = new Array();
+  public moveMadeList: Array<Move> = new Array();
 
   private displayedMoves: Array<Move> = new Array();
 
@@ -32,36 +44,97 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
   private pointedCells: string[] = [];
   private selectedFromPieceCell: string = '';
-  private lastMove: Move = {
-    to: '',
-    from: '',
-    color: 'w',
-    flags: '',
-    piece: 'b',
-    san: '',
-  }; // default wrong move for typing issue
+  private lastMove: Move | null = null;
+
   private lastMoveIndex: number = -1;
 
   private isLastMovePromotion = false;
   private promotionCellName: string = '';
 
+  private isMovesFromCellArePromotion: BehaviorSubject<boolean> =
+    new BehaviorSubject(false);
+
+  private promotionPiecesSet: BehaviorSubject<Set<PieceSymbol>> =
+    new BehaviorSubject(new Set());
+
+  subscriptionList: Subscription = new Subscription();
+
+  onStockFishBoardStateUpdate = new Subject<void>();
+  onMoveEndCellClicked = new Subject<string>();
+  stockFishMoveList: Move[] = [];
+
+  private boardInformation: BoardInformation | null = null;
+
   constructor(
     private boardService: BoardService,
-    private chessService: ChessService,
+    private chessService: chessApiService,
     private arrowService: ChessboardArrowService
-  ) {}
+  ) {
+    this.onStockFishBoardStateUpdate
+      .pipe(
+        mergeMap(() =>
+          forkJoin({
+            stockFishMoveList: this.chessService.fetchBestStockFishMoveList(),
+            boardInformation: this.chessService.fetchBoardInformation(),
+          })
+        )
+      )
+      .subscribe(({ stockFishMoveList, boardInformation }) => {
+        this.stockFishMoveList = stockFishMoveList;
+        this.boardInformation = boardInformation;
+      });
+    this.onMoveEndCellClicked
+      .pipe(
+        switchMap((cellClicked) =>
+          this.chessService.applyChessMove(
+            this.selectedFromPieceCell,
+            cellClicked
+          )
+        )
+      )
+      .subscribe((stockFishMove) => {
+        if (stockFishMove) {
+          this.moveMadeList.push(stockFishMove);
+          this.displayedMoves.push(stockFishMove);
+          this.updateChessBoard();
+          this.updateChessBoardLastMove(stockFishMove);
+          this.onStockFishBoardStateUpdate.next();
+        }
+        this.resetSelectedPiece();
+        this.resetPointedCells();
+      });
+  }
 
   ngOnInit(): void {
     this.buildChessBoard();
     this.arrowService.initializeCanvas();
+    this.onStockFishBoardStateUpdate.next();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     const fenChanged = changes['fen'];
     if (fenChanged) {
-      this.chessService.restartChessGame(fenChanged.currentValue);
       this.buildChessBoard();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptionList.unsubscribe();
+  }
+
+  getStockFishMoveListFromCell(cell: string): Move[] {
+    console.log(this.stockFishMoveList);
+    return this.stockFishMoveList.filter(
+      (chessMove) => chessMove.from === cell
+    );
+  }
+
+  get playerTurn(): 'w' | 'b' {
+    const fenPlayerTurnPart = this.fen.split(' ')[2];
+    if (fenPlayerTurnPart !== 'w' && fenPlayerTurnPart !== 'b') {
+      throw new Error('Fen is not valid.');
+    }
+    return fenPlayerTurnPart;
   }
 
   buildChessBoard(): void {
@@ -98,7 +171,9 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   private updateChessBoard(): void {
-    this.fen = this.chessService.getGameFen();
+    this.chessService
+      .fetchStockFishFen()
+      .subscribe((newFen) => (this.fen = newFen));
     this.buildChessBoard();
   }
 
@@ -107,23 +182,16 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     this.lastMove = move;
   }
 
-  get boardLastMoveFrom() {
-    return this.lastMove.from;
+  get boardLastMoveFrom(): string {
+    return this.lastMove !== null ? this.lastMove.from : '';
   }
 
-  get boardLastMoveTo() {
-    return this.lastMove.to;
+  get boardLastMoveTo(): string {
+    return this.lastMove !== null ? this.lastMove.to : '';
   }
 
   get potentialsPromotionsPieces(): Set<PieceSymbol> {
-    const fromCellMoves = this.chessService.getMovesFromCell(
-      this.selectedFromPieceCell as boardCellNotation
-    );
-    return new Set(
-      fromCellMoves.flatMap((move) =>
-        !!move.promotion ? [move.promotion] : []
-      )
-    );
+    return this.promotionPiecesSet.getValue();
   }
 
   get openPromotionChoices() {
@@ -131,15 +199,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   private potentialMoveEndsInPromotion(): boolean {
-    const fromCellMoves = this.chessService.getMovesFromCell(
-      this.selectedFromPieceCell as boardCellNotation
-    );
-    return (
-      !!fromCellMoves.length &&
-      fromCellMoves.every((move) =>
-        this.chessService.moveInvolvesPromotion(move)
-      )
-    );
+    return this.isMovesFromCellArePromotion.getValue();
   }
 
   promotionSquarePositionFromIndex(index: number): boardCellNotation {
@@ -149,13 +209,14 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       );
     return this.boardService.fromCoordinatesToBoardCellNotation([
       promotionCellCoordinates[0],
-      this.chessService.whiteToPlay()
+      this.playerTurn === 'w'
         ? promotionCellCoordinates[1] - index
         : promotionCellCoordinates[1] + index,
     ]);
   }
 
   private updatePointedBoardCells(moves: Move[]): void {
+    console.log(moves);
     this.pointedCells = this.boardService
       .getBoardEntries()
       .filter((boardCell) => !!moves.find((move) => boardCell[0] === move.to))
@@ -167,7 +228,17 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     pieceSymbol: PieceSymbol | 'no piece';
     pointed: boolean;
   }): boolean {
-    return this.chessService.isKingCellChecked(cellName);
+    const whiteKingIsCheckInTurn =
+      cellName.pieceSymbol === 'K' &&
+      this.boardInformation !== null &&
+      this.boardInformation.is_check &&
+      this.boardInformation.turn;
+    const blackKingIsCheckInTurn =
+      cellName.pieceSymbol === 'k' &&
+      this.boardInformation !== null &&
+      this.boardInformation.is_check &&
+      !this.boardInformation.turn;
+    return whiteKingIsCheckInTurn || blackKingIsCheckInTurn;
   }
 
   isCellOccupied(cellName: string): boolean {
@@ -188,15 +259,16 @@ export class ChessBoardComponent implements OnInit, OnChanges {
       return;
     }
     if (this.selectedFromPieceCell) {
-      const move = this.chessService.applyChessMove(
-        this.selectedFromPieceCell,
-        cellClick
-      );
-      if (move) {
-        this.moves.push(move);
-        this.displayedMoves.push(move);
-        this.updateChessBoardLastMove(move);
-      }
+      this.chessService
+        .applyChessMove(this.selectedFromPieceCell, cellClick)
+        .subscribe((move) => {
+          if (move) {
+            this.moveMadeList.push(move);
+            this.displayedMoves.push(move);
+            this.updateChessBoardLastMove(move);
+            this.onStockFishBoardStateUpdate.next();
+          }
+        });
     }
     this.resetPointedCells();
     this.resetSelectedPiece();
@@ -204,49 +276,29 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   }
 
   onCellClick(cellClicked: string): void {
+    console.log('ff');
     if (!this.stateValid) return;
-    const moves = this.chessService.getMovesFromCell(
-      cellClicked as boardCellNotation
-    );
+    const moves = this.getStockFishMoveListFromCell(cellClicked);
+    console.log(moves);
 
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
       this.isLastMovePromotion = true;
       this.promotionCellName = cellClicked;
+      console.log('return ?');
       return;
     }
     if (this.selectedFromPieceCell) {
-      const move = this.chessService.applyChessMove(
-        this.selectedFromPieceCell,
-        cellClicked
-      );
-      if (move) {
-        this.moves.push(move);
-        this.displayedMoves.push(move);
-        this.updateChessBoard();
-        this.updateChessBoardLastMove(move);
-      }
-      this.resetSelectedPiece();
-      this.resetPointedCells();
+      this.onMoveEndCellClicked.next(cellClicked);
     }
     if (moves.length && !this.selectedFromPieceCell) {
-      this.selectedFromPieceCell = moves[0].from;
+      this.selectedFromPieceCell = cellClicked;
     }
     this.updatePointedBoardCells(moves);
   }
 
   onPromotionPieceClick(promotionPiece: PieceSymbol): void {
     if (!this.stateValid) return;
-    const promotionMove = this.chessService.applyChessMove(
-      this.selectedFromPieceCell,
-      this.promotionCellName,
-      promotionPiece
-    );
-    if (promotionMove) {
-      this.moves.push(promotionMove);
-      this.displayedMoves.push(promotionMove);
-      this.updateChessBoard();
-      this.updateChessBoardLastMove(promotionMove);
-    }
+    this.onMoveEndCellClicked.next(this.promotionCellName);
     this.isLastMovePromotion = false;
     this.promotionCellName = '';
     this.resetSelectedPiece();
@@ -256,9 +308,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   onPieceDrag(event: CdkDragStart<any>) {
     if (!this.stateValid) return;
     const cellClicked = event.source.element.nativeElement.id;
-    const moves = this.chessService.getMovesFromCell(
-      cellClicked as boardCellNotation
-    );
+    const moves = this.getStockFishMoveListFromCell(cellClicked);
     if (moves.length) {
       this.resetPointedCells();
       this.selectedFromPieceCell = cellClicked;
@@ -323,28 +373,28 @@ export class ChessBoardComponent implements OnInit, OnChanges {
   handleContextMenu(event: any) {
     event.preventDefault();
   }
-
-  @HostListener('document:wheel', ['$event'])
-  handleMouseWheel(event: WheelEvent) {
-    if (event.deltaY > 0) {
-      //scroll on bottom
-      this.displayedMoves = this.displayedMoves.slice(0, -1);
-      const move = this.chessService.undoLastChessMove();
-      if (move) this.updateChessBoardLastMove(move);
-      this.stateValid = false;
-    } else {
-      if (this.displayedMoves.length < this.moves.length) {
-        this.displayedMoves = [
-          ...this.displayedMoves,
-          this.moves[this.displayedMoves.length],
-        ];
-        const move = this.displayedMoves[this.displayedMoves.length - 1];
-        this.chessService.applyChessMove(move.from, move.to);
-        this.updateChessBoardLastMove(move);
-      } else {
-        this.stateValid = true;
-      }
-    }
-    this.updateChessBoard();
-  }
+  // TODO: handle this from backend
+  // @HostListener('document:wheel', ['$event'])
+  // handleMouseWheel(event: WheelEvent) {
+  //   if (event.deltaY > 0) {
+  //     //scroll on bottom
+  //     this.displayedMoves = this.displayedMoves.slice(0, -1);
+  //     const move = this.chessService.undoLastChessMove();
+  //     if (move) this.updateChessBoardLastMove(move);
+  //     this.stateValid = false;
+  //   } else {
+  //     if (this.displayedMoves.length < this.moves.length) {
+  //       this.displayedMoves = [
+  //         ...this.displayedMoves,
+  //         this.moves[this.displayedMoves.length],
+  //       ];
+  //       const move = this.displayedMoves[this.displayedMoves.length - 1];
+  //       this.chessService.applyChessMove(move.from, move.to);
+  //       this.updateChessBoardLastMove(move);
+  //     } else {
+  //       this.stateValid = true;
+  //     }
+  //   }
+  //   this.updateChessBoard();
+  // }
 }

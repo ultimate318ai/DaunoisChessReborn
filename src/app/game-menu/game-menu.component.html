@@ -1,6 +1,6 @@
 <section id="game form">
   <form [formGroup]="gameForm">
-    <h2>Address</h2>
+    <h2>Game Settings</h2>
 
     <label for="gameType">Game Types: </label>
     <select id="gameType" type="text" formControlName="gameType">
@@ -11,18 +11,29 @@
 
     <label for="gameWith">Opponent: </label>
     <select id="gameWith" type="text" formControlName="gameWith">
-      <option *ngFor="let opponent of opponents" [value]="opponent">
+      <option *ngFor="let opponent of opponents" [ngValue]="opponent">
         {{ opponent }}
       </option>
     </select>
+
+    <div *ngIf="opponent === 'Stockfish'">
+      <label for="skillLevel">Skill Level: </label>
+      <input
+        id="skillLevelRange"
+        type="range"
+        [min]="skillLevels[0]"
+        [max]="skillLevels[skillLevels.length - 1] + 1"
+        formControlName="skillLevel"
+      />
+      <div id="skillLevel">{{ skillLevel }}</div>
+    </div>
 
     <label for="fen">Fen: </label>
     <input
       id="fen"
       type="text"
       formControlName="fen"
-      [style.width.ch]="fen.length"
-      [(ngModel)]="fen"
+      [style.width.ch]="fen?.length"
     />
 
     <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">

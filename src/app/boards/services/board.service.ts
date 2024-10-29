@@ -1,10 +1,17 @@
 import { Injectable } from '@angular/core';
-import {
-  PieceSymbol,
-  boardCellLetterNotation,
-  boardCellNotation,
-  boardCellsType,
-} from './chessTypes';
+import { PieceSymbol, boardCellNotation, boardCellsType } from './chessTypes';
+import { Move } from 'chess.ts';
+import { BehaviorSubject } from 'rxjs';
+
+interface State {
+  fen: string | undefined;
+  moveStack: Array<Move>;
+}
+
+const initialState: State = {
+  fen: undefined,
+  moveStack: [],
+};
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +19,16 @@ import {
 export class BoardService {
   private boardCells: boardCellsType = {};
 
-  constructor() {}
+  private state$ = new BehaviorSubject<State>(initialState);
+  state = this.state$.asObservable();
+
+  setFen(fen: string): void {
+    this.state$.next({ ...this.state$.value, fen: fen });
+  }
+
+  setMoveStack(MoveStack: Array<Move>) {
+    this.state$.next({ ...this.state$.value, moveStack: MoveStack });
+  }
 
   public UpdateBoardCells(fen: string): void {
     /**

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Move } from 'chess.ts';
+import { Move } from '../boards/services/chess.api.service';
 
 @Component({
   selector: 'app-move-board',
@@ -8,7 +8,7 @@ import { Move } from 'chess.ts';
 })
 export class MoveBoardComponent {
   @Input()
-  public moves!: Array<Move>;
+  public moves!: Move[];
 
   get chessMoves() {
     return this.moves;
