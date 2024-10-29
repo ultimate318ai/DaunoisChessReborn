@@ -21,7 +21,7 @@ from flask_cors import CORS, cross_origin
 class StockFishMove:
     """Class Representing abstract stockfish chess move"""
 
-    move: str
+    move_san: str
     centipawn: int | None
     mate: int | None
 
@@ -120,12 +120,8 @@ def move():
 @app.route("/moves", methods=["GET"])
 @cross_origin()
 def moves():
-    """Get top moves from stockfish in a position given."""
-    stockfish_move_list = [
-        StockFishMove(**{key.lower(): value for key, value in top_move.items()})
-        for top_move in __stockfish.get_top_moves(num_top_moves=50)
-    ]
-    return {"App/Inf": "Ok", "value": stockfish_move_list}, 200
+    """Get top moves from board in a position given."""
+    return {"App/Inf": "Ok", "value": [_ for _ in __board.legal_moves]}, 200
 
 
 @app.route("/boardInformation", methods=["GET"])
