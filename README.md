@@ -2,22 +2,27 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.7.
 
+The prpose of this project is to build a website of chess, including normal game and variants.
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Code scaffolding
+## Backend
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `python -m flask --app src/backend/http-server-stockfish run -p 8080` In order to have responding backend.
 
-## Build
+## Features Status
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Chess Game Vs Stockfish
+- Normal Chess (In progress)
+- ... (Variants in comming after)
 
-## Running unit tests
+### Game Analysis (TODO)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## Running end-to-end tests
+### Custom Variant Editor (TODO)
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### MultiPlayer Game (TODO)
+
+---------------------------------------------------
