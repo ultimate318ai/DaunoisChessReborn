@@ -14,6 +14,7 @@ import chess
 import stockfish
 
 from flask import Flask, request
+from flask_cors import CORS, cross_origin
 
 
 @dataclass
@@ -74,6 +75,8 @@ def __find_ia_path(target: str, path="", sep=IA_EXE_FILE_PATH_SEP):
 
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config["CORS_HEADERS"] = "Content-Type"
 
 __engine_path = next(__find_ia_path(IA_EXE_NAME))
 __board = chess.Board(DEFAULT_FEN)
@@ -82,9 +85,9 @@ __stockfish.set_fen_position(DEFAULT_FEN)
 
 
 @app.route("/fen", methods=["PUT", "GET"])
+@cross_origin()
 def fen():
     """Fen management for chess board"""
-
     if request.method == "PUT":
         __board.set_board_fen(request.form["fen"])
         return {"App/Inf": "Ok"}, 200
@@ -94,6 +97,7 @@ def fen():
 
 
 @app.route("/move", methods=["PUT", "GET"])
+@cross_origin()
 def move():
     """Move management on a chess board"""
     if request.method == "GET":
@@ -114,6 +118,7 @@ def move():
 
 
 @app.route("/moves", methods=["GET"])
+@cross_origin()
 def moves():
     """Get top moves from stockfish in a position given."""
     stockfish_move_list = [
@@ -124,6 +129,7 @@ def moves():
 
 
 @app.route("/boardInformation", methods=["GET"])
+@cross_origin()
 def board_information():
     """Current board state."""
     body = {
