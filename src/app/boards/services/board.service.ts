@@ -19,8 +19,6 @@ const initialState: State = {
 export class BoardService {
   private boardCells: boardCellsType = {};
 
-  constructor() {}
-
   private state$ = new BehaviorSubject<State>(initialState);
   state = this.state$.asObservable();
 

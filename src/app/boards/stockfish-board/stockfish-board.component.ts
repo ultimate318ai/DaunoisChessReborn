@@ -15,7 +15,7 @@ import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service
 import {
   BoardInformation,
   chessApiService,
-  StockFishMove,
+  Move,
 } from '../services/chess.api.service';
 import {
   BehaviorSubject,
@@ -36,15 +36,15 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   public fen!: string;
 
   @Output()
-  public moveMadeList: Array<StockFishMove> = new Array();
+  public moveMadeList: Array<Move> = new Array();
 
-  private displayedMoves: Array<StockFishMove> = new Array();
+  private displayedMoves: Array<Move> = new Array();
 
   private stateValid: boolean = true;
 
   private pointedCells: string[] = [];
   private selectedFromPieceCell: string = '';
-  private lastMove: StockFishMove | null = null;
+  private lastMove: Move | null = null;
 
   private lastMoveIndex: number = -1;
 
@@ -61,7 +61,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
 
   onStockFishBoardStateUpdate = new Subject<void>();
   onMoveEndCellClicked = new Subject<string>();
-  stockFishMoveList: StockFishMove[] = [];
+  stockFishMoveList: Move[] = [];
 
   private boardInformation: BoardInformation | null = null;
 
@@ -122,10 +122,10 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     this.subscriptionList.unsubscribe();
   }
 
-  getStockFishMoveListFromCell(cell: string): StockFishMove[] {
+  getStockFishMoveListFromCell(cell: string): Move[] {
     console.log(this.stockFishMoveList);
     return this.stockFishMoveList.filter(
-      (chessMove) => chessMove.coordinates.from === cell
+      (chessMove) => chessMove.from === cell
     );
   }
 
@@ -177,17 +177,17 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     this.buildChessBoard();
   }
 
-  private updateChessBoardLastMove(move: StockFishMove): void {
+  private updateChessBoardLastMove(move: Move): void {
     this.lastMoveIndex++;
     this.lastMove = move;
   }
 
   get boardLastMoveFrom(): string {
-    return this.lastMove !== null ? this.lastMove.coordinates.from : '';
+    return this.lastMove !== null ? this.lastMove.from : '';
   }
 
   get boardLastMoveTo(): string {
-    return this.lastMove !== null ? this.lastMove.coordinates.to : '';
+    return this.lastMove !== null ? this.lastMove.to : '';
   }
 
   get potentialsPromotionsPieces(): Set<PieceSymbol> {
@@ -215,13 +215,11 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     ]);
   }
 
-  private updatePointedBoardCells(moves: StockFishMove[]): void {
+  private updatePointedBoardCells(moves: Move[]): void {
+    console.log(moves);
     this.pointedCells = this.boardService
       .getBoardEntries()
-      .filter(
-        (boardCell) =>
-          !!moves.find((move) => boardCell[0] === move.coordinates.to)
-      )
+      .filter((boardCell) => !!moves.find((move) => boardCell[0] === move.to))
       .map((boardCell) => boardCell[0]);
     this.boardService.changeCellPointedState(this.pointedCells, true);
   }

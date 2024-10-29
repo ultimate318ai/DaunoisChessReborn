@@ -121,7 +121,19 @@ def move():
 @cross_origin()
 def moves():
     """Get top moves from board in a position given."""
-    return {"App/Inf": "Ok", "value": [_ for _ in __board.legal_moves]}, 200
+    return {
+        "App/Inf": "Ok",
+        "value": [
+            {
+                "uci": move.uci(),
+                "from": f"{chr(97 + (move.from_square % 8))}{(move.from_square // 8)+1}",
+                "to": f"{chr(97 + (move.from_square % 8))}{(move.from_square // 8)+1}",
+                "promotion": move.promotion,
+                "drop": move.drop,
+            }
+            for move in __board.legal_moves
+        ],
+    }, 200
 
 
 @app.route("/boardInformation", methods=["GET"])

@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Move } from 'chess.ts';
-import { StockFishMove } from '../boards/services/chess.api.service';
+import { Move } from '../boards/services/chess.api.service';
 
 @Component({
   selector: 'app-move-board',
@@ -9,13 +8,13 @@ import { StockFishMove } from '../boards/services/chess.api.service';
 })
 export class MoveBoardComponent {
   @Input()
-  public moves!: StockFishMove[];
+  public moves!: Move[];
 
   get chessMoves() {
     return this.moves;
   }
 
-  get lastMove(): StockFishMove | undefined {
+  get lastMove(): Move | undefined {
     if (!this.moves.length) return undefined;
     return this.moves[this.moves.length - 1];
   }

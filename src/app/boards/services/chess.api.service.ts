@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { filter, map, Observable } from 'rxjs';
-import { PieceSymbol } from './chessTypes';
+import { boardCellNotation, PieceSymbol } from './chessTypes';
 
-export type StockFishMove = {
-  move: string;
-  centipawn: number | null;
-  mate: number | null;
-  coordinates: { from: string; to: string };
-  promotion: PieceSymbol;
+export type Move = {
+  uci: string;
+  from: boardCellNotation;
+  to: boardCellNotation;
+  promotion: PieceSymbol | null;
+  drop: PieceSymbol | null;
 };
 
 export type BoardInformation = {
@@ -46,7 +46,7 @@ export class chessApiService {
     );
   }
 
-  public fetchBestStockFishMoveList(): Observable<StockFishMove[]> {
+  public fetchBestStockFishMoveList(): Observable<Move[]> {
     const httpResponse = this.httpClient.get(`${this.ipAddress}/moves`, {
       ...this._options,
       responseType: 'json',
@@ -55,7 +55,7 @@ export class chessApiService {
 
     return httpResponse.pipe(
       map((httpResponse) => {
-        const moveList = httpResponse.body as StockFishMove[];
+        const moveList = httpResponse.body as Move[];
         if (!moveList) {
           throw new Error('No moves in response body.');
         }
@@ -93,7 +93,7 @@ export class chessApiService {
 
   public updateStockFishFen() {
     this.httpClient
-      .post(
+      .put(
         `${this.ipAddress}/fen`,
         {
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0',
@@ -110,7 +110,7 @@ export class chessApiService {
     fromCellNotation: string,
     toCellNotation: string,
     promotion?: PieceSymbol
-  ): Observable<StockFishMove | null> {
+  ): Observable<Move | null> {
     return this.httpClient
       .post(
         `${this.ipAddress}/move`,
@@ -122,8 +122,8 @@ export class chessApiService {
         { ...this._options, responseType: 'json', observe: 'response' }
       )
       .pipe(
-        map((httpResponse): StockFishMove | null => {
-          return httpResponse.body as StockFishMove | null;
+        map((httpResponse): Move | null => {
+          return httpResponse.body as Move | null;
         })
       );
   }
