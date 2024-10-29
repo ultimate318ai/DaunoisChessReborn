@@ -48,7 +48,7 @@ IA_EXE_NAME = (
 IA_EXE_FILE_PATH_SEP = "/" if platform.system() != "Windows" else "\\"
 
 
-def __find_ia_path(target: str, path="", sep=IA_EXE_FILE_PATH_SEP) -> pathlib.Path:
+def __find_ia_path(target: str, path="", sep=IA_EXE_FILE_PATH_SEP):
     """
     Find recursively the path of the IA engine.
     """
@@ -66,17 +66,16 @@ def __find_ia_path(target: str, path="", sep=IA_EXE_FILE_PATH_SEP) -> pathlib.Pa
 
     if len(matches):
         engine_path = path + sep + matches[0]
-        return pathlib.Path(engine_path)
+        yield pathlib.Path(engine_path)
 
     for d in list_dir_only:
         _path = path + sep + d
-        return __find_ia_path(target, path=_path, sep=sep)
-    raise ValueError("path not found for engine.")
+        yield from __find_ia_path(target, path=_path, sep=sep)
 
 
 app = Flask(__name__)
 
-__engine_path = __find_ia_path(IA_EXE_NAME)
+__engine_path = next(__find_ia_path(IA_EXE_NAME))
 __board = chess.Board(DEFAULT_FEN)
 __stockfish = stockfish.Stockfish(str(__engine_path))
 __stockfish.set_fen_position(DEFAULT_FEN)
