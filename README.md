@@ -16,22 +16,22 @@ The purpose of this project is to build a website of chess, including normal gam
 
 ### Application
 
-[![GitHub branches](https://badgen.net/github/branches/Naereen/Strapdown.js)](https://github.com/ultimate318ai/DaunoisChessReborn)
+[![GitHub branches](https://badgen.net/github/branches/ultimate318ai/DaunoisChessReborn)](https://github.com/ultimate318ai/DaunoisChessReborn)
 
-[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/ultimate318ai/DaunoisChessReborn/releases)
-
-
-[![GitHub commits](https://badgen.net/github/commits/Naereen/Strapdown.js)](https://github.com/ultimate318ai/DaunoisChessReborn/commits/)
+[![Latest release](https://badgen.net/github/release/ultimate318ai/DaunoisChessReborn)](https://github.com/ultimate318ai/DaunoisChessReborn/releases)
 
 
-[![GitHub latest commit](https://badgen.net/github/last-commit/Naereen/Strapdown.js)](https://github.com/ultimate318ai/DaunoisChessReborn/commits/)
+[![GitHub commits](https://badgen.net/github/commits/ultimate318ai/DaunoisChessReborn)](https://github.com/ultimate318ai/DaunoisChessReborn/commits/)
+
+
+[![GitHub latest commit](https://badgen.net/github/last-commit/ultimate318ai/DaunoisChessReborn)](https://github.com/ultimate318ai/DaunoisChessReborn/commits/)
 
 ### Development
-[![GitHub issues](https://img.shields.io/github/issues/Naereen/StrapDown.js.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/issues)
+[![GitHub issues](https://img.shields.io/github/issues/ultimate318ai/DaunoisChessReborn.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/issues)
 
-[![GitHub pull-requests](https://img.shields.io/github/issues-pr/Naereen/StrapDown.js.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/pull)
+[![GitHub pull-requests](https://img.shields.io/github/issues-pr/ultimate318ai/DaunoisChessReborn.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/pull)
 
-[![GitHub pull-requests closed](https://img.shields.io/github/issues-pr-closed/Naereen/StrapDown.js.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/pull)
+[![GitHub pull-requests closed](https://img.shields.io/github/issues-pr-closed/ultimate318ai/DaunoisChessReborn.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/pull)
 
 
 ## Development server
