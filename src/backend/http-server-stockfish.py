@@ -92,8 +92,8 @@ def fen():
         __board.set_board_fen(request.form["fen"])
         return {"App/Inf": "Ok"}, 200
     if request.method == "GET":
-        return {"fen": __board.fen()}, 200
-    return {"App/Err:": "Method not Supported"}, 504
+        return {"App/Inf": "Ok", "value": {"fen": __board.fen()}}, 200
+    return {"App/Err": "Method not Supported"}, 504
 
 
 @app.route("/move", methods=["PUT", "GET"])
@@ -114,7 +114,7 @@ def move():
         )
         __board.push(move_)
         return {"App/Inf": "Ok"}, 200
-    return {"App/Err:": "Method not Supported"}, 504
+    return {"App/Err": "Method not Supported"}, 504
 
 
 @app.route("/moves", methods=["GET"])

@@ -171,10 +171,10 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateChessBoard(): void {
-    this.chessService
-      .fetchStockFishFen()
-      .subscribe((newFen) => (this.fen = newFen));
-    this.buildChessBoard();
+    this.chessService.fetchStockFishFen().subscribe((newFen) => {
+      this.fen = newFen;
+      this.buildChessBoard();
+    });
   }
 
   private updateChessBoardLastMove(move: Move): void {
@@ -252,6 +252,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onEmptyCellClick(cellClick: string) {
+    console.log('onEmptyCellClick');
     if (!this.stateValid) return;
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
       this.isLastMovePromotion = true;
