@@ -1,8 +1,38 @@
 # DaunoisChessReborn
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.7.
 
-The prpose of this project is to build a website of chess, including normal game and variants.
+The purpose of this project is to build a website of chess, including normal game and variants.
+
+
+## State
+
+### Technical
+
+[![Generic badge](https://img.shields.io/badge/Angular-16.2.7-yellow.svg)](https://shields.io/)
+
+[![Generic badge](https://img.shields.io/badge/Python-3.12.3-green.svg)](https://shields.io/)
+
+[![Generic badge](https://img.shields.io/badge/Stockfish-Not_Yet_available-red.svg)](https://shields.io/)
+
+### Application
+
+[![GitHub branches](https://badgen.net/github/branches/Naereen/Strapdown.js)](https://github.com/ultimate318ai/DaunoisChessReborn)
+
+[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/ultimate318ai/DaunoisChessReborn/releases)
+
+
+[![GitHub commits](https://badgen.net/github/commits/Naereen/Strapdown.js)](https://github.com/ultimate318ai/DaunoisChessReborn/commits/)
+
+
+[![GitHub latest commit](https://badgen.net/github/last-commit/Naereen/Strapdown.js)](https://github.com/ultimate318ai/DaunoisChessReborn/commits/)
+
+### Development
+[![GitHub issues](https://img.shields.io/github/issues/Naereen/StrapDown.js.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/issues)
+
+[![GitHub pull-requests](https://img.shields.io/github/issues-pr/Naereen/StrapDown.js.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/pull)
+
+[![GitHub pull-requests closed](https://img.shields.io/github/issues-pr-closed/Naereen/StrapDown.js.svg)](https://github.com/ultimate318ai/DaunoisChessReborn/pull)
+
 
 ## Development server
 
