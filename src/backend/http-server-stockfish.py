@@ -6,7 +6,6 @@ and put on fen changes.
 
 from dataclasses import dataclass
 
-import json
 import os
 import pathlib
 import platform
@@ -89,10 +88,10 @@ __stockfish.set_fen_position(DEFAULT_FEN)
 def fen():
     """Fen management for chess board"""
     if request.method == "PUT":
-        __board.set_board_fen(request.form["fen"])
+        __board.set_board_fen(f"{request.get_data().decode().split(" ")[0]}")
         return {"App/Inf": "Ok"}, 200
     if request.method == "GET":
-        return {"App/Inf": "Ok", "value": {"fen": __board.fen()}}, 200
+        return {"App/Inf": "Ok", "value": __board.fen()}, 200
     return {"App/Err": "Method not Supported"}, 504
 
 
@@ -100,17 +99,25 @@ def fen():
 @cross_origin()
 def move():
     """Move management on a chess board"""
+
+    PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
     if request.method == "GET":
         stockfish_move = __stockfish.get_best_move()
         if stockfish_move:
             return {"App/Inf": "Ok", "value": stockfish_move}, 200
         return {"App/Inf": "Ok", "value": None}, 200
     if request.method == "PUT":
-        move_object: dict[str, chess.Square] = json.loads(request.form["move"])
+        move_object: dict[str, str | None] = request.get_json()
+        print(move_object)
+        from_ = move_object.get("from", None)
+        to_ = move_object.get("to", None)
+        promotion = move_object.get("Promotion", None)
+        if from_ is None or to_ is None:
+            return {"App/Err": f"wrong from or to for move {move_object}"}, 400
         move_ = chess.Move(
-            from_square=move_object["from"],
-            to_square=move_object["to"],
-            promotion=move_object["promotion"],
+            from_square=chess.parse_square(from_),
+            to_square=chess.parse_square(to_),
+            promotion=PIECE_SYMBOLS.index(promotion) if promotion is not None else None,
         )
         __board.push(move_)
         return {"App/Inf": "Ok"}, 200
@@ -127,7 +134,7 @@ def moves():
             {
                 "uci": move.uci(),
                 "from": f"{chr(97 + (move.from_square % 8))}{(move.from_square // 8)+1}",
-                "to": f"{chr(97 + (move.from_square % 8))}{(move.from_square // 8)+1}",
+                "to": f"{chr(97 + (move.to_square % 8))}{(move.to_square // 8)+1}",
                 "promotion": move.promotion,
                 "drop": move.drop,
             }

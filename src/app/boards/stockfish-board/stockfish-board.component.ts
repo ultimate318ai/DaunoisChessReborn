@@ -21,6 +21,7 @@ import {
   BehaviorSubject,
   forkJoin,
   mergeMap,
+  of,
   Subject,
   Subscription,
   switchMap,
@@ -61,7 +62,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
 
   onStockFishBoardStateUpdate = new Subject<void>();
   onMoveEndCellClicked = new Subject<string>();
-  stockFishMoveList: Move[] = [];
+  moveList: Move[] = [];
 
   private boardInformation: BoardInformation | null = null;
 
@@ -80,28 +81,38 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
         )
       )
       .subscribe(({ stockFishMoveList, boardInformation }) => {
-        this.stockFishMoveList = stockFishMoveList;
+        this.moveList = stockFishMoveList;
         this.boardInformation = boardInformation;
       });
     this.onMoveEndCellClicked
       .pipe(
-        switchMap((cellClicked) =>
-          this.chessService.applyChessMove(
+        switchMap((cellClicked) => {
+          if (this.isEndOfChessBoardMoveValid(cellClicked)) {
+            this.chessService.applyChessMove(
+              this.selectedFromPieceCell,
+              cellClicked
+            );
+            return of(cellClicked);
+          }
+          return of(null);
+        })
+      )
+      .subscribe((cellClicked) => {
+        if (cellClicked !== null) {
+          const move = this.getMoveFromCoordinateCells(
             this.selectedFromPieceCell,
             cellClicked
-          )
-        )
-      )
-      .subscribe((stockFishMove) => {
-        if (stockFishMove) {
-          this.moveMadeList.push(stockFishMove);
-          this.displayedMoves.push(stockFishMove);
-          this.updateChessBoard();
-          this.updateChessBoardLastMove(stockFishMove);
-          this.onStockFishBoardStateUpdate.next();
+          );
+          if (move) {
+            this.moveMadeList.push(move);
+            this.displayedMoves.push(move);
+            this.updateChessBoard();
+            this.updateChessBoardLastMove(move);
+            this.onStockFishBoardStateUpdate.next();
+          }
+          this.resetSelectedPiece();
+          this.resetPointedCells();
         }
-        this.resetSelectedPiece();
-        this.resetPointedCells();
       });
   }
 
@@ -109,6 +120,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     this.buildChessBoard();
     this.arrowService.initializeCanvas();
     this.onStockFishBoardStateUpdate.next();
+    this.chessService.updateStockFishFen(this.fen).subscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -122,10 +134,20 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     this.subscriptionList.unsubscribe();
   }
 
-  getStockFishMoveListFromCell(cell: string): Move[] {
-    console.log(this.stockFishMoveList);
-    return this.stockFishMoveList.filter(
-      (chessMove) => chessMove.from === cell
+  getChessBoardMoveListFromCell(cell: string): Move[] {
+    return this.moveList.filter((chessMove) => chessMove.from === cell);
+  }
+
+  isEndOfChessBoardMoveValid(toCell: string): boolean {
+    return !!this.moveList.find(
+      (chessMove) =>
+        chessMove.from === this.selectedFromPieceCell && chessMove.to === toCell
+    );
+  }
+
+  getMoveFromCoordinateCells(from: string, to: string): Move | undefined {
+    return this.moveList.find(
+      (chessMove) => chessMove.from === from && chessMove.to === to
     );
   }
 
@@ -216,12 +238,15 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updatePointedBoardCells(moves: Move[]): void {
-    console.log(moves);
+    console.group('updatePointedBoardCells');
+    this.boardService.changeCellPointedState(this.pointedCells, false);
     this.pointedCells = this.boardService
       .getBoardEntries()
       .filter((boardCell) => !!moves.find((move) => boardCell[0] === move.to))
       .map((boardCell) => boardCell[0]);
+    console.table(this.pointedCells);
     this.boardService.changeCellPointedState(this.pointedCells, true);
+    console.groupEnd();
   }
 
   isKingCellChecked(cellName: {
@@ -252,7 +277,9 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onEmptyCellClick(cellClick: string) {
-    console.log('onEmptyCellClick');
+    console.group('onEmptyCellClick');
+    console.log(this.selectedFromPieceCell);
+    console.log(cellClick);
     if (!this.stateValid) return;
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
       this.isLastMovePromotion = true;
@@ -262,7 +289,11 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     if (this.selectedFromPieceCell) {
       this.chessService
         .applyChessMove(this.selectedFromPieceCell, cellClick)
-        .subscribe((move) => {
+        .subscribe(() => {
+          const move = this.getMoveFromCoordinateCells(
+            this.selectedFromPieceCell,
+            cellClick
+          );
           if (move) {
             this.moveMadeList.push(move);
             this.displayedMoves.push(move);
@@ -274,12 +305,13 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     this.resetPointedCells();
     this.resetSelectedPiece();
     this.updateChessBoard();
+    console.groupEnd();
   }
 
   onCellClick(cellClicked: string): void {
-    console.log('ff');
+    console.group('onCellClick');
     if (!this.stateValid) return;
-    const moves = this.getStockFishMoveListFromCell(cellClicked);
+    const moves = this.getChessBoardMoveListFromCell(cellClicked);
     console.log(moves);
 
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
@@ -295,6 +327,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedFromPieceCell = cellClicked;
     }
     this.updatePointedBoardCells(moves);
+    console.groupEnd();
   }
 
   onPromotionPieceClick(promotionPiece: PieceSymbol): void {
@@ -309,7 +342,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   onPieceDrag(event: CdkDragStart<any>) {
     if (!this.stateValid) return;
     const cellClicked = event.source.element.nativeElement.id;
-    const moves = this.getStockFishMoveListFromCell(cellClicked);
+    const moves = this.getChessBoardMoveListFromCell(cellClicked);
     if (moves.length) {
       this.resetPointedCells();
       this.selectedFromPieceCell = cellClicked;

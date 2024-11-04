@@ -5,7 +5,7 @@ import {
   HttpParams,
   HttpResponse,
 } from '@angular/common/http';
-import { filter, map, Observable, retry } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { boardCellNotation, PieceSymbol } from './chessTypes';
 
 export type Move = {
@@ -74,16 +74,8 @@ export class chessApiService {
     return value.toString().match(fenValidation) !== null;
   }
 
-  public updateStockFishFen() {
-    this.putOnBackendServer('fen', {
-      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0',
-    }).subscribe({
-      next: (response) => console.log(response),
-      error: (error) => console.log(error),
-    });
-    this.httpClient.put(`${this.ipAddress}/fen`, {
-      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0',
-    });
+  public updateStockFishFen(fen: string): Observable<string> {
+    return this.putOnBackendServer('fen', fen);
   }
 
   public applyChessMove(
@@ -116,19 +108,9 @@ export class chessApiService {
       );
   }
 
-  private putOnBackendServer(
-    endpoint: string,
-    value: {
-      [param: string]:
-        | string
-        | number
-        | boolean
-        | null
-        | ReadonlyArray<string | number | boolean>;
-    }
-  ): Observable<string> {
+  private putOnBackendServer(endpoint: string, value: any): Observable<string> {
     return this.httpClient
-      .get<BackendPutResponse>(`${this.ipAddress}/${endpoint}`, {
+      .put<BackendPutResponse>(`${this.ipAddress}/${endpoint}`, value, {
         ...this._options,
         responseType: 'json',
         observe: 'response',
@@ -150,19 +132,10 @@ export class chessApiService {
 
   private postOnBackendServer(
     endpoint: string,
-    parameter:
-      | HttpParams
-      | {
-          [param: string]:
-            | string
-            | number
-            | boolean
-            | null
-            | ReadonlyArray<string | number | boolean>;
-        }
+    parameters: any
   ): Observable<any> {
     return this.httpClient
-      .post<BackendPostResponse>(`${this.ipAddress}/${endpoint}`, {
+      .post<BackendPostResponse>(`${this.ipAddress}/${endpoint}`, parameters, {
         ...this._options,
         responseType: 'json',
         observe: 'response',
