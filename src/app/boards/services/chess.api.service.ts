@@ -51,15 +51,15 @@ export class chessApiService {
 
   constructor(private httpClient: HttpClient) {}
 
-  public fetchBestStockFishMove(): Observable<string> {
+  public fetchBestMove(): Observable<string> {
     return this.getOnBackendServer('move');
   }
 
-  public fetchBestStockFishMoveList(): Observable<Move[]> {
+  public fetchMoveList(): Observable<Move[]> {
     return this.getOnBackendServer('moves');
   }
 
-  public fetchStockFishFen(): Observable<string> {
+  public fetchFen(): Observable<string> {
     return this.getOnBackendServer('fen');
   }
 
@@ -74,7 +74,7 @@ export class chessApiService {
     return value.toString().match(fenValidation) !== null;
   }
 
-  public updateStockFishFen(fen: string): Observable<string> {
+  public updateFen(fen: string): Observable<string> {
     return this.putOnBackendServer('fen', fen);
   }
 

@@ -88,7 +88,7 @@ __stockfish.set_fen_position(DEFAULT_FEN)
 def fen():
     """Fen management for chess board"""
     if request.method == "PUT":
-        __board.set_board_fen(f"{request.get_data().decode().split(" ")[0]}")
+        __board.set_fen(f"{request.get_data().decode()}")
         return {"App/Inf": "Ok"}, 200
     if request.method == "GET":
         return {"App/Inf": "Ok", "value": __board.fen()}, 200
@@ -149,6 +149,6 @@ def board_information():
     """Current board state."""
     body = {
         "is_check": __board.is_check(),
-        "turn": __board.turn,
+        "turn": "w" if __board.turn else "b",
     }
     return {"App/Inf": "Ok", "value": body}, 200

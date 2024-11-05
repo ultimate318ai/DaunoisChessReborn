@@ -44,7 +44,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   private stateValid: boolean = true;
 
   private pointedCells: string[] = [];
-  private selectedFromPieceCell: string = '';
+  selectedFromPieceCell: string = '';
   private lastMove: Move | null = null;
 
   private lastMoveIndex: number = -1;
@@ -60,28 +60,28 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
 
   subscriptionList: Subscription = new Subscription();
 
-  onStockFishBoardStateUpdate = new Subject<void>();
+  onBoardStateUpdate = new Subject<void>();
   onMoveEndCellClicked = new Subject<string>();
   moveList: Move[] = [];
 
-  private boardInformation: BoardInformation | null = null;
+  boardInformation: BoardInformation | null = null;
 
   constructor(
     private boardService: BoardService,
     private chessService: chessApiService,
     private arrowService: ChessboardArrowService
   ) {
-    this.onStockFishBoardStateUpdate
+    this.onBoardStateUpdate
       .pipe(
         mergeMap(() =>
           forkJoin({
-            stockFishMoveList: this.chessService.fetchBestStockFishMoveList(),
+            moveList: this.chessService.fetchMoveList(),
             boardInformation: this.chessService.fetchBoardInformation(),
           })
         )
       )
-      .subscribe(({ stockFishMoveList, boardInformation }) => {
-        this.moveList = stockFishMoveList;
+      .subscribe(({ moveList, boardInformation }) => {
+        this.moveList = moveList;
         this.boardInformation = boardInformation;
       });
     this.onMoveEndCellClicked
@@ -108,7 +108,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
             this.displayedMoves.push(move);
             this.updateChessBoard();
             this.updateChessBoardLastMove(move);
-            this.onStockFishBoardStateUpdate.next();
+            this.onBoardStateUpdate.next();
           }
           this.resetSelectedPiece();
           this.resetPointedCells();
@@ -119,8 +119,8 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.buildChessBoard();
     this.arrowService.initializeCanvas();
-    this.onStockFishBoardStateUpdate.next();
-    this.chessService.updateStockFishFen(this.fen).subscribe();
+    this.onBoardStateUpdate.next();
+    this.chessService.updateFen(this.fen).subscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -135,6 +135,8 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getChessBoardMoveListFromCell(cell: string): Move[] {
+    console.log('move list');
+    console.log(this.moveList);
     return this.moveList.filter((chessMove) => chessMove.from === cell);
   }
 
@@ -193,7 +195,7 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateChessBoard(): void {
-    this.chessService.fetchStockFishFen().subscribe((newFen) => {
+    this.chessService.fetchFen().subscribe((newFen) => {
       this.fen = newFen;
       this.buildChessBoard();
     });
@@ -276,35 +278,35 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     );
   }
 
-  onEmptyCellClick(cellClick: string) {
+  onEmptyCellClick(cellClicked: string) {
     console.group('onEmptyCellClick');
     console.log(this.selectedFromPieceCell);
-    console.log(cellClick);
+    console.log(cellClicked);
     if (!this.stateValid) return;
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
       this.isLastMovePromotion = true;
-      this.promotionCellName = cellClick;
+      this.promotionCellName = cellClicked;
       return;
     }
     if (this.selectedFromPieceCell) {
       this.chessService
-        .applyChessMove(this.selectedFromPieceCell, cellClick)
+        .applyChessMove(this.selectedFromPieceCell, cellClicked)
         .subscribe(() => {
           const move = this.getMoveFromCoordinateCells(
             this.selectedFromPieceCell,
-            cellClick
+            cellClicked
           );
           if (move) {
             this.moveMadeList.push(move);
             this.displayedMoves.push(move);
+            this.updateChessBoard();
             this.updateChessBoardLastMove(move);
-            this.onStockFishBoardStateUpdate.next();
+            this.onMoveEndCellClicked.next(cellClicked);
           }
         });
     }
     this.resetPointedCells();
     this.resetSelectedPiece();
-    this.updateChessBoard();
     console.groupEnd();
   }
 
@@ -313,6 +315,11 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.stateValid) return;
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
     console.log(moves);
+    if (!this.selectedFromPieceCell) {
+      this.selectedFromPieceCell = cellClicked;
+      this.updatePointedBoardCells(moves);
+      return;
+    }
 
     if (this.selectedFromPieceCell && this.potentialMoveEndsInPromotion()) {
       this.isLastMovePromotion = true;
@@ -322,11 +329,9 @@ export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
     }
     if (this.selectedFromPieceCell) {
       this.onMoveEndCellClicked.next(cellClicked);
+      this.resetSelectedPiece();
+      this.resetPointedCells();
     }
-    if (moves.length && !this.selectedFromPieceCell) {
-      this.selectedFromPieceCell = cellClicked;
-    }
-    this.updatePointedBoardCells(moves);
     console.groupEnd();
   }
 
