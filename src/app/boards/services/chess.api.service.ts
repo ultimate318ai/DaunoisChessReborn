@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { boardCellNotation, PieceSymbol } from './chessTypes';
 
@@ -13,7 +13,7 @@ export type Move = {
 
 export type BoardInformation = {
   is_check: boolean;
-  turn: boolean;
+  turn: 'w' | 'b';
 };
 
 type BackendGetResponse = {
@@ -73,15 +73,12 @@ export class chessApiService {
     return this.putOnBackendServer('fen', fen);
   }
 
-  public applyChessMove(
-    fromCellNotation: string,
-    toCellNotation: string,
-    promotion?: PieceSymbol
-  ): Observable<string> {
+  public applyChessMove(move: Move): Observable<string> {
+    const { from, to, promotion } = move;
     return this.putOnBackendServer('move', {
-      from: fromCellNotation,
-      to: toCellNotation,
-      promotion: promotion !== undefined ? promotion.toLowerCase() : null,
+      from,
+      to,
+      promotion,
     });
   }
 
@@ -94,7 +91,6 @@ export class chessApiService {
       })
       .pipe(
         map((httpResponse) => {
-          console.log(httpResponse);
           const responseBody = httpResponse.body;
           if (!responseBody)
             throw new Error(`no response body for ${endpoint} request`);
@@ -112,7 +108,6 @@ export class chessApiService {
       })
       .pipe(
         map((httpResponse) => {
-          console.log(httpResponse);
           const responseBody = httpResponse.body;
           if (!responseBody)
             throw new Error(`no response body for ${endpoint} request`);
@@ -137,7 +132,6 @@ export class chessApiService {
       })
       .pipe(
         map((httpResponse) => {
-          console.log(httpResponse);
           const responseBody = httpResponse;
           return responseBody;
         })

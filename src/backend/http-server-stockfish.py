@@ -100,7 +100,6 @@ def fen():
 def move():
     """Move management on a chess board"""
 
-    PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
     if request.method == "GET":
         stockfish_move = __stockfish.get_best_move()
         if stockfish_move:
@@ -111,13 +110,15 @@ def move():
         print(move_object)
         from_ = move_object.get("from", None)
         to_ = move_object.get("to", None)
-        promotion = move_object.get("Promotion", None)
+        promotion = move_object.get("promotion", None)
         if from_ is None or to_ is None:
             return {"App/Err": f"wrong from or to for move {move_object}"}, 400
         move_ = chess.Move(
             from_square=chess.parse_square(from_),
             to_square=chess.parse_square(to_),
-            promotion=PIECE_SYMBOLS.index(promotion) if promotion is not None else None,
+            promotion=(
+                chess.PIECE_SYMBOLS.index(promotion.lower()) if promotion else None
+            ),
         )
         __board.push(move_)
         return {"App/Inf": "Ok"}, 200
@@ -135,7 +136,11 @@ def moves():
                 "uci": move.uci(),
                 "from": f"{chr(97 + (move.from_square % 8))}{(move.from_square // 8)+1}",
                 "to": f"{chr(97 + (move.to_square % 8))}{(move.to_square // 8)+1}",
-                "promotion": move.promotion,
+                "promotion": (
+                    chess.PIECE_SYMBOLS[move.promotion].upper()
+                    if move.promotion and __board.turn
+                    else chess.PIECE_SYMBOLS[move.promotion] if move.promotion else None
+                ),
                 "drop": move.drop,
             }
             for move in __board.legal_moves

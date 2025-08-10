@@ -1,8 +1,14 @@
-{{ fen | json }}
+fen :{{ fen | json }}
 
-{{ boardInformation | json }}
+Board info :{{ boardInformation | json }}
 
-{{ selectedFromPieceCell }}
+Last move a promotion :{{ openPromotionChoices }}
+
+Selected:
+{{ selectedFromPieceCell }} ---------------------------------------------
+------------------------------------ MoveList : {{ moveList | json }}
+
+------------------------------------ --------------------------------
 
 <section class="chessGame">
   <section id="chessBoard" class="column">
@@ -11,100 +17,87 @@
         <canvas id="primaryCanvas" width="480" height="480"></canvas>
         <canvas id="drawingCanvas" width="480" height="480"></canvas>
         @if (openPromotionChoices) {
-          <div id="promotion-choice">
-            @for (
-              promotionPiece of potentialsPromotionsPieces; track
-              promotionPiece; let index = $index) {
-              <div
-                [id]="promotionSquarePositionFromIndex(index)"
-              [ngStyle]="{
-                'background-image':
-                  'url(' + piecePictureUrl(promotionPiece) + ')',
-                left:
-                  '' +
-                  12.5 *
-                    (promotionSquarePositionFromIndex(index)[0].charCodeAt(0) -
-                      97) +
-                  '%',
-                bottom:
-                  '' +
-                  12.5 * (+promotionSquarePositionFromIndex(index)[1] - 1) +
-                  '%'
-              }"
-                (click)="onPromotionPieceClick(promotionPiece)"
-              ></div>
-            }
-          </div>
-        }
-        @for (
-          chessBoardCell of chessBoardCellsContents; track
-          chessBoardCell; let index = $index) {
-          @if (
-            chessBoardCell.pieceSymbol !== 'no piece' &&
-            isKingCellChecked(chessBoardCell)) {
-            <div
-              class="nestedCell"
-              [id]="chessBoardCellsKeys[index]"
-              >
-              <div class="checked"></div>
-              <div
-              [ngStyle]="{
-                'background-image':
-                  'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
-              }"
-                (click)="onCellClick(chessBoardCellsKeys[index])"
-                (cdkDragStarted)="onPieceDrag($event)"
-                (cdkDragEnded)="onPieceDrop($event)"
-                cdkDragBoundary=".wrapper"
-                cdkDrag
-              ></div>
-            </div>
-          } @else {
-            @if (
-              chessBoardCell.pieceSymbol !== 'no piece') {
-              <div
-                [id]="chessBoardCellsKeys[index]"
-              [attr.last-move]="
-                boardLastMoveFrom === chessBoardCellsKeys[index] ||
-                boardLastMoveTo === chessBoardCellsKeys[index]
-                  ? ''
-                  : null
-              "
-                [attr.attacked]="chessBoardCell.pointed ? '' : null"
-                (click)="onCellClick(chessBoardCellsKeys[index])"
-                >
-                <span
-                  [id]="chessBoardCellsKeys[index]"
-                [ngStyle]="{
-                  'background-image':
-                    'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
-                }"
-                  cdkDragBoundary=".wrapper"
-                  cdkDrag
-                  (cdkDragStarted)="onPieceDrag($event)"
-                  (cdkDragEnded)="onPieceDrop($event)"
-                ></span>
-              </div>
-            } @else {
-              <div
-                [id]="chessBoardCellsKeys[index]"
-                [attr.last-move]="
-                  boardLastMoveFrom === chessBoardCellsKeys[index] ||
-                  boardLastMoveTo === chessBoardCellsKeys[index]
-                    ? ''
-                    : null
-                "
-                [attr.pointed]="chessBoardCell.pointed ? '' : null"
-                (click)="onEmptyCellClick(chessBoardCellsKeys[index])"
-                ></div
-                >
-              }
-            }
+        <div id="promotion-choice">
+          @for ( promotionPiece of potentialsPromotionsPieces; track
+          promotionPiece; let index = $index) {
+          <div
+            [id]="promotionSquarePositionFromIndex(index)"
+            [ngStyle]="{
+              'background-image':
+                'url(' + piecePictureUrl(promotionPiece) + ')',
+              left:
+                '' +
+                12.5 *
+                  (promotionSquarePositionFromIndex(index)[0].charCodeAt(0) -
+                    97) +
+                '%',
+              bottom:
+                '' +
+                12.5 * (+promotionSquarePositionFromIndex(index)[1] - 1) +
+                '%'
+            }"
+            (click)="onPromotionPieceClick(promotionPiece)"
+          ></div>
           }
         </div>
+        } @for ( chessBoardCell of chessBoardCellsContents; track $index; let
+        index = $index) { @if ( chessBoardCell.pieceSymbol !== 'no piece' &&
+        isKingCellChecked(chessBoardCell)) {
+        <div class="nestedCell" [id]="chessBoardCellsKeys[index]">
+          <div class="checked"></div>
+          <div
+            [ngStyle]="{
+              'background-image':
+                'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
+            }"
+            (click)="onCellClick(chessBoardCellsKeys[index])"
+            (cdkDragStarted)="onPieceDrag($event)"
+            (cdkDragEnded)="onPieceDrop($event)"
+            cdkDragBoundary=".wrapper"
+            cdkDrag
+          ></div>
+        </div>
+        } @else { @if ( chessBoardCell.pieceSymbol !== 'no piece') {
+        <div
+          [id]="chessBoardCellsKeys[index]"
+          [attr.last-move]="
+            boardLastMoveFrom === chessBoardCellsKeys[index] ||
+            boardLastMoveTo === chessBoardCellsKeys[index]
+              ? ''
+              : null
+          "
+          [attr.attacked]="chessBoardCell.pointed ? '' : null"
+          (click)="onCellClick(chessBoardCellsKeys[index])"
+        >
+          <span
+            [id]="chessBoardCellsKeys[index]"
+            [ngStyle]="{
+              'background-image':
+                'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
+            }"
+            cdkDragBoundary=".wrapper"
+            cdkDrag
+            (cdkDragStarted)="onPieceDrag($event)"
+            (cdkDragEnded)="onPieceDrop($event)"
+          ></span>
+        </div>
+        } @else {
+        <div
+          [id]="chessBoardCellsKeys[index]"
+          [attr.last-move]="
+            boardLastMoveFrom === chessBoardCellsKeys[index] ||
+            boardLastMoveTo === chessBoardCellsKeys[index]
+              ? ''
+              : null
+          "
+          [attr.pointed]="chessBoardCell.pointed ? '' : null"
+          (click)="onEmptyCellClick(chessBoardCellsKeys[index])"
+        ></div>
+        } } }
       </div>
-    </section>
-    <section id="chessMoves" class="column">
-      <app-move-board [moves]="moveMadeList"></app-move-board>
-    </section>
+    </div>
   </section>
+  <section id="chessMoves" class="column">
+    <app-move-board [moves]="moveMadeList"></app-move-board>
+  </section>
+</section>
