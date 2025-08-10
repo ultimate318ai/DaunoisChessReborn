@@ -1,10 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpParams,
-  HttpResponse,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { boardCellNotation, PieceSymbol } from './chessTypes';
 
