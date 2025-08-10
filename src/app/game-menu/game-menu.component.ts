@@ -1,19 +1,21 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { GAME_TYPES, OPPONENTS, SKILL_LEVEL } from './gameSettings';
-import { ChessService } from '../boards/services/chess.service';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { fenValidator } from './fen-validator.directive';
+import { GAME_TYPES, OPPONENTS, SKILL_LEVEL } from './gameSettings';
 
 @Component({
-    selector: 'app-game-menu',
-    templateUrl: './game-menu.component.html',
-    styleUrls: ['./game-menu.component.scss'],
-    standalone: false
+  selector: 'app-game-menu',
+  templateUrl: './game-menu.component.html',
+  styleUrls: ['./game-menu.component.scss'],
+  imports: [ReactiveFormsModule],
 })
 export class GameMenuComponent {
   @Output() gameLaunched: EventEmitter<string> = new EventEmitter();
-
-  constructor(private chessService: ChessService) {}
 
   private _gameForm = new FormGroup({
     gameType: new FormControl(),
@@ -21,7 +23,7 @@ export class GameMenuComponent {
     skillLevel: new FormControl(),
     fen: new FormControl(
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-      [Validators.required, fenValidator(this.chessService)]
+      [Validators.required, fenValidator()]
     ),
   });
 

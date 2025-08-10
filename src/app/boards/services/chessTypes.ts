@@ -21,8 +21,11 @@ export type boardCellDigitNotation =
 export type boardCellNotation =
   `${boardCellLetterNotation}${boardCellDigitNotation}`;
 
-export type boardCellsType = {
-  [k: string]: { pieceSymbol: PieceSymbol | null; pointed: boolean };
+export type boardCells = {
+  [k in boardCellNotation]: {
+    pieceSymbol: PieceSymbol | null;
+    pointed: boolean;
+  };
 };
 
 export type PieceSymbol =

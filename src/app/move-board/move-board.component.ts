@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { Move } from '../boards/services/chess.api.service';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-move-board',
   templateUrl: './move-board.component.html',
   styleUrls: ['./move-board.component.scss'],
-  imports: [],
+  imports: [NgClass],
 })
 export class MoveBoardComponent {
   @Input()

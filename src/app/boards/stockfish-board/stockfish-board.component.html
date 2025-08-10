@@ -50,7 +50,6 @@ Selected:
               'background-image':
                 'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
             }"
-            *cdkDragPlaceholder
             (click)="onCellClick(chessBoardCellsKeys[index])"
             (cdkDragStarted)="onPieceDrag($event)"
             (cdkDragEnded)="onPieceDrop($event)"
