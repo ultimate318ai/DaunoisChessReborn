@@ -8,6 +8,7 @@ export type Move = {
   from: boardCellNotation;
   to: boardCellNotation;
   promotion: PieceSymbol | null;
+  isEnPassant: boolean;
   drop: PieceSymbol | null;
 };
 
@@ -56,7 +57,7 @@ export class chessApiService {
 
   constructor(private httpClient: HttpClient) {}
 
-  public fetchBestMove(): Observable<string> {
+  public fetchBestMoveUci(): Observable<string> {
     return this.getOnBackendServer('move');
   }
 

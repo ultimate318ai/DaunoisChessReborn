@@ -81,13 +81,21 @@ Selected:
         } @else {
         <div
           [id]="chessBoardCellsKeys[index]"
+          [attr.attacked]="
+            isCellEnPassant(chessBoardCellsKeys[index]) ? '' : null
+          "
           [attr.last-move]="
             boardLastMoveFrom === chessBoardCellsKeys[index] ||
             boardLastMoveTo === chessBoardCellsKeys[index]
               ? ''
               : null
           "
-          [attr.pointed]="chessBoardCell.pointed ? '' : null"
+          [attr.pointed]="
+            chessBoardCell.pointed &&
+            !isCellEnPassant(chessBoardCellsKeys[index])
+              ? ''
+              : null
+          "
           (click)="onEmptyCellClick(chessBoardCellsKeys[index])"
         ></div>
         } } }

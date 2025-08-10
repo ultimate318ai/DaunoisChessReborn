@@ -128,6 +128,10 @@ export class StockfishBoardComponent implements OnInit {
     );
   }
 
+  isCellEnPassant(cell: boardCellNotation): boolean {
+    return this.moveList.some((move) => move.to === cell && move.isEnPassant);
+  }
+
   public getBoardCellPieceSymbol(cell: boardCellNotation): PieceSymbol | null {
     return this.boardCells[cell].pieceSymbol;
   }

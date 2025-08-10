@@ -147,6 +147,7 @@ def moves():
                     else chess.PIECE_SYMBOLS[move.promotion] if move.promotion else None
                 ),
                 "drop": move.drop,
+                "isEnPassant": __board.is_en_passant(move),
             }
             for move in __board.legal_moves
         ],
