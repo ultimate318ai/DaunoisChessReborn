@@ -8,7 +8,7 @@ The purpose of this project is to build a website of chess, including normal gam
 
 ### Technical
 
-[![Generic badge](https://img.shields.io/badge/Angular-16.2.7-yellow.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/Angular-20.1.6-green.svg)](https://shields.io/)
 
 [![Generic badge](https://img.shields.io/badge/Python-3.12.3-green.svg)](https://shields.io/)
 
