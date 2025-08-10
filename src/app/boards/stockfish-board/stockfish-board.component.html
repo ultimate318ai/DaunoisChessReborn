@@ -13,7 +13,7 @@ Selected:
 <section class="chessGame">
   <section id="chessBoard" class="column">
     <div class="board">
-      <div class="wrapper">
+      <div class="wrapper" cdkDropList>
         <canvas id="primaryCanvas" width="480" height="480"></canvas>
         <canvas id="drawingCanvas" width="480" height="480"></canvas>
         @if (openPromotionChoices) {
@@ -50,6 +50,7 @@ Selected:
               'background-image':
                 'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
             }"
+            *cdkDragPlaceholder
             (click)="onCellClick(chessBoardCellsKeys[index])"
             (cdkDragStarted)="onPieceDrag($event)"
             (cdkDragEnded)="onPieceDrop($event)"
@@ -67,20 +68,17 @@ Selected:
               : null
           "
           [attr.attacked]="chessBoardCell.pointed ? '' : null"
+          [id]="chessBoardCellsKeys[index]"
+          [ngStyle]="{
+            'background-image':
+              'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
+          }"
+          cdkDragBoundary=".wrapper"
+          cdkDrag
           (click)="onCellClick(chessBoardCellsKeys[index])"
-        >
-          <span
-            [id]="chessBoardCellsKeys[index]"
-            [ngStyle]="{
-              'background-image':
-                'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
-            }"
-            cdkDragBoundary=".wrapper"
-            cdkDrag
-            (cdkDragStarted)="onPieceDrag($event)"
-            (cdkDragEnded)="onPieceDrop($event)"
-          ></span>
-        </div>
+          (cdkDragStarted)="onPieceDrag($event)"
+          (cdkDragEnded)="onPieceDrop($event)"
+        ></div>
         } @else {
         <div
           [id]="chessBoardCellsKeys[index]"
