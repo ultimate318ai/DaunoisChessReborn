@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { Move } from '../boards/services/chess.api.service';
 
 @Component({
-  selector: 'app-move-board',
-  templateUrl: './move-board.component.html',
-  styleUrls: ['./move-board.component.scss'],
+    selector: 'app-move-board',
+    templateUrl: './move-board.component.html',
+    styleUrls: ['./move-board.component.scss'],
+    standalone: false
 })
 export class MoveBoardComponent {
   @Input()

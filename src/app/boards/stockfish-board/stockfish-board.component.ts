@@ -28,9 +28,10 @@ import {
 } from 'rxjs';
 
 @Component({
-  selector: 'app-stockfish-board',
-  templateUrl: './stockfish-board.component.html',
-  styleUrls: ['./stockfish-board.component.scss'],
+    selector: 'app-stockfish-board',
+    templateUrl: './stockfish-board.component.html',
+    styleUrls: ['./stockfish-board.component.scss'],
+    standalone: false
 })
 export class StockfishBoardComponent implements OnInit, OnChanges, OnDestroy {
   @Input()

@@ -5,9 +5,10 @@ import { ChessService } from '../boards/services/chess.service';
 import { fenValidator } from './fen-validator.directive';
 
 @Component({
-  selector: 'app-game-menu',
-  templateUrl: './game-menu.component.html',
-  styleUrls: ['./game-menu.component.scss'],
+    selector: 'app-game-menu',
+    templateUrl: './game-menu.component.html',
+    styleUrls: ['./game-menu.component.scss'],
+    standalone: false
 })
 export class GameMenuComponent {
   @Output() gameLaunched: EventEmitter<string> = new EventEmitter();
