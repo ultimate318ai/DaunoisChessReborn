@@ -22,8 +22,8 @@ export type boardCellNotation =
   `${boardCellLetterNotation}${boardCellDigitNotation}`;
 
 export type boardCellsType = {
-  [k: string]: { pieceSymbol: PieceSymbol | 'no piece'; pointed: boolean };
-}; //TODO: change "no piece"
+  [k: string]: { pieceSymbol: PieceSymbol | null; pointed: boolean };
+};
 
 export type PieceSymbol =
   | 'p'

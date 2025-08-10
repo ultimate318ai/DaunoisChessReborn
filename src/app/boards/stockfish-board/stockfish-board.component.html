@@ -41,7 +41,7 @@ Selected:
           }
         </div>
         } @for ( chessBoardCell of chessBoardCellsContents; track $index; let
-        index = $index) { @if ( chessBoardCell.pieceSymbol !== 'no piece' &&
+        index = $index) { @if ( chessBoardCell.pieceSymbol !== null &&
         isKingCellChecked(chessBoardCell)) {
         <div class="nestedCell" [id]="chessBoardCellsKeys[index]">
           <div class="checked"></div>
@@ -57,7 +57,7 @@ Selected:
             cdkDrag
           ></div>
         </div>
-        } @else { @if ( chessBoardCell.pieceSymbol !== 'no piece') {
+        } @else { @if ( chessBoardCell.pieceSymbol !== null) {
         <div
           [id]="chessBoardCellsKeys[index]"
           [attr.last-move]="

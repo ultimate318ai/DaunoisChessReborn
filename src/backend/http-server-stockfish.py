@@ -95,7 +95,7 @@ def fen():
     return {"App/Err": "Method not Supported"}, 504
 
 
-@app.route("/move", methods=["PUT", "GET"])
+@app.route("/move", methods=["PUT", "GET", "DELETE"])
 @cross_origin()
 def move():
     """Move management on a chess board"""
@@ -107,7 +107,6 @@ def move():
         return {"App/Inf": "Ok", "value": None}, 200
     if request.method == "PUT":
         move_object: dict[str, str | None] = request.get_json()
-        print(move_object)
         from_ = move_object.get("from", None)
         to_ = move_object.get("to", None)
         promotion = move_object.get("promotion", None)
@@ -122,6 +121,12 @@ def move():
         )
         __board.push(move_)
         return {"App/Inf": "Ok"}, 200
+    if request.method == "DELETE":
+        try:
+            last_move = __board.pop()
+            return {"App/Inf": "Ok", "value": last_move}, 200
+        except IndexError:
+            return {"App/Inf": "Ok", "value": None}, 200
     return {"App/Err": "Method not Supported"}, 504
 
 

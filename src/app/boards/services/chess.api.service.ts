@@ -11,12 +11,22 @@ export type Move = {
   drop: PieceSymbol | null;
 };
 
+export type BoardMove = Move & {
+  capturedPiece: PieceSymbol | null;
+};
+
 export type BoardInformation = {
   is_check: boolean;
   turn: 'w' | 'b';
 };
 
 type BackendGetResponse = {
+  'App/Inf'?: string;
+  'App/Err'?: string;
+  value: any;
+};
+
+type BackendDeleteResponse = {
   'App/Inf'?: string;
   'App/Err'?: string;
   value: any;
@@ -73,6 +83,10 @@ export class chessApiService {
     return this.putOnBackendServer('fen', fen);
   }
 
+  public undoLastChessMove(): Observable<Move | null> {
+    return this.deleteOnBackendServer('move');
+  }
+
   public applyChessMove(move: Move): Observable<string> {
     const { from, to, promotion } = move;
     return this.putOnBackendServer('move', {
@@ -85,6 +99,23 @@ export class chessApiService {
   private getOnBackendServer(endpoint: string): Observable<any> {
     return this.httpClient
       .get<BackendGetResponse>(`${this.ipAddress}/${endpoint}`, {
+        ...this._options,
+        responseType: 'json',
+        observe: 'response',
+      })
+      .pipe(
+        map((httpResponse) => {
+          const responseBody = httpResponse.body;
+          if (!responseBody)
+            throw new Error(`no response body for ${endpoint} request`);
+          return responseBody.value;
+        })
+      );
+  }
+
+  private deleteOnBackendServer(endpoint: string): Observable<any> {
+    return this.httpClient
+      .delete<BackendDeleteResponse>(`${this.ipAddress}/${endpoint}`, {
         ...this._options,
         responseType: 'json',
         observe: 'response',

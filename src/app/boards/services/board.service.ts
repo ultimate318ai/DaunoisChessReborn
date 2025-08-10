@@ -30,11 +30,11 @@ export class BoardService {
     this.state$.next({ ...this.state$.value, moveStack: MoveStack });
   }
 
-  public UpdateBoardCells(fen: string): void {
+  public updateBoardCells(fen: string): void {
     /**
      * Put fen pieces into board cells.
      * Fen is like this : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-     * //TODO: parse fen and check
+     *
      */
     const boardCells: boardCellsType = {};
     const boardPartFen = fen.split(' ')[0];
@@ -50,7 +50,7 @@ export class BoardService {
               column + index,
               8 - row,
             ])}` as boardCellNotation;
-            boardCells[cellName] = { pieceSymbol: 'no piece', pointed: false };
+            boardCells[cellName] = { pieceSymbol: null, pointed: false };
           }
           column += +fenRowItem;
           continue;
@@ -70,6 +70,17 @@ export class BoardService {
     this.boardCells = boardCells;
   }
 
+  public getBoardCellPieceSymbol(cell: boardCellNotation): PieceSymbol | null {
+    return this.boardCells[cell].pieceSymbol;
+  }
+
+  public setBoardCellPieceSymbol(
+    cell: boardCellNotation,
+    value: PieceSymbol | null
+  ): void {
+    this.boardCells[cell].pieceSymbol = value;
+  }
+
   public fromCoordinatesToBoardCellNotation(
     coordinates: [number, number]
   ): boardCellNotation {
@@ -85,7 +96,7 @@ export class BoardService {
   }
 
   public getBoardCellsValues(): {
-    pieceSymbol: PieceSymbol | 'no piece';
+    pieceSymbol: PieceSymbol | null;
     pointed: boolean;
   }[] {
     return Object.values(this.boardCells);
@@ -97,13 +108,16 @@ export class BoardService {
 
   public getBoardEntries(): [
     string,
-    { pieceSymbol: PieceSymbol | 'no piece'; pointed: boolean }
+    { pieceSymbol: PieceSymbol | null; pointed: boolean }
   ][] {
     return Object.entries(this.boardCells);
   }
 
-  public changeCellPointedState(pointedCells: string[], state: boolean): void {
-    pointedCells.forEach((oldPointedCellName: string) => {
+  public setPointedCellListState(
+    pointedCellList: string[],
+    state: boolean
+  ): void {
+    pointedCellList.forEach((oldPointedCellName: string) => {
       this.boardCells[oldPointedCellName].pointed = state;
     });
   }

@@ -71,7 +71,7 @@ export class ChessService {
   }
 
   public isKingCellChecked(cell: {
-    pieceSymbol: PieceSymbol | 'no piece';
+    pieceSymbol: PieceSymbol | null;
     pointed: boolean;
   }): boolean {
     return (
