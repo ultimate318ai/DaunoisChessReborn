@@ -1,18 +1,20 @@
-<div *ngFor="let move of chessMoves; let index = index">
-  <div
-    *ngIf="index % 2 === 0; else moveBlock"
+@for (move of chessMoves; track move; let index = $index) {
+  <div>
+    @if (index % 2 === 0) {
+      <div
     [ngClass]="
       move === lastMove ? ['indexed', 'activeMove'] : ['indexed', 'move']
     "
-  >
-    <span id="moveIndex"> {{ moveBoardIndex(index) }} </span>
-    <span [id]="move.uci">{{ move.uci }}</span>
-  </div>
-  <ng-template #moveBlock>
-    <span
-      [ngClass]="move === lastMove ? ['activeMove'] : ['move']"
-      [id]="move.uci"
-      >{{ move.uci }}</span
-    >
-  </ng-template>
-</div>
+        >
+        <span id="moveIndex"> {{ moveBoardIndex(index) }} </span>
+        <span [id]="move.uci">{{ move.uci }}</span>
+      </div>
+    } @else {
+      <span
+        [ngClass]="move === lastMove ? ['activeMove'] : ['move']"
+        [id]="move.uci"
+        >{{ move.uci }}</span
+        >
+      }
+    </div>
+  }

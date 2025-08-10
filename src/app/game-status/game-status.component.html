@@ -1,3 +1,5 @@
-<div *ngIf="gameFinished">
-  <span>{{ gameStatus }}</span>
-</div>
+@if (gameFinished) {
+  <div>
+    <span>{{ gameStatus }}</span>
+  </div>
+}

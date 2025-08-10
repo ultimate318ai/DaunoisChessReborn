@@ -4,40 +4,46 @@
 
     <label for="gameType">Game Types: </label>
     <select id="gameType" type="text" formControlName="gameType">
-      <option *ngFor="let gameType of gameTypes" [value]="gameType">
-        {{ gameType }}
-      </option>
+      @for (gameType of gameTypes; track gameType) {
+        <option [value]="gameType">
+          {{ gameType }}
+        </option>
+      }
     </select>
 
     <label for="gameWith">Opponent: </label>
     <select id="gameWith" type="text" formControlName="gameWith">
-      <option *ngFor="let opponent of opponents" [ngValue]="opponent">
-        {{ opponent }}
-      </option>
+      @for (opponent of opponents; track opponent) {
+        <option [ngValue]="opponent">
+          {{ opponent }}
+        </option>
+      }
     </select>
 
-    <div *ngIf="opponent === 'Stockfish'">
-      <label for="skillLevel">Skill Level: </label>
+    @if (opponent === 'Stockfish') {
+      <div>
+        <label for="skillLevel">Skill Level: </label>
+        <input
+          id="skillLevelRange"
+          type="range"
+          [min]="skillLevels[0]"
+          [max]="skillLevels[skillLevels.length - 1] + 1"
+          formControlName="skillLevel"
+          />
+          <div id="skillLevel">{{ skillLevel }}</div>
+        </div>
+      }
+
+      <label for="fen">Fen: </label>
       <input
-        id="skillLevelRange"
-        type="range"
-        [min]="skillLevels[0]"
-        [max]="skillLevels[skillLevels.length - 1] + 1"
-        formControlName="skillLevel"
-      />
-      <div id="skillLevel">{{ skillLevel }}</div>
-    </div>
+        id="fen"
+        type="text"
+        formControlName="fen"
+        [style.width.ch]="fen?.length"
+        />
 
-    <label for="fen">Fen: </label>
-    <input
-      id="fen"
-      type="text"
-      formControlName="fen"
-      [style.width.ch]="fen?.length"
-    />
-
-    <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">
-      Submit
-    </button>
-  </form>
-</section>
+        <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">
+          Submit
+        </button>
+      </form>
+    </section>
