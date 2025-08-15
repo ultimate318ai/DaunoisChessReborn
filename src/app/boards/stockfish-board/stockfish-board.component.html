@@ -41,22 +41,24 @@ Selected:
           }
         </div>
         } @for ( chessBoardCell of chessBoardCellsContents; track $index; let
-        index = $index) { @if ( chessBoardCell.pieceSymbol !== null &&
-        isKingCellChecked(chessBoardCell)) {
+        index = $index) { 
+          @if ( chessBoardCell.pieceSymbol !== null && isKingCellChecked(chessBoardCell)) {
         <div class="nestedCell" [id]="chessBoardCellsKeys[index]">
-          <div class="checked"></div>
-          <div
-            [ngStyle]="{
-              'background-image':
-                'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
-            }"
-            (click)="onCellClick(chessBoardCellsKeys[index])"
-            (cdkDragStarted)="onPieceDrag($event)"
-            (cdkDragEnded)="onPieceDrop($event)"
-            cdkDragBoundary=".wrapper"
-            cdkDrag
-          ></div>
+          <div class="chessPiece" [id]="chessBoardCellsKeys[index]">
+            <div class="checked"></div>
+            <div
+              [ngStyle]="{
+                'background-image':
+                  'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
+              }"
+              (click)="onCellClick(chessBoardCellsKeys[index])"
+              (cdkDragStarted)="onPieceDrag($event)"
+              (cdkDragEnded)="onPieceDrop($event)"
+              cdkDrag
+            ></div>
+          </div>
         </div>
+        
         } @else { @if ( chessBoardCell.pieceSymbol !== null) {
         <div
           [id]="chessBoardCellsKeys[index]"
@@ -67,17 +69,20 @@ Selected:
               : null
           "
           [attr.attacked]="chessBoardCell.pointed ? '' : null"
+          >
+          <div class="chessPiece"
           [id]="chessBoardCellsKeys[index]"
           [ngStyle]="{
             'background-image':
-              'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
+            'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
           }"
-          cdkDragBoundary=".wrapper"
-          cdkDrag
-          (click)="onCellClick(chessBoardCellsKeys[index])"
-          (cdkDragStarted)="onPieceDrag($event)"
-          (cdkDragEnded)="onPieceDrop($event)"
-        ></div>
+        cdkDrag
+        (cdkDragStarted)="onPieceDrag($event)"
+        (cdkDragEnded)="onPieceDrop($event)"
+        (click)="onCellClick(chessBoardCellsKeys[index])"
+      >
+      </div>
+      </div>
         } @else {
         <div
           [id]="chessBoardCellsKeys[index]"
@@ -97,7 +102,8 @@ Selected:
               : null
           "
           (click)="onEmptyCellClick(chessBoardCellsKeys[index])"
-        ></div>
+        >
+      </div>
         } } }
       </div>
     </div>

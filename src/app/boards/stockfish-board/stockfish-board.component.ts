@@ -421,7 +421,9 @@ export class StockfishBoardComponent implements OnInit {
     console.log('drag');
     const cellClicked = event.source.element.nativeElement
       .id as boardCellNotation;
+      console.log(cellClicked)
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
+    console.log(moves)
     if (moves.length) {
       this.resetPointedCells();
       this.selectedFromPieceCell = cellClicked;

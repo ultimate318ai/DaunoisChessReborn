@@ -142,3 +142,10 @@ app-move-board {
   width: 460px;
   height: 460px;
 }
+
+.chessPiece {
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 100%;
+  width: 100%;
+}
