@@ -1,20 +1,3 @@
-fen :{{ fen | json }}
-
-Board info :{{ boardInformation | json }}
-
-Last move a promotion :{{ openPromotionChoices }}
-
-Selected:
-{{ selectedFromPieceCell }} ---------------------------------------------
------------------------------------- MoveList : {{ moveList | json }}
-
------------------------------------- 
-
-Drop future:
-{{ selectedPieceDropCell }}
-
---------------------------------
-
 <section class="chessGame">
   <section id="chessBoard" class="column">
     <div class="board">
@@ -48,7 +31,7 @@ Drop future:
         } @for ( chessBoardCell of chessBoardCellsContents; track $index; let
         index = $index) { 
           @if ( chessBoardCell.pieceSymbol !== null && isKingCellChecked(chessBoardCell)) {
-        <div class="nestedCell" [id]="chessBoardCellsKeys[index]">
+        <div class="nestedCell">
           <div class="chessPiece" [id]="chessBoardCellsKeys[index]">
             <div class="checked"></div>
             <div
@@ -61,13 +44,15 @@ Drop future:
               (dragstart)="onPieceDrag($event)"
               (dragend)="onPieceDrop()"
               (dragenter)="onCellDragEnter($event)"
-              (dragleave)="onCellDragLeave($event)"1
+              (dragleave)="onCellDragLeave($event)"
             ></div>
           </div>
         </div>
         
-        } @else { @if ( chessBoardCell.pieceSymbol !== null) {
-        <div
+        } @else { 
+        
+          @if ( chessBoardCell.pieceSymbol !== null) {
+          <div
           [id]="chessBoardCellsKeys[index]"
           [attr.last-move]="
             boardLastMoveFrom === chessBoardCellsKeys[index] ||

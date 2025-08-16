@@ -21,12 +21,10 @@ export type boardCellDigitNotation =
 export type boardCellNotation =
   `${boardCellLetterNotation}${boardCellDigitNotation}`;
 
-export type boardCells = {
-  [k in boardCellNotation]: {
+export type boardCells = Record<boardCellNotation, {
     pieceSymbol: PieceSymbol | null;
     pointed: boolean;
-  };
-};
+  }>;
 
 export type PieceSymbol =
   | 'p'
