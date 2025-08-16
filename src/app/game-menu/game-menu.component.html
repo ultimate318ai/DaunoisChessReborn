@@ -11,35 +11,33 @@
       }
     </select>
 
-    <label for="gameWith">Opponent: </label>
+    <label for="gameWith">Colors: </label>
     <select id="gameWith" type="text" formControlName="gameWith">
-      @for (opponent of opponents; track opponent) {
-        <option [ngValue]="opponent">
-          {{ opponent }}
+      @for (playerColor of playerColorList; track playerColor) {
+        <option [ngValue]="playerColor">
+          {{ playerColor }}
         </option>
       }
     </select>
 
-    @if (opponent === 'Stockfish') {
       <div>
-        <label for="skillLevel">Skill Level: </label>
-        <input
-          id="skillLevelRange"
-          type="range"
-          [min]="skillLevels[0]"
-          [max]="skillLevels[skillLevels.length - 1] + 1"
-          formControlName="skillLevel"
-          />
-          <div id="skillLevel">{{ skillLevel }}</div>
-        </div>
-      }
+      <label for="skillLevel">Skill Level: </label>
+      <input
+        id="skillLevelRange"
+        type="range"
+        [min]="skillLevels[0]"
+        [max]="skillLevels[skillLevels.length - 1] + 1"
+        formControlName="skillLevel"
+        />
+        <div id="skillLevel">{{ skillLevel }}</div>
+      </div>
 
       <label for="fen">Fen: </label>
       <input
         id="fen"
         type="text"
         formControlName="fen"
-        [style.width.ch]="fen?.length"
+        [style.width.ch]="fen.length"
         />
 
         <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">

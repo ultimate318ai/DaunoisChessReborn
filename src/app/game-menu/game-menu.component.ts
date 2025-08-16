@@ -6,7 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { fenValidator } from './fen-validator.directive';
-import { GAME_TYPES, OPPONENTS, SKILL_LEVEL } from './gameSettings';
+import { GAME_TYPES, PLAYER_COLORS, SKILL_LEVEL } from './gameSettings';
 
 @Component({
   selector: 'app-game-menu',
@@ -15,7 +15,7 @@ import { GAME_TYPES, OPPONENTS, SKILL_LEVEL } from './gameSettings';
   imports: [ReactiveFormsModule],
 })
 export class GameMenuComponent {
-  @Output() gameLaunched: EventEmitter<string> = new EventEmitter();
+  @Output() gameLaunched = new EventEmitter();
 
   private _gameForm = new FormGroup({
     gameType: new FormControl(),
@@ -29,16 +29,16 @@ export class GameMenuComponent {
 
   private _gameTypes = GAME_TYPES;
 
-  private _opponents = OPPONENTS;
-
   private _skillLevels = SKILL_LEVEL;
+
+  private _playerColorList = PLAYER_COLORS;
 
   get gameForm() {
     return this._gameForm;
   }
 
-  get opponents(): string[] {
-    return this._opponents;
+  get playerColorList() {
+    return this._playerColorList;
   }
 
   get gameTypes(): string[] {
@@ -49,19 +49,23 @@ export class GameMenuComponent {
     return this._skillLevels;
   }
 
-  get fen(): string | null | undefined {
-    return this._gameForm.get('fen')?.value;
+  get fen(): string {
+    return this._gameForm.get('fen')?.value as string;
   }
 
-  get skillLevel(): number | null | undefined {
-    return this._gameForm.get('skillLevel')?.value;
+  get skillLevel(): number {
+    return this._gameForm.get('skillLevel')?.value as number;
   }
 
-  get opponent(): string | null | undefined {
-    return this._gameForm.get('gameWith')?.value;
+  get gameType(): string {
+    return this._gameForm.get("gameType")?.value as string;
   }
 
   launchGame(): void {
-    if (this.fen) this.gameLaunched.emit(this.fen);
+    this.gameLaunched.emit({
+      fen: this.fen,
+      gameType: this.gameType,
+      skillLevel: this.skillLevel
+    });
   }
 }
