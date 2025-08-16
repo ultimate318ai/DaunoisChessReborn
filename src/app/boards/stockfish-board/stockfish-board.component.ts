@@ -42,13 +42,13 @@ export class StockfishBoardComponent implements OnInit {
   public fen!: string;
 
   @Output()
-  public moveMadeList: Array<Move> = new Array();
+  public moveMadeList = new Array<Move>();
 
-  private displayedMoves: Array<BoardMove> = new Array();
+  private displayedMoves = new Array<BoardMove>();
 
   private pointedCells: string[] = [];
 
-  private stateValid: boolean = true;
+  private stateValid = true;
   private isNextMoveAPromotion = false;
 
   private boardCells: boardCells = {} as boardCells;
@@ -81,12 +81,12 @@ export class StockfishBoardComponent implements OnInit {
 
   ngOnInit(): void {
     const boardPartFen = this.fen.split(' ')[0];
-    let boardCells: boardCells = {} as boardCells;
+    const boardCells: boardCells = {} as boardCells;
     let column = 0;
     let row = 0;
-    for (let fenRow of boardPartFen.split('/')) {
+    for (const fenRow of boardPartFen.split('/')) {
       column = 0;
-      for (let fenRowItem of fenRow) {
+      for (const fenRowItem of fenRow) {
         if (!isNaN(parseFloat(fenRowItem))) {
           for (let index = 0; index < +fenRowItem; index++) {
             const cellName = `${this.fromCoordinatesToBoardCellNotation([
@@ -416,7 +416,7 @@ export class StockfishBoardComponent implements OnInit {
     this.resetPointedCells();
   }
 
-  onPieceDrag(event: CdkDragStart<any>) {
+  onPieceDrag(event: CdkDragStart) {
     if (!this.stateValid) return;
     console.log('drag');
     const cellClicked = event.source.element.nativeElement
@@ -431,7 +431,7 @@ export class StockfishBoardComponent implements OnInit {
     this.updatePointedBoardCells(moves);
   }
 
-  onPieceDrop(event: CdkDragEnd<any>) {
+  onPieceDrop(event: CdkDragEnd) {
     if (!this.stateValid) return;
     console.log('drop');
     const { x, y } = event.dropPoint;
@@ -543,19 +543,20 @@ export class StockfishBoardComponent implements OnInit {
 
   emptyOrOtherSideOccupiedCellPredicate(dragEvent: CdkDrag<boardCellNotation>) {
     const pieceOnboardCell = this.getBoardCellPieceSymbol(dragEvent.data);
+
   }
 
-  dispatchEventToChessBoard(event: any) {
-    //TODO: use this when I have understood event dispatch from canvas
-    event.stopPropagation();
-    console.log('high', event);
-    const cusEvent = new MouseEvent(event, {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    // lowElmRef.dispatchEvent(cusEvent);
-  }
+  // dispatchEventToChessBoard(event: unknown) {
+  //   //TODO: use this when I have understood event dispatch from canvas
+  //   event.stopPropagation();
+  //   console.log('high', event);
+  //   const cusEvent = new MouseEvent(event, {
+  //     view: window,
+  //     bubbles: true,
+  //     cancelable: true,
+  //   });
+  //   // lowElmRef.dispatchEvent(cusEvent);
+  // }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboard(event: KeyboardEvent) {
@@ -578,7 +579,7 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   @HostListener('document:contextmenu', ['$event'])
-  handleContextMenu(event: any) {
+  handleContextMenu(event: Event) {
     event.preventDefault();
   }
   @HostListener('document:wheel', ['$event'])
