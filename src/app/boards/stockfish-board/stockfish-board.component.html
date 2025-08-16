@@ -8,12 +8,17 @@ Selected:
 {{ selectedFromPieceCell }} ---------------------------------------------
 ------------------------------------ MoveList : {{ moveList | json }}
 
------------------------------------- --------------------------------
+------------------------------------ 
+
+Drop future:
+{{ selectedPieceDropCell }}
+
+--------------------------------
 
 <section class="chessGame">
   <section id="chessBoard" class="column">
     <div class="board">
-      <div class="wrapper" cdkDropList>
+      <div class="wrapper">
         <canvas id="primaryCanvas" width="480" height="480"></canvas>
         <canvas id="drawingCanvas" width="480" height="480"></canvas>
         @if (openPromotionChoices) {
@@ -52,9 +57,11 @@ Selected:
                   'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
               }"
               (click)="onCellClick(chessBoardCellsKeys[index])"
-              (cdkDragStarted)="onPieceDrag($event)"
-              (cdkDragEnded)="onPieceDrop($event)"
-              cdkDrag
+              draggable="true"
+              (dragstart)="onPieceDrag($event)"
+              (dragend)="onPieceDrop()"
+              (dragenter)="onCellDragEnter($event)"
+              (dragleave)="onCellDragLeave($event)"1
             ></div>
           </div>
         </div>
@@ -76,9 +83,11 @@ Selected:
             'background-image':
             'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
           }"
-        cdkDrag
-        (cdkDragStarted)="onPieceDrag($event)"
-        (cdkDragEnded)="onPieceDrop($event)"
+        draggable="true"
+        (dragstart)="onPieceDrag($event)"
+        (dragend)="onPieceDrop()"
+        (dragenter)="onCellDragEnter($event)"
+        (dragleave)="onCellDragLeave($event)"
         (click)="onCellClick(chessBoardCellsKeys[index])"
       >
       </div>
@@ -102,6 +111,8 @@ Selected:
               : null
           "
           (click)="onEmptyCellClick(chessBoardCellsKeys[index])"
+          (dragenter)="onEmptyCellDragEnter($event)"
+          (dragleave)="onEmptyCellDragLeave($event)"
         >
       </div>
         } } }

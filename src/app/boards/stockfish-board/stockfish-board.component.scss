@@ -63,20 +63,21 @@ div[pointed] {
   );
 }
 
-div[attacked]:after {
-  content: "\274c"; /* cross hex value */
-  font-size: 30px;
-  color: #fff;
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  transform: translateY(+90%);
-}
-
 div[last-move] {
   background-color: rgba(155, 199, 0, 0.41);
+}
+
+div[attacked] {
+  // content: "\274c"; /* cross hex value */
+  // font-size: 30px;
+  background-color: rgba(255, 77, 0, 1);
+  // display: flex;
+  // width: 100%;
+  // justify-content: center;
+  // align-items: center;
+  // align-content: center;
+  // z-index: 10;
+  // transform: translateY(-40px);
 }
 
 #promotion-choice {

@@ -1,11 +1,3 @@
-import {
-  CdkDrag,
-  CdkDragEnd,
-  CdkDragPlaceholder,
-  CdkDragStart,
-  CdkDropList,
-  DragDropModule,
-} from '@angular/cdk/drag-drop';
 import { JsonPipe, NgStyle } from '@angular/common';
 import { Component, HostListener, Input, OnInit, Output } from '@angular/core';
 import { forkJoin, mergeMap, Subject } from 'rxjs';
@@ -30,11 +22,7 @@ import {
   imports: [
     JsonPipe,
     NgStyle,
-    DragDropModule,
     MoveBoardComponent,
-    CdkDragPlaceholder,
-    CdkDropList,
-    CdkDrag,
   ],
 })
 export class StockfishBoardComponent implements OnInit {
@@ -55,6 +43,7 @@ export class StockfishBoardComponent implements OnInit {
 
   updatePlayerTurnState = new Subject<void>();
   selectedFromPieceCell: boardCellNotation | null = null;
+  selectedPieceDropCell: boardCellNotation | null = null;
   promotionCellName: boardCellNotation | null = null;
   moveList: Move[] = [];
 
@@ -305,6 +294,10 @@ export class StockfishBoardComponent implements OnInit {
     );
   }
 
+  isCellMoveDestinationFromSeletedPieceMove(cellName: boardCellNotation): boolean {
+    return this.moveList.some((move) => move.from === this.selectedFromPieceCell && move.to === cellName)
+  }
+
   onEmptyCellClick(cellClicked: boardCellNotation): void {
     console.log('blblbll');
     if (!this.stateValid) return;
@@ -343,6 +336,7 @@ export class StockfishBoardComponent implements OnInit {
 
   onCellClick(cellClicked: boardCellNotation): void {
     if (!this.stateValid) return;
+    console.log('oncellClick')
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
     if (!this.selectedFromPieceCell) {
       this.selectedFromPieceCell = cellClicked;
@@ -416,12 +410,12 @@ export class StockfishBoardComponent implements OnInit {
     this.resetPointedCells();
   }
 
-  onPieceDrag(event: CdkDragStart) {
+  onPieceDrag(event: DragEvent): void {
     if (!this.stateValid) return;
     console.log('drag');
-    const cellClicked = event.source.element.nativeElement
-      .id as boardCellNotation;
-      console.log(cellClicked)
+    console.log(event)
+    const cellClicked = (event.target as HTMLDivElement).id as boardCellNotation;
+    console.log(cellClicked)
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
     console.log(moves)
     if (moves.length) {
@@ -431,159 +425,92 @@ export class StockfishBoardComponent implements OnInit {
     this.updatePointedBoardCells(moves);
   }
 
-  onPieceDrop(event: CdkDragEnd) {
+  onPieceDrop(): void {
     if (!this.stateValid) return;
-    console.log('drop');
-    const { x, y } = event.dropPoint;
 
-    console.log({ x, y });
+    const boardCell = this.selectedPieceDropCell
 
-    const boardLetterPosition = Math.min(Math.max(Math.floor(x / 60), 0), 7); //TODO: height and with resizable in variable with multiple of 60 (ie 480)
-    const boardNumberPosition = 8 - (Math.floor(y / 60) - 4);
-
-    const boardCell = this.fromCoordinatesToBoardCellNotation([
-      boardLetterPosition,
-      boardNumberPosition,
-    ]);
-
-    console.log(boardCell); //TODO: fix board drop predicate :
-
-    //     import {Component} from '@angular/core';
-    // import {
-    //   CdkDragDrop,
-    //   moveItemInArray,
-    //   transferArrayItem,
-    //   CdkDrag,
-    //   CdkDropList,
-    // } from '@angular/cdk/drag-drop';
-
-    // /**
-    //  * @title Drag&Drop enter predicate
-    //  */
-    // @Component({
-    //   selector: 'cdk-drag-drop-enter-predicate-example',
-    //   templateUrl: 'cdk-drag-drop-enter-predicate-example.html',
-    //   styleUrl: 'cdk-drag-drop-enter-predicate-example.css',
-    //   imports: [CdkDropList, CdkDrag],
-    // })
-    // export class CdkDragDropEnterPredicateExample {
-    //   all = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    //   even = [10];
-
-    //   drop(event: CdkDragDrop<number[]>) {
-    //     if (event.previousContainer === event.container) {
-    //       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    //     } else {
-    //       transferArrayItem(
-    //         event.previousContainer.data,
-    //         event.container.data,
-    //         event.previousIndex,
-    //         event.currentIndex,
-    //       );
-    //     }
-    //   }
-
-    //   /** Predicate function that only allows even numbers to be dropped into a list. */
-    //   evenPredicate(item: CdkDrag<number>) {
-    //     return item.data % 2 === 0;
-    //   }
-
-    //   /** Predicate function that doesn't allow items to be dropped into a list. */
-    //   noReturnPredicate() {
-    //     return false;
-    //   }
-    // }
-
-    // <div class="example-container">
-    //   <h2>Available numbers</h2>
-
-    //   <div
-    //     id="all"
-    //     cdkDropList
-    //     [cdkDropListData]="all"
-    //     cdkDropListConnectedTo="even"
-    //     class="example-list"
-    //     (cdkDropListDropped)="drop($event)"
-    //     [cdkDropListEnterPredicate]="noReturnPredicate">
-    //     @for (number of all; track number) {
-    //       <div
-    //           class="example-box"
-    //           [cdkDragData]="number"
-    //           cdkDrag>{{number}}</div>
-    //     }
-    //   </div>
-    // </div>
-
-    // <div class="example-container">
-    //   <h2>Even numbers</h2>
-
-    //   <div
-    //     id="even"
-    //     cdkDropList
-    //     [cdkDropListData]="even"
-    //     cdkDropListConnectedTo="all"
-    //     class="example-list"
-    //     (cdkDropListDropped)="drop($event)"
-    //     [cdkDropListEnterPredicate]="evenPredicate">
-    //     @for (number of even; track number) {
-    //       <div
-    //           class="example-box"
-    //           cdkDrag
-    //           [cdkDragData]="number">{{number}}</div>
-    //     }
-    //   </div>
-    // </div>
-
-    if (this.isCellOccupied(boardCell)) {
+    if(boardCell) {
+      if (this.isCellOccupied(boardCell)) {
       this.onCellClick(boardCell);
       return;
     }
     this.onEmptyCellClick(boardCell);
+    }
+    this.selectedPieceDropCell = null
   }
 
-  emptyOrOtherSideOccupiedCellPredicate(dragEvent: CdkDrag<boardCellNotation>) {
-    const pieceOnboardCell = this.getBoardCellPieceSymbol(dragEvent.data);
+  onEmptyCellDragEnter(event: DragEvent): void {
+    console.log("empty cell drag enter")
+    const cellClicked = (event.target as HTMLDivElement);
+    const cellId = cellClicked.id as boardCellNotation
+    if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)){
+      cellClicked.style.backgroundColor = 'rgb(0, 255, 0)'
+      this.selectedPieceDropCell = cellId
+    }
 
   }
 
-  // dispatchEventToChessBoard(event: unknown) {
-  //   //TODO: use this when I have understood event dispatch from canvas
-  //   event.stopPropagation();
-  //   console.log('high', event);
-  //   const cusEvent = new MouseEvent(event, {
-  //     view: window,
-  //     bubbles: true,
-  //     cancelable: true,
-  //   });
-  //   // lowElmRef.dispatchEvent(cusEvent);
-  // }
+  onEmptyCellDragLeave(event: DragEvent): void {
+    console.log("empty cell drag leave")
+
+    const cellClicked = (event.target as HTMLDivElement);
+    const cellId = cellClicked.id as boardCellNotation
+
+    if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)){
+      cellClicked.style.backgroundColor = 'unset'
+    }
+  }
+
+  onCellDragEnter(event: DragEvent): void {
+    console.log("Cell drag enter")
+    const cellClicked = (event.target as HTMLDivElement);
+    const cellId = cellClicked.id as boardCellNotation
+    if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)){
+      cellClicked.style.backgroundColor = 'rgba(255, 77, 0, 1)'
+      this.selectedPieceDropCell = cellId
+    }
+
+  }
+
+  onCellDragLeave(event: DragEvent): void {
+    console.log("Cell drag leave")
+
+    const cellClicked = (event.target as HTMLDivElement);
+    const cellId = cellClicked.id as boardCellNotation
+
+    if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)){
+      cellClicked.style.backgroundColor = 'unset'
+    }
+  }
+
 
   @HostListener('document:keydown', ['$event'])
-  handleKeyboard(event: KeyboardEvent) {
+  handleKeyboard(event: KeyboardEvent): void {
     this.arrowService.manageKeyPressed(event);
   }
 
   @HostListener('document:mousedown', ['$event'])
-  handleMouseDown(event: MouseEvent) {
+  handleMouseDown(event: MouseEvent): void {
     this.arrowService.drawBoardLightCircle(event);
   }
 
   @HostListener('document:mouseup', ['$event'])
-  handleMouseUp(event: MouseEvent) {
+  handleMouseUp(event: MouseEvent): void {
     this.arrowService.drawBoardFullCircle(event);
   }
 
   @HostListener('document:mousemove', ['$event'])
-  handleMouseMove(event: MouseEvent) {
+  handleMouseMove(event: MouseEvent): void {
     this.arrowService.drawingArrow(event);
   }
 
   @HostListener('document:contextmenu', ['$event'])
-  handleContextMenu(event: Event) {
+  handleContextMenu(event: Event): void {
     event.preventDefault();
   }
   @HostListener('document:wheel', ['$event'])
-  handleMouseWheel(event: WheelEvent) {
+  handleMouseWheel(event: WheelEvent): void {
     if (event.deltaY > 0) {
       //scroll on bottom
       const lastMove = this.displayedMoves.pop();
