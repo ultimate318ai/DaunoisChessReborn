@@ -1,4 +1,4 @@
-import { JsonPipe, NgStyle } from '@angular/common';
+import { NgStyle } from '@angular/common';
 import { Component, HostListener, Input, OnInit, Output } from '@angular/core';
 import { forkJoin, mergeMap, Subject } from 'rxjs';
 import { MoveBoardComponent } from 'src/app/move-board/move-board.component';
@@ -12,22 +12,23 @@ import {
 import {
   boardCellNotation,
   boardCells,
+  DEFAULT_FEN,
   PieceSymbol,
 } from '../services/chessTypes';
+import { ChessGameSettings } from 'src/app/app.component';
 
 @Component({
   selector: 'app-stockfish-board',
   templateUrl: './stockfish-board.component.html',
   styleUrls: ['./stockfish-board.component.scss'],
   imports: [
-    JsonPipe,
     NgStyle,
     MoveBoardComponent,
   ],
 })
 export class StockfishBoardComponent implements OnInit {
   @Input()
-  public fen!: string;
+  public settings: ChessGameSettings
 
   @Output()
   public moveMadeList = new Array<Move>();
@@ -66,10 +67,15 @@ export class StockfishBoardComponent implements OnInit {
         this.moveList = moveList;
         this.boardInformation = boardInformation;
       });
+    this.settings = {
+      fen: DEFAULT_FEN,
+      skillLevel: 0,
+      gameType: 'chess'
+    }
   }
 
   ngOnInit(): void {
-    const boardPartFen = this.fen.split(' ')[0];
+    const boardPartFen = this.settings.fen.split(' ')[0];
     const boardCells: boardCells = {} as boardCells;
     let column = 0;
     let row = 0;
@@ -100,7 +106,7 @@ export class StockfishBoardComponent implements OnInit {
       row++;
     }
     this.boardCells = boardCells;
-    this.chessService.updateFen(this.fen).subscribe(() => {
+    this.chessService.updateFen(this.settings.fen).subscribe(() => {
       this.arrowService.initializeCanvas();
       this.updatePlayerTurnState.next();
     });
@@ -173,7 +179,7 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   get playerTurn(): 'w' | 'b' {
-    const fenPlayerTurnPart = this.fen.split(' ')[1];
+    const fenPlayerTurnPart = this.settings.fen.split(' ')[1];
     if (fenPlayerTurnPart !== 'w' && fenPlayerTurnPart !== 'b') {
       throw new Error('Fen is not valid.');
     }
@@ -319,7 +325,7 @@ export class StockfishBoardComponent implements OnInit {
           .applyChessMove(move)
           .pipe(mergeMap(() => this.chessService.fetchFen()))
           .subscribe((newFen) => {
-            this.fen = newFen;
+            this.settings.fen = newFen;
             this.moveMadeList.push(move);
             this.displayedMoves.push({
               ...move,
@@ -360,7 +366,7 @@ export class StockfishBoardComponent implements OnInit {
           .applyChessMove(move)
           .pipe(mergeMap(() => this.chessService.fetchFen()))
           .subscribe((newFen) => {
-            this.fen = newFen;
+            this.settings.fen = newFen;
             this.moveMadeList.push(move);
             this.displayedMoves.push({
               ...move,
@@ -394,7 +400,7 @@ export class StockfishBoardComponent implements OnInit {
       .applyChessMove(move)
       .pipe(mergeMap(() => this.chessService.fetchFen()))
       .subscribe((newFen) => {
-        this.fen = newFen;
+        this.settings.fen = newFen;
         this.moveMadeList.push(move);
         this.displayedMoves.push({
           ...move,

@@ -54,14 +54,6 @@ export const PieceSymbolList = [
   'Q',
   'K',
 ];
+export const DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 export type PlayerColor = 'w' | 'b';
-
-export class DaunoisChessError extends Error {
-  constructor(msg: string) {
-    super(msg);
-
-    // Set the prototype explicitly.
-    Object.setPrototypeOf(this, DaunoisChessError.prototype);
-  }
-}

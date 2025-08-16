@@ -1,4 +1,11 @@
 import { Component } from '@angular/core';
+import { GameType, SkillLevel } from './game-menu/gameSettings';
+
+export interface ChessGameSettings {
+      fen: string
+      gameType: GameType
+      skillLevel: SkillLevel
+}
 
 @Component({
   selector: 'app-root',
@@ -9,11 +16,12 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'DaunoisChessReborn';
 
-  fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  settings: ChessGameSettings | null = null
 
   gameLaunched = false;
-  gameStart(fen: string) {
+  gameStart(settings: ChessGameSettings) {
     this.gameLaunched = true;
-    this.fen = fen;
+    this.settings = settings;
+    
   }
 }

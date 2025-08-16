@@ -6,7 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { fenValidator } from './fen-validator.directive';
-import { GAME_TYPES, PLAYER_COLORS, SKILL_LEVEL } from './gameSettings';
+import { GAME_TYPES, GameType, PLAYER_COLORS, SKILL_LEVEL, SkillLevel } from './gameSettings';
 
 @Component({
   selector: 'app-game-menu',
@@ -26,8 +26,8 @@ export class GameMenuComponent {
       [Validators.required, fenValidator()]
     ),
   });
-
   private _gameTypes = GAME_TYPES;
+
 
   private _skillLevels = SKILL_LEVEL;
 
@@ -41,11 +41,11 @@ export class GameMenuComponent {
     return this._playerColorList;
   }
 
-  get gameTypes(): string[] {
+  get gameTypes(): GameType[] {
     return this._gameTypes;
   }
 
-  get skillLevels(): number[] {
+  get skillLevels(): SkillLevel[] {
     return this._skillLevels;
   }
 
@@ -53,11 +53,11 @@ export class GameMenuComponent {
     return this._gameForm.get('fen')?.value as string;
   }
 
-  get skillLevel(): number {
+  get skillLevel(): SkillLevel {
     return this._gameForm.get('skillLevel')?.value as number;
   }
 
-  get gameType(): string {
+  get gameType(): GameType {
     return this._gameForm.get("gameType")?.value as string;
   }
 
