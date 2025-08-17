@@ -33,6 +33,8 @@ export class StockfishBoardComponent implements OnInit {
   @Output()
   public moveMadeList = new Array<Move>();
 
+  fen: string;
+
   private displayedMoves = new Array<BoardMove>();
 
   private pointedCells: string[] = [];
@@ -72,10 +74,12 @@ export class StockfishBoardComponent implements OnInit {
       skillLevel: 0,
       gameType: 'chess'
     }
+    this.fen = this.settings.fen;
+    this.chessService.resetBoardState()
   }
 
   ngOnInit(): void {
-    const boardPartFen = this.settings.fen.split(' ')[0];
+    const boardPartFen = this.fen.split(' ')[0];
     const boardCells: boardCells = {} as boardCells;
     let column = 0;
     let row = 0;
@@ -106,10 +110,8 @@ export class StockfishBoardComponent implements OnInit {
       row++;
     }
     this.boardCells = boardCells;
-    this.chessService.updateFen(this.settings.fen).subscribe(() => {
-      this.arrowService.initializeCanvas();
-      this.updatePlayerTurnState.next();
-    });
+    this.arrowService.initializeCanvas();
+    this.updatePlayerTurnState.next();
   }
 
   getChessBoardMoveListFromCell(cell: string): Move[] {
@@ -179,7 +181,7 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   get playerTurn(): 'w' | 'b' {
-    const fenPlayerTurnPart = this.settings.fen.split(' ')[1];
+    const fenPlayerTurnPart = this.fen.split(' ')[1];
     if (fenPlayerTurnPart !== 'w' && fenPlayerTurnPart !== 'b') {
       throw new Error('Fen is not valid.');
     }
@@ -305,7 +307,6 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onEmptyCellClick(cellClicked: boardCellNotation): void {
-    console.log('blblbll');
     if (!this.stateValid) return;
     const selectedPieceCell = this.selectedFromPieceCell;
     if (selectedPieceCell) {
@@ -313,7 +314,6 @@ export class StockfishBoardComponent implements OnInit {
         selectedPieceCell,
         cellClicked
       );
-      console.log(move);
       if (move) {
         if (this.isMoveAPromotion(move)) {
           this.isNextMoveAPromotion = true;
@@ -325,7 +325,7 @@ export class StockfishBoardComponent implements OnInit {
           .applyChessMove(move)
           .pipe(mergeMap(() => this.chessService.fetchFen()))
           .subscribe((newFen) => {
-            this.settings.fen = newFen;
+            this.fen = newFen;
             this.moveMadeList.push(move);
             this.displayedMoves.push({
               ...move,
@@ -342,7 +342,6 @@ export class StockfishBoardComponent implements OnInit {
 
   onCellClick(cellClicked: boardCellNotation): void {
     if (!this.stateValid) return;
-    console.log('oncellClick')
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
     if (!this.selectedFromPieceCell) {
       this.selectedFromPieceCell = cellClicked;
@@ -366,7 +365,7 @@ export class StockfishBoardComponent implements OnInit {
           .applyChessMove(move)
           .pipe(mergeMap(() => this.chessService.fetchFen()))
           .subscribe((newFen) => {
-            this.settings.fen = newFen;
+            this.fen = newFen;
             this.moveMadeList.push(move);
             this.displayedMoves.push({
               ...move,
@@ -400,7 +399,7 @@ export class StockfishBoardComponent implements OnInit {
       .applyChessMove(move)
       .pipe(mergeMap(() => this.chessService.fetchFen()))
       .subscribe((newFen) => {
-        this.settings.fen = newFen;
+        this.fen = newFen;
         this.moveMadeList.push(move);
         this.displayedMoves.push({
           ...move,
@@ -418,12 +417,8 @@ export class StockfishBoardComponent implements OnInit {
 
   onPieceDrag(event: DragEvent): void {
     if (!this.stateValid) return;
-    console.log('drag');
-    console.log(event)
     const cellClicked = (event.target as HTMLDivElement).id as boardCellNotation;
-    console.log(cellClicked)
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
-    console.log(moves)
     if (moves.length) {
       this.resetPointedCells();
       this.selectedFromPieceCell = cellClicked;
@@ -447,7 +442,6 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onEmptyCellDragEnter(event: DragEvent): void {
-    console.log("empty cell drag enter")
     const cellClicked = (event.target as HTMLDivElement);
     const cellId = cellClicked.id as boardCellNotation
     if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)){
@@ -458,7 +452,6 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onEmptyCellDragLeave(event: DragEvent): void {
-    console.log("empty cell drag leave")
 
     const cellClicked = (event.target as HTMLDivElement);
     const cellId = cellClicked.id as boardCellNotation
@@ -469,7 +462,6 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onCellDragEnter(event: DragEvent): void {
-    console.log("Cell drag enter")
     const cellClicked = (event.target as HTMLDivElement);
     const cellId = cellClicked.id as boardCellNotation
     if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)){
@@ -480,8 +472,6 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onCellDragLeave(event: DragEvent): void {
-    console.log("Cell drag leave")
-
     const cellClicked = (event.target as HTMLDivElement);
     const cellId = cellClicked.id as boardCellNotation
 

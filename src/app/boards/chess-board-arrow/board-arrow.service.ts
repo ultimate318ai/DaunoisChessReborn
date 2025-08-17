@@ -9,7 +9,7 @@ type userKeyboardKey = 'ctrl' | 'alt' | 'none';
   providedIn: 'root',
 })
 export class ChessboardArrowService {
-  private colorsMapping: { [k in userKeyboardKey]: string } = {
+  private colorsMapping: Record<userKeyboardKey, string> = {
     ctrl: 'rgb(234, 0, 0)',
     alt: 'rgb(0, 113, 234)',
     none: 'rgb(0, 234, 43)',
@@ -24,7 +24,7 @@ export class ChessboardArrowService {
   private arrowWidth: number;
   private mouseDown: boolean;
 
-  private lastKeyPressed: string = 'none';
+  private lastKeyPressed = 'none';
 
   constructor() {
     this.initialPoint = { x: null, y: null };
@@ -257,19 +257,19 @@ export class ChessboardArrowService {
     canvas.style.height = canvas.style.height || canvas.height + 'px';
 
     // Get size information.
-    var scaleFactor = 1;
+    const scaleFactor = 1;
     // var scaleFactor = dpi / 96;
-    var width = parseFloat(canvas.style.width);
-    var height = parseFloat(canvas.style.height);
+    const width = parseFloat(canvas.style.width);
+    const height = parseFloat(canvas.style.height);
 
     // Backup the canvas contents.
-    var oldScale = canvas.width / width;
-    var backupScale = scaleFactor / oldScale;
-    var backup = canvas.cloneNode(false);
+    const oldScale = canvas.width / width;
+    const backupScale = scaleFactor / oldScale;
+    const backup = canvas.cloneNode(false);
     backup.getContext('2d').drawImage(canvas, 0, 0);
 
     // Resize the canvas.
-    var ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
     canvas.width = Math.ceil(width * scaleFactor);
     canvas.height = Math.ceil(height * scaleFactor);
 

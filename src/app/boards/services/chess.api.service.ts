@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { map, mergeAll, mergeMap, Observable, of } from 'rxjs';
+import { map, mergeMap, Observable, of } from 'rxjs';
 import { boardCellNotation, PieceSymbol } from './chessTypes';
 
 export interface Move {
@@ -73,21 +73,25 @@ export class chessApiService {
     return this.getOnBackendServer('boardInformation');
   }
 
-  public updateFen(fen: string): Observable<void> {
-    return this.putOnBackendServer('fen', fen).pipe(mergeMap(() => of()));
+  public updateFen(fen: string): Observable<null> {
+    return this.putOnBackendServer('fen', fen).pipe(mergeMap(() => of(null)));
   }
 
   public undoLastChessMove(): Observable<Move | null> {
     return this.deleteOnBackendServer('move');
   }
 
-  public applyChessMove(move: Move): Observable<void> {
+  public applyChessMove(move: Move): Observable<null> {
     const { from, to, promotion } = move;
     return this.putOnBackendServer('move', {
       from,
       to,
       promotion,
-    }).pipe(mergeMap(() => of()));;
+    }).pipe(mergeMap(() => of(null)));
+  }
+
+  public resetBoardState(): Observable<null> {
+    return this.postOnBackendServer("reset").pipe(mergeMap(() => of(null)));
   }
 
   private getOnBackendServer<RType = string>(endpoint: string): Observable<RType> {
@@ -136,7 +140,7 @@ export class chessApiService {
 
   private postOnBackendServer(
     endpoint: string,
-    parameters: unknown
+    parameters?: unknown
   ): Observable<HttpResponse<BackendPostResponse>> {
     return this.httpClient
       .post<BackendPostResponse>(`${this.ipAddress}/${endpoint}`, parameters, {

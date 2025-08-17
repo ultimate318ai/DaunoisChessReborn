@@ -1,11 +1,13 @@
 :host {
   width: 100vw;
-  height: 100vh;
+  height: 80vh;
   display: flex;
   position: absolute;
   align-items: center;
   justify-items: center;
   justify-content: center;
+  color: burlywood ;
+  font-size: large;
 }
 
 label {

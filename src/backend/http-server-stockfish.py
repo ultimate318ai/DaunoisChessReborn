@@ -163,3 +163,10 @@ def board_information():
         "turn": "w" if __board.turn else "b",
     }
     return {"App/Inf": "Ok", "value": body}, 200
+
+@app.route("/reset", methods=["POST"])
+@cross_origin()
+def reset():
+    """Reset board state"""
+    __board.reset_board()
+    return {"App/Inf": "Ok"}, 200
