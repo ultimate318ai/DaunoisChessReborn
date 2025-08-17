@@ -38,9 +38,10 @@ interface BackendPutResponse {
   'App/Err'?: string;
 }
 
-interface BackendPostResponse {
+interface BackendPostResponse<T> {
   'App/Inf'?: string;
   'App/Err'?: string;
+  value: T;
 }
 
 @Injectable({
@@ -90,6 +91,18 @@ export class chessApiService {
     }).pipe(mergeMap(() => of(null)));
   }
 
+    public applyStockfishMove(): Observable<Move> {
+    return this.postOnBackendServer<Move>('move').pipe(
+        map((httpResponse) => {
+          const responseBody = httpResponse.body;
+          if (!responseBody)
+            throw new Error(`no response body for move post request`);
+          return responseBody.value;
+        })
+      );
+  }
+
+
   public resetBoardState(): Observable<null> {
     return this.postOnBackendServer("reset").pipe(mergeMap(() => of(null)));
   }
@@ -138,12 +151,12 @@ export class chessApiService {
     
   }
 
-  private postOnBackendServer(
+  private postOnBackendServer<RType = string>(
     endpoint: string,
     parameters?: unknown
-  ): Observable<HttpResponse<BackendPostResponse>> {
+  ): Observable<HttpResponse<BackendPostResponse<RType>>> {
     return this.httpClient
-      .post<BackendPostResponse>(`${this.ipAddress}/${endpoint}`, parameters, {
+      .post<BackendPostResponse<RType>>(`${this.ipAddress}/${endpoint}`, parameters, {
         ...this._options,
         responseType: 'json',
         observe: 'response',

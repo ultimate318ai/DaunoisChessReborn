@@ -11,8 +11,8 @@
       }
     </select>
 
-    <label for="gameWith">Colors: </label>
-    <select id="gameWith" type="text" formControlName="gameWith">
+    <label for="playerColor">Colors: </label>
+    <select id="playerColor" type="text" formControlName="playerColor">
       @for (playerColor of playerColorList; track playerColor) {
         <option [ngValue]="playerColor">
           {{ playerColor }}

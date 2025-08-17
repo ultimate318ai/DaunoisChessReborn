@@ -95,7 +95,7 @@ def fen():
     return {"App/Err": "Method not Supported"}, 504
 
 
-@app.route("/move", methods=["PUT", "GET", "DELETE"])
+@app.route("/move", methods=["PUT", "GET", "DELETE", "POST"])
 @cross_origin()
 def move():
     """Move management on a chess board"""
@@ -120,13 +120,34 @@ def move():
             ),
         )
         __board.push(move_)
+        __stockfish.set_fen_position(__board.fen())
         return {"App/Inf": "Ok"}, 200
     if request.method == "DELETE":
         try:
             last_move = __board.pop()
+            __stockfish.set_fen_position(__board.fen())
             return {"App/Inf": "Ok", "value": last_move}, 200
         except IndexError:
             return {"App/Inf": "Ok", "value": None}, 200
+
+    if request.method == "POST":
+        best_move_as_uci_string = __stockfish.get_best_move()
+        best_move = chess.Move.from_uci(best_move_as_uci_string)
+        __board.push(best_move)
+        __stockfish.set_fen_position(__board.fen())
+
+        return {"App/Inf": "Ok", "value": {
+            "uci": best_move.uci(),
+            "from": f"{chr(97 + (best_move.from_square % 8))}{(best_move.from_square // 8)+1}",
+            "to": f"{chr(97 + (best_move.to_square % 8))}{(best_move.to_square // 8)+1}",
+            "promotion": (
+                chess.PIECE_SYMBOLS[best_move.promotion].upper()
+                if best_move.promotion and __board.turn
+                else chess.PIECE_SYMBOLS[best_move.promotion] if best_move.promotion else None
+            ),
+            "drop": best_move.drop,
+            "isEnPassant": __board.is_en_passant(best_move),
+        }}, 200
     return {"App/Err": "Method not Supported"}, 504
 
 
@@ -169,4 +190,5 @@ def board_information():
 def reset():
     """Reset board state"""
     __board.reset_board()
+    __stockfish.set_fen_position(DEFAULT_FEN)
     return {"App/Inf": "Ok"}, 200

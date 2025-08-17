@@ -1,6 +1,6 @@
 import { NgStyle } from '@angular/common';
 import { Component, HostListener, Input, OnInit, Output } from '@angular/core';
-import { forkJoin, mergeMap, Subject } from 'rxjs';
+import { forkJoin, mergeMap, of, Subject } from 'rxjs';
 import { MoveBoardComponent } from 'src/app/move-board/move-board.component';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
 import {
@@ -12,8 +12,8 @@ import {
 import {
   boardCellNotation,
   boardCells,
-  DEFAULT_FEN,
   PieceSymbol,
+  PlayerColor,
 } from '../services/chessTypes';
 import { ChessGameSettings } from 'src/app/app.component';
 
@@ -28,12 +28,12 @@ import { ChessGameSettings } from 'src/app/app.component';
 })
 export class StockfishBoardComponent implements OnInit {
   @Input()
-  public settings: ChessGameSettings
+  public settings!: ChessGameSettings
 
   @Output()
   public moveMadeList = new Array<Move>();
 
-  fen: string;
+  fen = '';
 
   private displayedMoves = new Array<BoardMove>();
 
@@ -56,29 +56,11 @@ export class StockfishBoardComponent implements OnInit {
     private chessService: chessApiService,
     private arrowService: ChessboardArrowService
   ) {
-    this.updatePlayerTurnState
-      .pipe(
-        mergeMap(() =>
-          forkJoin({
-            moveList: this.chessService.fetchMoveList(),
-            boardInformation: this.chessService.fetchBoardInformation(),
-          })
-        )
-      )
-      .subscribe(({ moveList, boardInformation }) => {
-        this.moveList = moveList;
-        this.boardInformation = boardInformation;
-      });
-    this.settings = {
-      fen: DEFAULT_FEN,
-      skillLevel: 0,
-      gameType: 'chess'
-    }
-    this.fen = this.settings.fen;
-    this.chessService.resetBoardState()
+    
   }
 
   ngOnInit(): void {
+    this.fen = this.settings.fen;
     const boardPartFen = this.fen.split(' ')[0];
     const boardCells: boardCells = {} as boardCells;
     let column = 0;
@@ -111,7 +93,44 @@ export class StockfishBoardComponent implements OnInit {
     }
     this.boardCells = boardCells;
     this.arrowService.initializeCanvas();
-    this.updatePlayerTurnState.next();
+    this.chessService.resetBoardState()
+    this.addPlayerTurnListener()
+    if (this.playerTurn === this.playerColor) {
+      this.updatePlayerTurnState.next();
+    } else {
+      this.playStockFishTurn()
+    }
+  }
+
+
+  private playStockFishTurn(): void {
+    this.chessService.applyStockfishMove().pipe(mergeMap((move) => forkJoin({move: of(move), newFen: this.chessService.fetchFen()})))
+          .subscribe(({move, newFen}) => {
+            this.fen = newFen;
+            this.moveMadeList.push(move);
+            this.displayedMoves.push({
+              ...move,
+              capturedPiece: this.getBoardCellPieceSymbol(move.to),
+            });
+            this.applyMoveOnBoard(move, move.from);
+            this.updatePlayerTurnState.next();
+          })
+  }
+
+  private addPlayerTurnListener(): void {
+    this.updatePlayerTurnState
+      .pipe(
+        mergeMap(() =>
+          forkJoin({
+            moveList: this.chessService.fetchMoveList(),
+            boardInformation: this.chessService.fetchBoardInformation(),
+          })
+        )
+      )
+      .subscribe(({ moveList, boardInformation }) => {
+        this.moveList = moveList;
+        this.boardInformation = boardInformation;
+      });
   }
 
   getChessBoardMoveListFromCell(cell: string): Move[] {
@@ -223,6 +242,14 @@ export class StockfishBoardComponent implements OnInit {
       this.getBoardCellPieceSymbol(selectedPieceCell)
     );
     this.setBoardCellPieceSymbol(move.from, null);
+  }
+
+  get playerColor(): PlayerColor {
+    return this.settings.playerColor
+  }
+
+  get isPlayerTurn(): boolean {
+    return this.playerColor === this.playerTurn
   }
 
   get lastMove(): Move | null {

@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { GameType, SkillLevel } from './game-menu/gameSettings';
+import { PlayerColor } from './boards/services/chessTypes';
 
 export interface ChessGameSettings {
-      fen: string
-      gameType: GameType
-      skillLevel: SkillLevel
+  fen: string
+  gameType: GameType
+  skillLevel: SkillLevel
+  playerColor: PlayerColor
 }
 
 @Component({
@@ -22,6 +24,5 @@ export class AppComponent {
   gameStart(settings: ChessGameSettings) {
     this.gameLaunched = true;
     this.settings = settings;
-    
   }
 }

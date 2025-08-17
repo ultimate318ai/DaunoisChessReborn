@@ -7,7 +7,7 @@
     id="game-content"
     [style]="{ filter: gameLaunched ? '' : 'blur(4px)' }"
   >
-    @if (settings !== null) {
+    @if (settings) {
       <app-stockfish-board [settings]="settings"></app-stockfish-board>
     }
     <app-game-status></app-game-status>

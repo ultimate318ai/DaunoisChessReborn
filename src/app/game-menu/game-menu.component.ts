@@ -6,7 +6,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { fenValidator } from './fen-validator.directive';
-import { GAME_TYPES, GameType, PLAYER_COLORS, SKILL_LEVEL, SkillLevel } from './gameSettings';
+import { GAME_TYPES, GameType, PLAYER_COLORS, PlayerColor, SKILL_LEVEL, SkillLevel } from './gameSettings';
+import { ChessGameSettings } from '../app.component';
 
 @Component({
   selector: 'app-game-menu',
@@ -15,12 +16,12 @@ import { GAME_TYPES, GameType, PLAYER_COLORS, SKILL_LEVEL, SkillLevel } from './
   imports: [ReactiveFormsModule],
 })
 export class GameMenuComponent {
-  @Output() gameLaunched = new EventEmitter();
+  @Output() gameLaunched = new EventEmitter<ChessGameSettings>();
 
   private _gameForm = new FormGroup({
-    gameType: new FormControl(),
-    gameWith: new FormControl(),
-    skillLevel: new FormControl(),
+    gameType: new FormControl('Chess'),
+    playerColor: new FormControl('White'),
+    skillLevel: new FormControl(0),
     fen: new FormControl(
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       [Validators.required, fenValidator()]
@@ -41,7 +42,7 @@ export class GameMenuComponent {
     return this._playerColorList;
   }
 
-  get gameTypes(): GameType[] {
+  get gameTypes() {
     return this._gameTypes;
   }
 
@@ -57,15 +58,21 @@ export class GameMenuComponent {
     return this._gameForm.get('skillLevel')?.value as number;
   }
 
+  get playerColor(): PlayerColor {
+    return this._gameForm.get('playerColor')?.value as PlayerColor;
+  }
+
+
   get gameType(): GameType {
-    return this._gameForm.get("gameType")?.value as string;
+    return this._gameForm.get("gameType")?.value as GameType;
   }
 
   launchGame(): void {
     this.gameLaunched.emit({
       fen: this.fen,
       gameType: this.gameType,
-      skillLevel: this.skillLevel
+      skillLevel: this.skillLevel,
+      playerColor: this.playerColor === "White" ? "w" : "b"
     });
   }
 }
