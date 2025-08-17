@@ -1,5 +1,5 @@
 import { NgStyle } from '@angular/common';
-import { Component, HostListener, Input, OnInit, Output } from '@angular/core';
+import { Component, computed, effect, HostListener, input, OnInit, signal } from '@angular/core';
 import { forkJoin, mergeMap, of, Subject } from 'rxjs';
 import { MoveBoardComponent } from 'src/app/move-board/move-board.component';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
@@ -13,7 +13,6 @@ import {
   boardCellNotation,
   boardCells,
   PieceSymbol,
-  PlayerColor,
 } from '../services/chessTypes';
 import { ChessGameSettings } from 'src/app/app.component';
 
@@ -27,15 +26,13 @@ import { ChessGameSettings } from 'src/app/app.component';
   ],
 })
 export class StockfishBoardComponent implements OnInit {
-  @Input()
-  public settings!: ChessGameSettings
+  public settings = input.required<ChessGameSettings>()
 
-  @Output()
-  public moveMadeList = new Array<Move>();
+  public moveMadeList = signal<Move[]>([])
 
-  fen = '';
+  fen = signal('');
 
-  private displayedMoves = new Array<BoardMove>();
+  private displayedMoveList = signal<BoardMove[]>([]);
 
   private pointedCells: string[] = [];
 
@@ -56,62 +53,68 @@ export class StockfishBoardComponent implements OnInit {
     private chessService: chessApiService,
     private arrowService: ChessboardArrowService
   ) {
-    
+      this.addPlayerTurnListener()
+      this.addStockFishTurnListener()
+  }
+  
+  ngOnInit(): void {
+    this.chessService.resetBoardState().subscribe(() => {
+      this.arrowService.initializeCanvas();
+      this.fen.set(this.settings().fen);
+      const boardPartFen = this.fen().split(' ')[0];
+      const boardCells: boardCells = {} as boardCells;
+      let column = 0;
+      let row = 0;
+      for (const fenRow of boardPartFen.split('/')) {
+        column = 0;
+        for (const fenRowItem of fenRow) {
+          if (!isNaN(parseFloat(fenRowItem))) {
+            for (let index = 0; index < +fenRowItem; index++) {
+              const cellName = `${this.fromCoordinatesToBoardCellNotation([
+                column + index,
+                8 - row,
+              ])}` as boardCellNotation;
+              boardCells[cellName] = { pieceSymbol: null, pointed: false };
+            }
+            column += +fenRowItem;
+            continue;
+          }
+          const cellName = `${this.fromCoordinatesToBoardCellNotation([
+            column,
+            8 - row,
+          ])}` as boardCellNotation;
+          boardCells[cellName] = {
+            pieceSymbol: fenRowItem as PieceSymbol,
+            pointed: false,
+          };
+          column++;
+        }
+        row++;
+      }
+      this.boardCells = boardCells;
+    })   
   }
 
-  ngOnInit(): void {
-    this.fen = this.settings.fen;
-    const boardPartFen = this.fen.split(' ')[0];
-    const boardCells: boardCells = {} as boardCells;
-    let column = 0;
-    let row = 0;
-    for (const fenRow of boardPartFen.split('/')) {
-      column = 0;
-      for (const fenRowItem of fenRow) {
-        if (!isNaN(parseFloat(fenRowItem))) {
-          for (let index = 0; index < +fenRowItem; index++) {
-            const cellName = `${this.fromCoordinatesToBoardCellNotation([
-              column + index,
-              8 - row,
-            ])}` as boardCellNotation;
-            boardCells[cellName] = { pieceSymbol: null, pointed: false };
-          }
-          column += +fenRowItem;
-          continue;
-        }
-        const cellName = `${this.fromCoordinatesToBoardCellNotation([
-          column,
-          8 - row,
-        ])}` as boardCellNotation;
-        boardCells[cellName] = {
-          pieceSymbol: fenRowItem as PieceSymbol,
-          pointed: false,
-        };
-        column++;
-      }
-      row++;
-    }
-    this.boardCells = boardCells;
-    this.arrowService.initializeCanvas();
-    this.chessService.resetBoardState()
-    this.addPlayerTurnListener()
-    if (this.playerTurn === this.playerColor) {
+  private addStockFishTurnListener(): void {
+    effect(() => {
+    if (this.playerTurn() === this.playerColor()) {
       this.updatePlayerTurnState.next();
     } else {
       this.playStockFishTurn()
     }
+    })
   }
 
 
   private playStockFishTurn(): void {
     this.chessService.applyStockfishMove().pipe(mergeMap((move) => forkJoin({move: of(move), newFen: this.chessService.fetchFen()})))
           .subscribe(({move, newFen}) => {
-            this.fen = newFen;
-            this.moveMadeList.push(move);
-            this.displayedMoves.push({
+            this.fen.set(newFen);
+            this.moveMadeList.update((moveMadeList) => [...moveMadeList, move])
+            this.displayedMoveList.update((displayedMoveList) => [...displayedMoveList, {
               ...move,
               capturedPiece: this.getBoardCellPieceSymbol(move.to),
-            });
+            }])
             this.applyMoveOnBoard(move, move.from);
             this.updatePlayerTurnState.next();
           })
@@ -199,13 +202,6 @@ export class StockfishBoardComponent implements OnInit {
     );
   }
 
-  get playerTurn(): 'w' | 'b' {
-    const fenPlayerTurnPart = this.fen.split(' ')[1];
-    if (fenPlayerTurnPart !== 'w' && fenPlayerTurnPart !== 'b') {
-      throw new Error('Fen is not valid.');
-    }
-    return fenPlayerTurnPart;
-  }
 
   piecePictureUrl(pieceSymbol: PieceSymbol) {
     return this.getUrlFromPieceSymbol(pieceSymbol);
@@ -244,16 +240,21 @@ export class StockfishBoardComponent implements OnInit {
     this.setBoardCellPieceSymbol(move.from, null);
   }
 
-  get playerColor(): PlayerColor {
-    return this.settings.playerColor
-  }
+  playerColor = computed(() => this.settings().playerColor)
 
-  get isPlayerTurn(): boolean {
-    return this.playerColor === this.playerTurn
-  }
+  playerTurn = computed(() => {
+    const fenPlayerTurnPart = this.fen().split(' ')[1];
+    if (fenPlayerTurnPart !== 'w' && fenPlayerTurnPart !== 'b') {
+      throw new Error('Fen is not valid.');
+    }
+    return fenPlayerTurnPart;
+  })
+
+
+  isPlayerTurn = computed(() => this.playerColor() === this.playerTurn())
 
   get lastMove(): Move | null {
-    return this.displayedMoves[this.displayedMoves.length - 1] ?? null;
+    return this.displayedMoveList()[this.displayedMoveList().length - 1] ?? null;
   }
 
   get boardLastMoveFrom(): string {
@@ -288,7 +289,7 @@ export class StockfishBoardComponent implements OnInit {
       );
     return this.fromCoordinatesToBoardCellNotation([
       promotionCellCoordinates[0],
-      this.playerTurn === 'w'
+      this.playerTurn() === 'w'
         ? promotionCellCoordinates[1] - index
         : promotionCellCoordinates[1] + index,
     ]);
@@ -352,12 +353,12 @@ export class StockfishBoardComponent implements OnInit {
           .applyChessMove(move)
           .pipe(mergeMap(() => this.chessService.fetchFen()))
           .subscribe((newFen) => {
-            this.fen = newFen;
-            this.moveMadeList.push(move);
-            this.displayedMoves.push({
+            this.fen.set(newFen);
+            this.moveMadeList.update((moveMadeList) => [...moveMadeList, move])
+            this.displayedMoveList.update((displayedMoveList) => [...displayedMoveList, {
               ...move,
               capturedPiece: this.getBoardCellPieceSymbol(move.to),
-            });
+            }]);
             this.applyMoveOnBoard(move, selectedPieceCell);
             this.updatePlayerTurnState.next();
           });
@@ -392,12 +393,12 @@ export class StockfishBoardComponent implements OnInit {
           .applyChessMove(move)
           .pipe(mergeMap(() => this.chessService.fetchFen()))
           .subscribe((newFen) => {
-            this.fen = newFen;
-            this.moveMadeList.push(move);
-            this.displayedMoves.push({
+            this.fen.set(newFen);
+            this.moveMadeList.update((moveMadeList) => [...moveMadeList, move])
+            this.displayedMoveList.update((displayedMoveList) =>  [...displayedMoveList, {
               ...move,
               capturedPiece: this.getBoardCellPieceSymbol(move.to),
-            });
+            }]);
             this.applyMoveOnBoard(move, selectedPieceCell);
             this.updatePlayerTurnState.next();
           });
@@ -426,12 +427,12 @@ export class StockfishBoardComponent implements OnInit {
       .applyChessMove(move)
       .pipe(mergeMap(() => this.chessService.fetchFen()))
       .subscribe((newFen) => {
-        this.fen = newFen;
-        this.moveMadeList.push(move);
-        this.displayedMoves.push({
+        this.fen.set(newFen);
+        this.moveMadeList.update((moveMadeList) => [...moveMadeList, move])
+        this.displayedMoveList.update((displayedMoveList) =>  [...displayedMoveList, {
           ...move,
           capturedPiece: this.getBoardCellPieceSymbol(move.to),
-        });
+        }]);
         this.setBoardCellPieceSymbol(move.to, promotionPiece);
         this.setBoardCellPieceSymbol(move.from, null);
         this.updatePlayerTurnState.next();
@@ -536,7 +537,11 @@ export class StockfishBoardComponent implements OnInit {
   handleMouseWheel(event: WheelEvent): void {
     if (event.deltaY > 0) {
       //scroll on bottom
-      const lastMove = this.displayedMoves.pop();
+      this.displayedMoveList.update((displayedMoveList) => {
+        displayedMoveList.pop()
+        return displayedMoveList
+      });
+      const lastMove = this.displayedMoveList().pop()
       if (lastMove) {
         const fromPiece = this.getBoardCellPieceSymbol(lastMove.to);
         const toPiece = lastMove.capturedPiece;
@@ -546,11 +551,11 @@ export class StockfishBoardComponent implements OnInit {
       }
       this.stateValid = false;
     } else {
-      if (this.displayedMoves.length < this.moveMadeList.length) {
-        const redoMove = this.moveMadeList[this.displayedMoves.length];
+      if (this.displayedMoveList().length < this.moveMadeList().length) {
+        const redoMove = this.moveMadeList()[this.displayedMoveList().length];
         const piece = this.getBoardCellPieceSymbol(redoMove.from);
 
-        this.displayedMoves.push({
+        this.displayedMoveList().push({
           ...redoMove,
           capturedPiece: this.getBoardCellPieceSymbol(redoMove.to),
         });

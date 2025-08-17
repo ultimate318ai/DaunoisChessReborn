@@ -91,7 +91,7 @@ export class chessApiService {
     }).pipe(mergeMap(() => of(null)));
   }
 
-    public applyStockfishMove(): Observable<Move> {
+  public applyStockfishMove(): Observable<Move> {
     return this.postOnBackendServer<Move>('move').pipe(
         map((httpResponse) => {
           const responseBody = httpResponse.body;
@@ -104,7 +104,7 @@ export class chessApiService {
 
 
   public resetBoardState(): Observable<null> {
-    return this.postOnBackendServer("reset").pipe(mergeMap(() => of(null)));
+    return this.deleteOnBackendServer("boardInformation").pipe(mergeMap(() => of(null)));
   }
 
   private getOnBackendServer<RType = string>(endpoint: string): Observable<RType> {
@@ -141,7 +141,15 @@ export class chessApiService {
       );
   }
 
-  private putOnBackendServer(endpoint: string, value: unknown): Observable<HttpResponse<BackendPutResponse>> {
+  private putOnBackendServer(endpoint: string, value?: unknown): Observable<HttpResponse<BackendPutResponse>> {
+    if (!value){
+          return this.httpClient
+      .put<BackendPutResponse>(`${this.ipAddress}/${endpoint}`, null, {
+        ...this._options,
+        responseType: 'json',
+        observe: 'response',
+      })
+    }
     return this.httpClient
       .put<BackendPutResponse>(`${this.ipAddress}/${endpoint}`, value, {
         ...this._options,
@@ -155,6 +163,14 @@ export class chessApiService {
     endpoint: string,
     parameters?: unknown
   ): Observable<HttpResponse<BackendPostResponse<RType>>> {
+    if (!parameters) {
+       return this.httpClient
+      .post<BackendPostResponse<RType>>(`${this.ipAddress}/${endpoint}`, null, {
+        ...this._options,
+        responseType: 'json',
+        observe: 'response',
+      })
+    }
     return this.httpClient
       .post<BackendPostResponse<RType>>(`${this.ipAddress}/${endpoint}`, parameters, {
         ...this._options,

@@ -132,6 +132,8 @@ def move():
 
     if request.method == "POST":
         best_move_as_uci_string = __stockfish.get_best_move()
+        if not best_move_as_uci_string:
+             return {"App/Inf": "Ok", "value": None}, 200
         best_move = chess.Move.from_uci(best_move_as_uci_string)
         __board.push(best_move)
         __stockfish.set_fen_position(__board.fen())
@@ -175,20 +177,18 @@ def moves():
     }, 200
 
 
-@app.route("/boardInformation", methods=["GET"])
+@app.route("/boardInformation", methods=["GET", "DELETE"])
 @cross_origin()
 def board_information():
     """Current board state."""
-    body = {
-        "is_check": __board.is_check(),
-        "turn": "w" if __board.turn else "b",
-    }
-    return {"App/Inf": "Ok", "value": body}, 200
-
-@app.route("/reset", methods=["POST"])
-@cross_origin()
-def reset():
-    """Reset board state"""
-    __board.reset_board()
-    __stockfish.set_fen_position(DEFAULT_FEN)
-    return {"App/Inf": "Ok"}, 200
+    if request.method == "GET":
+        body = {
+            "is_check": __board.is_check(),
+            "turn": "w" if __board.turn else "b",
+        }
+        return {"App/Inf": "Ok", "value": body}, 200
+    if request.method == "DELETE":
+        __board.reset_board()
+        __stockfish.set_fen_position(DEFAULT_FEN)
+        return {"App/Inf": "Ok"}, 200
+    return {"App/Err": "Method not Supported"}, 504

@@ -1,6 +1,3 @@
-{{playerColor}}
-{{playerTurn}}
-
 <section class="chessGame">
   <section id="chessBoard" class="column">
     <div class="board">
@@ -108,6 +105,6 @@
     </div>
   </section>
   <section id="chessMoves" class="column">
-    <app-move-board [moves]="moveMadeList"></app-move-board>
+    <app-move-board [moves]="moveMadeList()"></app-move-board>
   </section>
 </section>
