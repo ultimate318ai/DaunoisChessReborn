@@ -4,9 +4,9 @@
       <div class="wrapper">
         <canvas id="primaryCanvas" width="480" height="480"></canvas>
         <canvas id="drawingCanvas" width="480" height="480"></canvas>
-        @if (openPromotionChoices) {
+        @if (isNextMoveAPromotion()) {
         <div id="promotion-choice">
-          @for ( promotionPiece of potentialsPromotionsPieces; track
+          @for ( promotionPiece of potentialsPromotionsPieces(); track
           promotionPiece; let index = $index) {
           <div
             [id]="promotionSquarePositionFromIndex(index)"
@@ -28,18 +28,18 @@
           ></div>
           }
         </div>
-        } @for ( chessBoardCell of chessBoardCellsContents; track $index; let
+        } @for ( chessBoardCell of boardCellsValues(); track $index; let
         index = $index) { 
           @if ( chessBoardCell.pieceSymbol !== null && isKingCellChecked(chessBoardCell)) {
         <div class="nestedCell">
-          <div class="chessPiece" [id]="chessBoardCellsKeys[index]">
+          <div class="chessPiece" [id]="boardCellsKeys()[index]">
             <div class="checked"></div>
             <div
               [ngStyle]="{
                 'background-image':
                   'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
               }"
-              (click)="onCellClick(chessBoardCellsKeys[index])"
+              (click)="onCellClick(boardCellsKeys()[index])"
               draggable="true"
               (dragstart)="onPieceDrag($event)"
               (dragend)="onPieceDrop()"
@@ -53,17 +53,17 @@
         
           @if ( chessBoardCell.pieceSymbol !== null) {
           <div
-          [id]="chessBoardCellsKeys[index]"
+          [id]="boardCellsKeys()[index]"
           [attr.last-move]="
-            boardLastMoveFrom === chessBoardCellsKeys[index] ||
-            boardLastMoveTo === chessBoardCellsKeys[index]
+            boardLastMoveFrom() === boardCellsKeys()[index] ||
+            boardLastMoveTo() === boardCellsKeys()[index]
               ? ''
               : null
           "
           [attr.attacked]="chessBoardCell.pointed ? '' : null"
           >
           <div class="chessPiece"
-          [id]="chessBoardCellsKeys[index]"
+          [id]="boardCellsKeys()[index]"
           [ngStyle]="{
             'background-image':
             'url(' + piecePictureUrl(chessBoardCell.pieceSymbol) + ')'
@@ -73,29 +73,29 @@
         (dragend)="onPieceDrop()"
         (dragenter)="onCellDragEnter($event)"
         (dragleave)="onCellDragLeave($event)"
-        (click)="onCellClick(chessBoardCellsKeys[index])"
+        (click)="onCellClick(boardCellsKeys()[index])"
       >
       </div>
       </div>
         } @else {
         <div
-          [id]="chessBoardCellsKeys[index]"
+          [id]="boardCellsKeys()[index]"
           [attr.attacked]="
-            isCellEnPassant(chessBoardCellsKeys[index]) ? '' : null
+            isCellEnPassant(boardCellsKeys()[index]) ? '' : null
           "
           [attr.last-move]="
-            boardLastMoveFrom === chessBoardCellsKeys[index] ||
-            boardLastMoveTo === chessBoardCellsKeys[index]
+            boardLastMoveFrom() === boardCellsKeys()[index] ||
+            boardLastMoveTo() === boardCellsKeys()[index]
               ? ''
               : null
           "
           [attr.pointed]="
             chessBoardCell.pointed &&
-            !isCellEnPassant(chessBoardCellsKeys[index])
+            !isCellEnPassant(boardCellsKeys()[index])
               ? ''
               : null
           "
-          (click)="onEmptyCellClick(chessBoardCellsKeys[index])"
+          (click)="onEmptyCellClick(boardCellsKeys()[index])"
           (dragenter)="onEmptyCellDragEnter($event)"
           (dragleave)="onEmptyCellDragLeave($event)"
         >
