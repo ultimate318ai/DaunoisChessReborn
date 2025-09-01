@@ -39,16 +39,12 @@ STOCKFISH_VARIANT_SETTINGS = {
     "UCI_Variant": "maharajah",
 }  # TODO: use it for extra configuration of stockfish
 
-IA_EXE_NAME = (
-    "stockfish"
-    if platform.system() != "Windows"
-    else "fairy-stockfish-largeboard_x86-64.exe"
-)
+IA_EXE_NAME = "stockfish" if platform.system() != "Windows" else "fairy-stockfish-largeboard_x86-64.exe"
 
 IA_EXE_FILE_PATH_SEP = "/" if platform.system() != "Windows" else "\\"
 
 
-def __find_ia_path(target: str, path: str="", sep: str=IA_EXE_FILE_PATH_SEP):
+def __find_ia_path(target: str, path: str = "", sep: str = IA_EXE_FILE_PATH_SEP):
     """
     Find recursively the path of the IA engine.
     """
@@ -133,23 +129,30 @@ def move():
     if request.method == "POST":
         best_move_as_uci_string = __stockfish.get_best_move()
         if not best_move_as_uci_string:
-             return {"App/Inf": "Ok", "value": None}, 200
+            return {"App/Inf": "Ok", "value": None}, 200
         best_move = chess.Move.from_uci(best_move_as_uci_string)
         __board.push(best_move)
         __stockfish.set_fen_position(__board.fen())
 
-        return {"App/Inf": "Ok", "value": {
-            "uci": best_move.uci(),
-            "from": f"{chr(97 + (best_move.from_square % 8))}{(best_move.from_square // 8)+1}",
-            "to": f"{chr(97 + (best_move.to_square % 8))}{(best_move.to_square // 8)+1}",
-            "promotion": (
-                chess.PIECE_SYMBOLS[best_move.promotion].upper()
-                if best_move.promotion and __board.turn
-                else chess.PIECE_SYMBOLS[best_move.promotion] if best_move.promotion else None
-            ),
-            "drop": best_move.drop,
-            "isEnPassant": __board.is_en_passant(best_move),
-        }}, 200
+        return {
+            "App/Inf": "Ok",
+            "value": {
+                "uci": best_move.uci(),
+                "from": f"{chr(97 + (best_move.from_square % 8))}{(best_move.from_square // 8)+1}",
+                "to": f"{chr(97 + (best_move.to_square % 8))}{(best_move.to_square // 8)+1}",
+                "promotion": (
+                    chess.PIECE_SYMBOLS[best_move.promotion].upper()
+                    if best_move.promotion and __board.turn
+                    else (
+                        chess.PIECE_SYMBOLS[best_move.promotion]
+                        if best_move.promotion
+                        else None
+                    )
+                ),
+                "drop": best_move.drop,
+                "isEnPassant": __board.is_en_passant(best_move),
+            },
+        }, 200
     return {"App/Err": "Method not Supported"}, 504
 
 
