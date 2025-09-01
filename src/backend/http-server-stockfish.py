@@ -48,7 +48,7 @@ IA_EXE_NAME = (
 IA_EXE_FILE_PATH_SEP = "/" if platform.system() != "Windows" else "\\"
 
 
-def __find_ia_path(target: str, path="", sep=IA_EXE_FILE_PATH_SEP):
+def __find_ia_path(target: str, path: str="", sep: str=IA_EXE_FILE_PATH_SEP):
     """
     Find recursively the path of the IA engine.
     """
