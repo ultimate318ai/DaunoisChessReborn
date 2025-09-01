@@ -1,5 +1,5 @@
 import { NgStyle } from '@angular/common';
-import { Component, computed, effect, HostListener, input, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, HostListener, input, OnInit, signal, inject } from '@angular/core';
 import { forkJoin, mergeMap, of, Subject } from 'rxjs';
 import { MoveBoardComponent } from 'src/app/move-board/move-board.component';
 import { ChessboardArrowService } from '../chess-board-arrow/board-arrow.service';
@@ -26,6 +26,9 @@ import { ChessGameSettings } from 'src/app/app.component';
   ],
 })
 export class StockfishBoardComponent implements OnInit {
+  private chessService = inject(chessApiService);
+  private arrowService = inject(ChessboardArrowService);
+
   public settings = input.required<ChessGameSettings>()
 
   public moveMadeList = signal<Move[]>([])
@@ -92,11 +95,7 @@ export class StockfishBoardComponent implements OnInit {
   // }
   
   updatePlayerTurnState = new Subject<void>();
-  
-  constructor(
-    private chessService: chessApiService,
-    private arrowService: ChessboardArrowService
-  ) {
+  constructor() {
       this.addPlayerTurnListener()
       this.addStockFishTurnListener()
   }

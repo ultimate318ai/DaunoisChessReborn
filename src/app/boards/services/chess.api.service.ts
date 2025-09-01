@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { map, mergeMap, Observable, of } from 'rxjs';
 import { boardCellNotation, PieceSymbol } from './chessTypes';
@@ -48,6 +48,8 @@ interface BackendPostResponse<T> {
   providedIn: 'root',
 })
 export class chessApiService {
+  private httpClient = inject(HttpClient);
+
   private readonly ipAddress = 'http://localhost:8080';
   private _options = {
     headers: new HttpHeaders({
@@ -56,7 +58,6 @@ export class chessApiService {
     }),
   };
 
-  constructor(private httpClient: HttpClient) {}
 
   public fetchBestMoveUci(): Observable<string> {
     return this.getOnBackendServer('move');
