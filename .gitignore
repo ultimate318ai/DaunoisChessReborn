@@ -19,6 +19,7 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+*.egg-info
 
 # Visual Studio Code
 .vscode/*

@@ -1,0 +1,17 @@
+[project]
+name = "DaunoisChessBackend"
+version = "0.0.1"
+dependencies = [
+"chess",
+"stockfish",
+"flask",
+"flask_cors",
+]
+description = "This is a backend for a chess application"
+authors = [
+  {name = "Nathan DAUNOIS", email = "ultimate318ai@gmail.com"},
+]
+maintainers = [
+  {name = "Nathan DAUNOIS", email = "ultimate318ai@gmail.com"}
+]
+requires-python = ">= 3.13"
