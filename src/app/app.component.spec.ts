@@ -1,18 +1,19 @@
 import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 describe('AppComponent', () => {
   beforeEach(() =>
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
+      imports: [provideZonelessChangeDetection()],
       declarations: [AppComponent],
     })
   );
 
-  it('should create the app', () => {
+  it('should create the app', async() => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
+    await fixture.whenStable();
     expect(app).toBeTruthy();
   });
 
