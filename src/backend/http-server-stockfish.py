@@ -188,7 +188,7 @@ def moves():
     }, 200
 
 
-@app.route("/boardInformation", methods=["GET", "DELETE"])
+@app.route("/boardInformation", methods=["GET", "DELETE", "PUT"])
 @cross_origin()
 def board_information():
     """Current board state."""
@@ -197,10 +197,19 @@ def board_information():
             "is_check": __board.is_check(),
             "turn": "w" if __board.turn else "b",
         }
+        app.logger.debug("boardInformation : %s", json.dumps(body))
         return {"App/Inf": "Ok", "value": body}, 200
     if request.method == "DELETE":
         __board.reset_board()
         __stockfish.set_fen_position(DEFAULT_FEN)
+        app.logger.debug("boardInformation : Board reset")
+        return {"App/Inf": "Ok"}, 200
+    if request.method == "PUT":
+        __board.apply_mirror()
+        __stockfish.set_fen_position(__board.fen())
+        app.logger.debug(
+            "boardInformation : board flipped, new fen : %s", json.dumps(__board.fen())
+        )
         return {"App/Inf": "Ok"}, 200
     return {"App/Err": "Method not Supported"}, 504
 

@@ -45,7 +45,7 @@ Run `python -m flask --app src/backend/http-server-stockfish run -p 8080` In ord
 If you want to have more log, use ```--debug option```
 
 ```shell
-python -m flask --app src/backend/http-server-stockfish run -p 8080` --debug
+python -m flask --app src/backend/http-server-stockfish run -p 8080 --debug
 ```
 
 ## Features Status

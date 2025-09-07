@@ -16,6 +16,7 @@ import {
   PieceSymbol,
 } from '../services/chessTypes';
 import { ChessGameSettings } from 'src/app/app.component';
+import { entries } from 'src/main';
 
 @Component({
   selector: 'app-stockfish-board',
@@ -23,7 +24,7 @@ import { ChessGameSettings } from 'src/app/app.component';
   styleUrls: ['./stockfish-board.component.scss'],
   imports: [
     NgStyle,
-    MoveBoardComponent,
+    MoveBoardComponent
   ],
 })
 export class StockfishBoardComponent implements OnInit {
@@ -50,9 +51,7 @@ export class StockfishBoardComponent implements OnInit {
   
   boardInformation = signal<BoardInformation | null>(null);
   
-  boardCellsValues = computed(() => this.boardCellEntries().map(([, value]) => value)) //TODO: add logic to revert chess board when black color is selected : sort((a, b) => b[0].localeCompare(a[0]) * (this.playerColor() === "b" ? -1 : 1)  )
-  boardCellsKeys = computed(() =>  Object.keys(this.boardCells()) as boardCellNotation[])
-  boardCellEntries = computed(() => Object.entries(this.boardCells()))
+  boardCellEntries = computed(() => this.playerColor() === 'w' ? entries(this.boardCells()) : entries(this.boardCells()).reverse())
   
   playerColor = computed(() => this.settings().playerColor)
   
@@ -91,8 +90,6 @@ export class StockfishBoardComponent implements OnInit {
   constructor() {
       this.addPlayerTurnListener()
       this.addStockFishTurnListener()
-      console.log("blblbl")
-      console.log(this.isNextMoveAPromotion())
   }
   
   ngOnInit(): void {
@@ -249,18 +246,6 @@ export class StockfishBoardComponent implements OnInit {
     return this.getUrlFromPieceSymbol(pieceSymbol);
   }
 
-  // get chessBoardCellsContents() {
-  //   return this.getBoardCellsValues();
-  // }
-
-  // get chessBoardCellsKeys(): boardCellNotation[] {
-  //   return this.getBoardCellsKeys();
-  // }
-
-  // get chessBoardCells() {
-  //   return this.getBoardEntries();
-  // }
-
   promotionSquarePositionFromIndex(index: number): boardCellNotation {
     const promotionCellCoordinates =
       this.fromBoardCellLetterNotationToCoordinates(
@@ -349,6 +334,9 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onCellClick(cellClicked: boardCellNotation): void {
+    console.log(this.playerTurn())
+    console.log(this.moveList())
+    console.log(cellClicked)
     if (!this.stateValid) return;
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
     if (!this.selectedFromPieceCell()) {
