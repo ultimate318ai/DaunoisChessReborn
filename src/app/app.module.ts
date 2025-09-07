@@ -1,7 +1,6 @@
 import { NgModule, provideZonelessChangeDetection } from '@angular/core';
 
-import {
-} from '@angular/common/http';
+import {} from '@angular/common/http';
 import { ChessboardArrowService } from './boards/chess-board-arrow/board-arrow.service';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -9,7 +8,7 @@ import { BrowserModule } from '@angular/platform-browser';
   providers: [
     BrowserModule,
     ChessboardArrowService,
-    provideZonelessChangeDetection()
+    provideZonelessChangeDetection(),
   ],
 })
 export class AppModule {}

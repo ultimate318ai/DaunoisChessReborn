@@ -13,9 +13,9 @@ export interface Move {
 }
 
 export interface StockFishSettings {
-    threads: number;
-    hash: number;
-    skillLevel: number;
+  threads: number;
+  hash: number;
+  skillLevel: number;
 }
 
 export type BoardMove = Move & {
@@ -69,7 +69,6 @@ export class chessApiService {
     }),
   };
 
-
   public fetchBestMoveUci(): Observable<string> {
     return this.getOnBackendServer('move');
   }
@@ -105,35 +104,41 @@ export class chessApiService {
 
   public applyStockfishMove(): Observable<Move> {
     return this.postOnBackendServer<Move>('move').pipe(
-        map((httpResponse) => {
-          const responseBody = httpResponse.body;
-          if (!responseBody)
-            throw new Error(`no response body for move post request`);
-          return responseBody.value;
-        })
-      );
+      map((httpResponse) => {
+        const responseBody = httpResponse.body;
+        if (!responseBody)
+          throw new Error(`no response body for move post request`);
+        return responseBody.value;
+      }),
+    );
   }
 
   public getStockfishSettings(): Observable<StockFishSettings> {
-    return this.getOnBackendServer('stockfishParameters')
+    return this.getOnBackendServer('stockfishParameters');
   }
 
-  public updateStockfishSettings(settings: StockFishSettings): Observable<null> {
+  public updateStockfishSettings(
+    settings: StockFishSettings,
+  ): Observable<null> {
     const parameters = {
-    "Threads": settings.threads,
-    "Hash": settings.hash,
-    "Skill Level": settings.skillLevel,
-    }
+      Threads: settings.threads,
+      Hash: settings.hash,
+      'Skill Level': settings.skillLevel,
+    };
     return this.patchOnBackendServer('stockfishParameters', parameters).pipe(
-        mergeMap(() => of(null))
-      )
+      mergeMap(() => of(null)),
+    );
   }
 
   public resetBoardState(): Observable<null> {
-    return this.deleteOnBackendServer("boardInformation").pipe(mergeMap(() => of(null)));
+    return this.deleteOnBackendServer('boardInformation').pipe(
+      mergeMap(() => of(null)),
+    );
   }
 
-  private getOnBackendServer<RType = string>(endpoint: string): Observable<RType> {
+  private getOnBackendServer<RType = string>(
+    endpoint: string,
+  ): Observable<RType> {
     return this.httpClient
       .get<BackendGetResponse<RType>>(`${this.ipAddress}/${endpoint}`, {
         ...this._options,
@@ -146,11 +151,13 @@ export class chessApiService {
           if (!responseBody)
             throw new Error(`no response body for ${endpoint} request`);
           return responseBody.value;
-        })
+        }),
       );
   }
 
-  private deleteOnBackendServer<RType = string>(endpoint: string): Observable<RType> {
+  private deleteOnBackendServer<RType = string>(
+    endpoint: string,
+  ): Observable<RType> {
     return this.httpClient
       .delete<BackendDeleteResponse<RType>>(`${this.ipAddress}/${endpoint}`, {
         ...this._options,
@@ -163,54 +170,74 @@ export class chessApiService {
           if (!responseBody)
             throw new Error(`no response body for ${endpoint} request`);
           return responseBody.value;
-        })
+        }),
       );
   }
 
-  private putOnBackendServer(endpoint: string, value?: unknown): Observable<HttpResponse<BackendPutResponse>> {
-    if (!value){
-          return this.httpClient
-      .put<BackendPutResponse>(`${this.ipAddress}/${endpoint}`, null, {
-        ...this._options,
-        responseType: 'json',
-        observe: 'response',
-      })
+  private putOnBackendServer(
+    endpoint: string,
+    value?: unknown,
+  ): Observable<HttpResponse<BackendPutResponse>> {
+    if (!value) {
+      return this.httpClient.put<BackendPutResponse>(
+        `${this.ipAddress}/${endpoint}`,
+        null,
+        {
+          ...this._options,
+          responseType: 'json',
+          observe: 'response',
+        },
+      );
     }
-    return this.httpClient
-      .put<BackendPutResponse>(`${this.ipAddress}/${endpoint}`, value, {
+    return this.httpClient.put<BackendPutResponse>(
+      `${this.ipAddress}/${endpoint}`,
+      value,
+      {
         ...this._options,
         responseType: 'json',
         observe: 'response',
-      })
-    
+      },
+    );
   }
 
-private patchOnBackendServer(endpoint: string, value: unknown): Observable<HttpResponse<BackendPutResponse>> {
-  return this.httpClient
-    .patch<BackendPatchResponse>(`${this.ipAddress}/${endpoint}`, value, {
-      ...this._options,
-      responseType: 'json',
-      observe: 'response',
-    })
+  private patchOnBackendServer(
+    endpoint: string,
+    value: unknown,
+  ): Observable<HttpResponse<BackendPutResponse>> {
+    return this.httpClient.patch<BackendPatchResponse>(
+      `${this.ipAddress}/${endpoint}`,
+      value,
+      {
+        ...this._options,
+        responseType: 'json',
+        observe: 'response',
+      },
+    );
   }
 
   private postOnBackendServer<RType = string>(
     endpoint: string,
-    parameters?: unknown
+    parameters?: unknown,
   ): Observable<HttpResponse<BackendPostResponse<RType>>> {
     if (!parameters) {
-       return this.httpClient
-      .post<BackendPostResponse<RType>>(`${this.ipAddress}/${endpoint}`, null, {
-        ...this._options,
-        responseType: 'json',
-        observe: 'response',
-      })
+      return this.httpClient.post<BackendPostResponse<RType>>(
+        `${this.ipAddress}/${endpoint}`,
+        null,
+        {
+          ...this._options,
+          responseType: 'json',
+          observe: 'response',
+        },
+      );
     }
-    return this.httpClient
-      .post<BackendPostResponse<RType>>(`${this.ipAddress}/${endpoint}`, parameters, {
+    return this.httpClient.post<BackendPostResponse<RType>>(
+      `${this.ipAddress}/${endpoint}`,
+      parameters,
+      {
         ...this._options,
         responseType: 'json',
         observe: 'response',
-      })
+      },
+    );
   }
 }

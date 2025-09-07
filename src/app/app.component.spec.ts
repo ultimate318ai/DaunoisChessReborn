@@ -7,10 +7,10 @@ describe('AppComponent', () => {
     TestBed.configureTestingModule({
       imports: [provideZonelessChangeDetection()],
       declarations: [AppComponent],
-    })
+    }),
   );
 
-  it('should create the app', async() => {
+  it('should create the app', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     await fixture.whenStable();
@@ -28,7 +28,7 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.content span')?.textContent).toContain(
-      'DaunoisChessReborn app is running!'
+      'DaunoisChessReborn app is running!',
     );
   });
 });

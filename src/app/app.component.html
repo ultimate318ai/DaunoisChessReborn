@@ -1,4 +1,9 @@
-<div class="app" [style]="{ 'background-image': !gameLaunched() ? 'url(../assets/home.png)' : 'unset' }">
+<div
+  class="app"
+  [style]="{
+    'background-image': !gameLaunched() ? 'url(../assets/home.png)' : 'unset',
+  }"
+>
   <app-game-menu
     [style]="{ 'z-index': 50, display: gameLaunched() ? 'none' : '' }"
     (gameLaunched)="gameStart($event)"

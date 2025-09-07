@@ -38,7 +38,7 @@ DEFAULT_STOCKFISH_SETTINGS = {
     "Hash": 16,
     "Skill Level": 1,
     # "VariantPath": "IA/Fairy-Stockfish/src/variants.ini",
-    # "UCI_Variant": "maharajah",// TODO: use with varient
+    # "UCI_Variant": "maharajah",// TODO: use with variants
 }
 
 IA_EXE_NAME = (

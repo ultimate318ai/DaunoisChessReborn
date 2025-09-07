@@ -5,105 +5,109 @@
         <canvas id="primaryCanvas" width="480" height="480"></canvas>
         <canvas id="drawingCanvas" width="480" height="480"></canvas>
         @if (isNextMoveAPromotion()) {
-        <div id="promotion-choice">
-          @for ( promotionPiece of potentialsPromotionsPieces(); track
-          promotionPiece; let index = $index) {
-          <div
-            [id]="promotionSquarePositionFromIndex(index)"
-            [ngStyle]="{
-              'background-image':
-                'url(' + piecePictureUrl(promotionPiece) + ')',
-              left:
-                '' +
-                12.5 *
-                  (promotionSquarePositionFromIndex(index)[0].charCodeAt(0) -
-                    97) +
-                '%',
-              bottom:
-                '' +
-                12.5 * (+promotionSquarePositionFromIndex(index)[1] - 1) +
-                '%'
-            }"
-            (click)="onPromotionPieceClick(promotionPiece)"
-          ></div>
-          }
-        </div>
-      }
-        @for ( boardCell of boardCellEntries(); track $index; let
-        index = $index) {
+          <div id="promotion-choice">
+            @for (
+              promotionPiece of potentialsPromotionsPieces();
+              track promotionPiece;
+              let index = $index
+            ) {
+              <div
+                [id]="promotionSquarePositionFromIndex(index)"
+                [ngStyle]="{
+                  'background-image':
+                    'url(' + piecePictureUrl(promotionPiece) + ')',
+                  left:
+                    '' +
+                    12.5 *
+                      (promotionSquarePositionFromIndex(index)[0].charCodeAt(
+                        0
+                      ) -
+                        97) +
+                    '%',
+                  bottom:
+                    '' +
+                    12.5 * (+promotionSquarePositionFromIndex(index)[1] - 1) +
+                    '%',
+                }"
+                (click)="onPromotionPieceClick(promotionPiece)"
+              ></div>
+            }
+          </div>
+        }
+        @for (
+          boardCell of boardCellEntries();
+          track $index;
+          let index = $index
+        ) {
           @let cellNotation = boardCell[0];
           @let cellPiece = boardCell[1];
-          @if ( cellPiece.pieceSymbol !== null && isKingCellChecked(cellPiece)) {
-        <div class="nestedCell">
-          <div class="chessPiece" [id]="cellNotation">
-            <div class="checked"></div>
-            <div
-              [ngStyle]="{
-                'background-image':
-                  'url(' + piecePictureUrl(cellPiece.pieceSymbol) + ')'
-              }"
-              (click)="onCellClick(cellNotation)"
-              draggable="true"
-              (dragstart)="onPieceDrag($event)"
-              (dragend)="onPieceDrop()"
-              (dragenter)="onCellDragEnter($event)"
-              (dragleave)="onCellDragLeave($event)"
-            ></div>
-          </div>
-        </div>
-        
-        } @else { 
-        
-          @if ( cellPiece.pieceSymbol !== null) {
-          <div
-          [id]="cellNotation"
-          [attr.last-move]="
-            boardLastMoveFrom() === cellNotation ||
-            boardLastMoveTo() === cellNotation
-              ? ''
-              : null
-          "
-          [attr.attacked]="cellPiece.pointed ? '' : null"
-          >
-          <div class="chessPiece"
-          [id]="cellNotation"
-          [ngStyle]="{
-            'background-image':
-            'url(' + piecePictureUrl(cellPiece.pieceSymbol) + ')'
-          }"
-        draggable="true"
-        (dragstart)="onPieceDrag($event)"
-        (dragend)="onPieceDrop()"
-        (dragenter)="onCellDragEnter($event)"
-        (dragleave)="onCellDragLeave($event)"
-        (click)="onCellClick(cellNotation)"
-      >
-      </div>
-      </div>
-        } @else {
-        <div
-          [id]="cellNotation"
-          [attr.attacked]="
-            isCellEnPassant(cellNotation) ? '' : null
-          "
-          [attr.last-move]="
-            boardLastMoveFrom() === cellNotation ||
-            boardLastMoveTo() === cellNotation
-              ? ''
-              : null
-          "
-          [attr.pointed]="
-            cellPiece.pointed &&
-            !isCellEnPassant(cellNotation)
-              ? ''
-              : null
-          "
-          (click)="onEmptyCellClick(cellNotation)"
-          (dragenter)="onEmptyCellDragEnter($event)"
-          (dragleave)="onEmptyCellDragLeave($event)"
-        >
-      </div>
-        } } }
+          @if (cellPiece.pieceSymbol !== null && isKingCellChecked(cellPiece)) {
+            <div class="nestedCell">
+              <div class="chessPiece" [id]="cellNotation">
+                <div class="checked"></div>
+                <div
+                  [ngStyle]="{
+                    'background-image':
+                      'url(' + piecePictureUrl(cellPiece.pieceSymbol) + ')',
+                  }"
+                  (click)="onCellClick(cellNotation)"
+                  draggable="true"
+                  (dragstart)="onPieceDrag($event)"
+                  (dragend)="onPieceDrop()"
+                  (dragenter)="onCellDragEnter($event)"
+                  (dragleave)="onCellDragLeave($event)"
+                ></div>
+              </div>
+            </div>
+          } @else {
+            @if (cellPiece.pieceSymbol !== null) {
+              <div
+                [id]="cellNotation"
+                [attr.last-move]="
+                  boardLastMoveFrom() === cellNotation ||
+                  boardLastMoveTo() === cellNotation
+                    ? ''
+                    : null
+                "
+                [attr.attacked]="cellPiece.pointed ? '' : null"
+              >
+                <div
+                  class="chessPiece"
+                  [id]="cellNotation"
+                  [ngStyle]="{
+                    'background-image':
+                      'url(' + piecePictureUrl(cellPiece.pieceSymbol) + ')',
+                  }"
+                  draggable="true"
+                  (dragstart)="onPieceDrag($event)"
+                  (dragend)="onPieceDrop()"
+                  (dragenter)="onCellDragEnter($event)"
+                  (dragleave)="onCellDragLeave($event)"
+                  (click)="onCellClick(cellNotation)"
+                ></div>
+              </div>
+            } @else {
+              <div
+                [id]="cellNotation"
+                [attr.attacked]="isCellEnPassant(cellNotation) ? '' : null"
+                [attr.last-move]="
+                  boardLastMoveFrom() === cellNotation ||
+                  boardLastMoveTo() === cellNotation
+                    ? ''
+                    : null
+                "
+                [attr.pointed]="
+                  cellPiece.pointed && !isCellEnPassant(cellNotation)
+                    ? ''
+                    : null
+                "
+                (click)="onEmptyCellClick(cellNotation)"
+                (dragenter)="onEmptyCellDragEnter($event)"
+                (dragleave)="onEmptyCellDragLeave($event)"
+              ></div>
+            }
+          }
+        }
       </div>
     </div>
   </section>

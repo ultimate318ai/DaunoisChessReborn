@@ -20,7 +20,7 @@
       }
     </select>
 
-      <div>
+    <div>
       <label for="skillLevel">Skill Level: </label>
       <input
         id="skillLevelRange"
@@ -28,20 +28,20 @@
         [min]="skillLevels[0]"
         [max]="skillLevels[skillLevels.length - 1] + 1"
         formControlName="skillLevel"
-        />
-        <div id="skillLevel">{{ skillLevel }}</div>
-      </div>
+      />
+      <div id="skillLevel">{{ skillLevel }}</div>
+    </div>
 
-      <label for="fen">Fen: </label>
-      <input
-        id="fen"
-        type="text"
-        formControlName="fen"
-        [style.width.ch]="fen.length"
-        />
+    <label for="fen">Fen: </label>
+    <input
+      id="fen"
+      type="text"
+      formControlName="fen"
+      [style.width.ch]="fen.length"
+    />
 
-        <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">
-          Submit
-        </button>
-      </form>
-    </section>
+    <button type="submit" [disabled]="!gameForm.valid" (click)="launchGame()">
+      Submit
+    </button>
+  </form>
+</section>

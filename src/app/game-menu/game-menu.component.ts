@@ -6,7 +6,14 @@ import {
   Validators,
 } from '@angular/forms';
 import { fenValidator } from './fen-validator.directive';
-import { GAME_TYPES, GameType, PLAYER_COLORS, PlayerColor, SKILL_LEVEL, SkillLevel } from './gameSettings';
+import {
+  GAME_TYPES,
+  GameType,
+  PLAYER_COLORS,
+  PlayerColor,
+  SKILL_LEVEL,
+  SkillLevel,
+} from './gameSettings';
 import { ChessGameSettings } from '../app.component';
 
 @Component({
@@ -24,11 +31,10 @@ export class GameMenuComponent {
     skillLevel: new FormControl(0),
     fen: new FormControl(
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-      [Validators.required, fenValidator()]
+      [Validators.required, fenValidator()],
     ),
   });
   private _gameTypes = GAME_TYPES;
-
 
   private _skillLevels = SKILL_LEVEL;
 
@@ -62,9 +68,8 @@ export class GameMenuComponent {
     return this._gameForm.get('playerColor')?.value as PlayerColor;
   }
 
-
   get gameType(): GameType {
-    return this._gameForm.get("gameType")?.value as GameType;
+    return this._gameForm.get('gameType')?.value as GameType;
   }
 
   launchGame(): void {
@@ -72,7 +77,7 @@ export class GameMenuComponent {
       fen: this.fen,
       gameType: this.gameType,
       skillLevel: this.skillLevel,
-      playerColor: this.playerColor === "White" ? "w" : "b"
+      playerColor: this.playerColor === 'White' ? 'w' : 'b',
     });
   }
 }

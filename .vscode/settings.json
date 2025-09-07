@@ -47,5 +47,9 @@
     "reportUnusedVariable": "error",
     "reportUnsupportedDunderAll": "error",
     "reportWildcardImportFromLibrary": "error"
-  }
+  },
+  "cSpell.words": [
+    "largeboard",
+    "stockfish"
+  ]
 }
