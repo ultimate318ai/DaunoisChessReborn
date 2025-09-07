@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, output } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -16,7 +16,7 @@ import { ChessGameSettings } from '../app.component';
   imports: [ReactiveFormsModule],
 })
 export class GameMenuComponent {
-  @Output() gameLaunched = new EventEmitter<ChessGameSettings>();
+  gameLaunched = output<ChessGameSettings>();
 
   private _gameForm = new FormGroup({
     gameType: new FormControl('Chess'),

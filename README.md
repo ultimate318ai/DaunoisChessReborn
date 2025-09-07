@@ -42,6 +42,12 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 
 Run `python -m flask --app src/backend/http-server-stockfish run -p 8080` In order to have responding backend.
 
+If you want to have more log, use ```--debug option```
+
+```shell
+python -m flask --app src/backend/http-server-stockfish run -p 8080` --debug
+```
+
 ## Features Status
 
 ### Chess Game Vs Stockfish

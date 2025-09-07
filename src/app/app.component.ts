@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { GameType, SkillLevel } from './game-menu/gameSettings';
 import { PlayerColor } from './boards/services/chessTypes';
 import { GameMenuComponent } from './game-menu/game-menu.component';
@@ -21,11 +21,11 @@ export interface ChessGameSettings {
 export class AppComponent {
   title = 'DaunoisChessReborn';
 
-  settings: ChessGameSettings | null = null
-
-  gameLaunched = false;
+  settings = signal<ChessGameSettings | null>(null)
+  gameLaunched = signal(false);
+  
   gameStart(settings: ChessGameSettings) {
-    this.gameLaunched = true;
-    this.settings = settings;
+    this.gameLaunched.set(true);
+    this.settings.set(settings);
   }
 }

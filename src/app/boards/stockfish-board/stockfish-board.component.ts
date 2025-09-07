@@ -8,6 +8,7 @@ import {
   BoardMove,
   chessApiService,
   Move,
+  StockFishSettings,
 } from '../services/chess.api.service';
 import {
   boardCellNotation,
@@ -28,7 +29,7 @@ import { ChessGameSettings } from 'src/app/app.component';
 export class StockfishBoardComponent implements OnInit {
   private chessService = inject(chessApiService);
   private arrowService = inject(ChessboardArrowService);
-
+  
   public settings = input.required<ChessGameSettings>()
 
   public moveMadeList = signal<Move[]>([])
@@ -52,10 +53,6 @@ export class StockfishBoardComponent implements OnInit {
   boardCellsValues = computed(() => this.boardCellEntries().map(([, value]) => value)) //TODO: add logic to revert chess board when black color is selected : sort((a, b) => b[0].localeCompare(a[0]) * (this.playerColor() === "b" ? -1 : 1)  )
   boardCellsKeys = computed(() =>  Object.keys(this.boardCells()) as boardCellNotation[])
   boardCellEntries = computed(() => Object.entries(this.boardCells()))
-  
-  // get chessBoardPromotionSquare() {
-  //   return this.promotionCellName;
-  // }
   
   playerColor = computed(() => this.settings().playerColor)
   
@@ -90,18 +87,21 @@ export class StockfishBoardComponent implements OnInit {
   }
   )
   
-  // get openPromotionChoices() {
-  //   return this.isNextMoveAPromotion;
-  // }
-  
   updatePlayerTurnState = new Subject<void>();
   constructor() {
       this.addPlayerTurnListener()
       this.addStockFishTurnListener()
+      console.log("blblbl")
+      console.log(this.isNextMoveAPromotion())
   }
   
   ngOnInit(): void {
-    this.chessService.resetBoardState().subscribe(() => {
+    const stockfishSettings: StockFishSettings = {
+      skillLevel: this.settings().skillLevel,
+      threads: 1,
+      hash: 16,
+    }
+    this.chessService.resetBoardState().pipe(mergeMap(() => this.chessService.updateStockfishSettings(stockfishSettings))).subscribe(() => {
       this.arrowService.initializeCanvas();
       this.fen.set(this.settings().fen);
       const boardPartFen = this.fen().split(' ')[0];

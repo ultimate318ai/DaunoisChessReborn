@@ -12,6 +12,12 @@ export interface Move {
   drop: PieceSymbol | null;
 }
 
+export interface StockFishSettings {
+    threads: number;
+    hash: number;
+    skillLevel: number;
+}
+
 export type BoardMove = Move & {
   capturedPiece: PieceSymbol | null;
 };
@@ -34,6 +40,11 @@ interface BackendDeleteResponse<T> {
 }
 
 interface BackendPutResponse {
+  'App/Inf'?: string;
+  'App/Err'?: string;
+}
+
+interface BackendPatchResponse {
   'App/Inf'?: string;
   'App/Err'?: string;
 }
@@ -103,6 +114,20 @@ export class chessApiService {
       );
   }
 
+  public getStockfishSettings(): Observable<StockFishSettings> {
+    return this.getOnBackendServer('stockfishParameters')
+  }
+
+  public updateStockfishSettings(settings: StockFishSettings): Observable<null> {
+    const parameters = {
+    "Threads": settings.threads,
+    "Hash": settings.hash,
+    "Skill Level": settings.skillLevel,
+    }
+    return this.patchOnBackendServer('stockfishParameters', parameters).pipe(
+        mergeMap(() => of(null))
+      )
+  }
 
   public resetBoardState(): Observable<null> {
     return this.deleteOnBackendServer("boardInformation").pipe(mergeMap(() => of(null)));
@@ -158,6 +183,15 @@ export class chessApiService {
         observe: 'response',
       })
     
+  }
+
+private patchOnBackendServer(endpoint: string, value: unknown): Observable<HttpResponse<BackendPutResponse>> {
+  return this.httpClient
+    .patch<BackendPatchResponse>(`${this.ipAddress}/${endpoint}`, value, {
+      ...this._options,
+      responseType: 'json',
+      observe: 'response',
+    })
   }
 
   private postOnBackendServer<RType = string>(

@@ -6,9 +6,11 @@ and put on fen changes.
 
 from dataclasses import dataclass
 
+import json
 import os
 import pathlib
 import platform
+from typing import Any
 import chess
 import stockfish
 
@@ -31,15 +33,19 @@ ORIGIN_IP_ADDRESS = f"http://localhost:{FRONTEND_PORT}"
 
 DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 "
 
-STOCKFISH_VARIANT_SETTINGS = {
+DEFAULT_STOCKFISH_SETTINGS = {
     "Threads": 1,
     "Hash": 16,
-    "Skill Level": 20,
-    "VariantPath": "IA/Fairy-Stockfish/src/variants.ini",
-    "UCI_Variant": "maharajah",
-}  # TODO: use it for extra configuration of stockfish
+    "Skill Level": 1,
+    # "VariantPath": "IA/Fairy-Stockfish/src/variants.ini",
+    # "UCI_Variant": "maharajah",// TODO: use with varient
+}
 
-IA_EXE_NAME = "stockfish" if platform.system() != "Windows" else "fairy-stockfish-largeboard_x86-64.exe"
+IA_EXE_NAME = (
+    "stockfish"
+    if platform.system() != "Windows"
+    else "fairy-stockfish-largeboard_x86-64.exe"
+)
 
 IA_EXE_FILE_PATH_SEP = "/" if platform.system() != "Windows" else "\\"
 
@@ -84,7 +90,9 @@ __stockfish.set_fen_position(DEFAULT_FEN)
 def fen():
     """Fen management for chess board"""
     if request.method == "PUT":
-        __board.set_fen(f"{request.get_data().decode()}")
+        fen = request.get_data().decode()
+        __board.set_fen(f"{fen}")
+        app.logger.debug("fen updated to %s", fen)
         return {"App/Inf": "Ok"}, 200
     if request.method == "GET":
         return {"App/Inf": "Ok", "value": __board.fen()}, 200
@@ -193,5 +201,29 @@ def board_information():
     if request.method == "DELETE":
         __board.reset_board()
         __stockfish.set_fen_position(DEFAULT_FEN)
+        return {"App/Inf": "Ok"}, 200
+    return {"App/Err": "Method not Supported"}, 504
+
+
+@app.route("/stockfishParameters", methods=["GET", "PATCH"])
+@cross_origin()
+def stockfish_parameters():
+    """Endpoint for stockfish parameters, such as variant name or skill level"""
+    if request.method == "GET":
+        return {"App/Inf": "Ok", "value": __stockfish.get_parameters()}, 200
+    if request.method == "PATCH":
+        data = request.get_data().decode()
+        data_as_object: dict[str, Any] = json.loads(data)
+        settings = {
+            key: value
+            for key, value in data_as_object.items()
+            if key in DEFAULT_STOCKFISH_SETTINGS
+        }
+        __stockfish.update_engine_parameters(settings)
+        app.logger.debug(
+            "Stockfish parameters set : %s, from %s",
+            json.dumps(settings),
+            json.dumps(data_as_object),
+        )
         return {"App/Inf": "Ok"}, 200
     return {"App/Err": "Method not Supported"}, 504

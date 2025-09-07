@@ -28,7 +28,8 @@
           ></div>
           }
         </div>
-        } @for ( chessBoardCell of boardCellsValues(); track $index; let
+      }
+        @for ( chessBoardCell of boardCellsValues(); track $index; let
         index = $index) { 
           @if ( chessBoardCell.pieceSymbol !== null && isKingCellChecked(chessBoardCell)) {
         <div class="nestedCell">
