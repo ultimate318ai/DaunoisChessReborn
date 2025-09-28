@@ -11,7 +11,7 @@ import os
 import pathlib
 import platform
 from typing import Any
-import chess
+from chess import Board, Move, parse_square, PIECE_SYMBOLS
 import stockfish
 
 from flask import Flask, request
@@ -80,7 +80,7 @@ cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
 __engine_path = next(__find_ia_path(IA_EXE_NAME))
-__board = chess.Board(DEFAULT_FEN)
+__board = Board(DEFAULT_FEN)
 __stockfish = stockfish.Stockfish(str(__engine_path))
 __stockfish.set_fen_position(DEFAULT_FEN)
 
@@ -90,9 +90,9 @@ __stockfish.set_fen_position(DEFAULT_FEN)
 def fen():
     """Fen management for chess board"""
     if request.method == "PUT":
-        fen = request.get_data().decode()
-        __board.set_fen(f"{fen}")
-        app.logger.debug("fen updated to %s", fen)
+        _fen = request.get_data().decode()
+        __board.set_fen(f"{_fen}")
+        app.logger.debug("fen updated to %s", _fen)
         return {"App/Inf": "Ok"}, 200
     if request.method == "GET":
         return {"App/Inf": "Ok", "value": __board.fen()}, 200
@@ -116,12 +116,10 @@ def move():
         promotion = move_object.get("promotion", None)
         if from_ is None or to_ is None:
             return {"App/Err": f"wrong from or to for move {move_object}"}, 400
-        move_ = chess.Move(
-            from_square=chess.parse_square(from_),
-            to_square=chess.parse_square(to_),
-            promotion=(
-                chess.PIECE_SYMBOLS.index(promotion.lower()) if promotion else None
-            ),
+        move_ = Move(
+            from_square=parse_square(from_),
+            to_square=parse_square(to_),
+            promotion=(PIECE_SYMBOLS.index(promotion.lower()) if promotion else None),
         )
         __board.push(move_)
         __stockfish.set_fen_position(__board.fen())
@@ -138,7 +136,7 @@ def move():
         best_move_as_uci_string = __stockfish.get_best_move()
         if not best_move_as_uci_string:
             return {"App/Inf": "Ok", "value": None}, 200
-        best_move = chess.Move.from_uci(best_move_as_uci_string)
+        best_move = Move.from_uci(best_move_as_uci_string)
         __board.push(best_move)
         __stockfish.set_fen_position(__board.fen())
 
@@ -149,10 +147,10 @@ def move():
                 "from": f"{chr(97 + (best_move.from_square % 8))}{(best_move.from_square // 8)+1}",
                 "to": f"{chr(97 + (best_move.to_square % 8))}{(best_move.to_square // 8)+1}",
                 "promotion": (
-                    chess.PIECE_SYMBOLS[best_move.promotion].upper()
+                    PIECE_SYMBOLS[best_move.promotion].upper()
                     if best_move.promotion and __board.turn
                     else (
-                        chess.PIECE_SYMBOLS[best_move.promotion]
+                        PIECE_SYMBOLS[best_move.promotion]
                         if best_move.promotion
                         else None
                     )
@@ -176,9 +174,9 @@ def moves():
                 "from": f"{chr(97 + (move.from_square % 8))}{(move.from_square // 8)+1}",
                 "to": f"{chr(97 + (move.to_square % 8))}{(move.to_square // 8)+1}",
                 "promotion": (
-                    chess.PIECE_SYMBOLS[move.promotion].upper()
+                    PIECE_SYMBOLS[move.promotion].upper()
                     if move.promotion and __board.turn
-                    else chess.PIECE_SYMBOLS[move.promotion] if move.promotion else None
+                    else PIECE_SYMBOLS[move.promotion] if move.promotion else None
                 ),
                 "drop": move.drop,
                 "isEnPassant": __board.is_en_passant(move),
@@ -192,6 +190,7 @@ def moves():
 @cross_origin()
 def board_information():
     """Current board state."""
+    app.logger.debug("Board State:\n%s\n", __board.unicode(invert_color=True))
     if request.method == "GET":
         body = {
             "is_check": __board.is_check(),
