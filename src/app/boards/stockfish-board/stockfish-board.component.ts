@@ -104,6 +104,7 @@ export class StockfishBoardComponent implements OnInit {
   constructor() {
     this.addPlayerTurnListener();
     this.addStockFishTurnListener();
+    this.addFenUpdateListener();
   }
 
   ngOnInit(): void {
@@ -122,38 +123,43 @@ export class StockfishBoardComponent implements OnInit {
       .subscribe(() => {
         this.arrowService.initializeCanvas();
         this.fen.set(this.settings().fen);
-        const boardPartFen = this.fen().split(' ')[0];
-        const boardCells: boardCells = {} as boardCells;
-        let column = 0;
-        let row = 0;
-        for (const fenRow of boardPartFen.split('/')) {
-          column = 0;
-          for (const fenRowItem of fenRow) {
-            if (!isNaN(parseFloat(fenRowItem))) {
-              for (let index = 0; index < +fenRowItem; index++) {
-                const cellName = `${this.fromCoordinatesToBoardCellNotation([
-                  column + index,
-                  8 - row,
-                ])}` as boardCellNotation;
-                boardCells[cellName] = { pieceSymbol: null, pointed: false };
-              }
-              column += +fenRowItem;
-              continue;
-            }
-            const cellName = `${this.fromCoordinatesToBoardCellNotation([
-              column,
-              8 - row,
-            ])}` as boardCellNotation;
-            boardCells[cellName] = {
-              pieceSymbol: fenRowItem as PieceSymbol,
-              pointed: false,
-            };
-            column++;
-          }
-          row++;
-        }
-        this.boardCells.set(boardCells);
       });
+  }
+
+  private addFenUpdateListener(): void {
+    effect(() => {
+      const boardPartFen = this.fen().split(' ')[0];
+      const boardCells: boardCells = {} as boardCells;
+      let column = 0;
+      let row = 0;
+      for (const fenRow of boardPartFen.split('/')) {
+        column = 0;
+        for (const fenRowItem of fenRow) {
+          if (!isNaN(parseFloat(fenRowItem))) {
+            for (let index = 0; index < +fenRowItem; index++) {
+              const cellName = `${this.fromCoordinatesToBoardCellNotation([
+                column + index,
+                8 - row,
+              ])}` as boardCellNotation;
+              boardCells[cellName] = { pieceSymbol: null, pointed: false };
+            }
+            column += +fenRowItem;
+            continue;
+          }
+          const cellName = `${this.fromCoordinatesToBoardCellNotation([
+            column,
+            8 - row,
+          ])}` as boardCellNotation;
+          boardCells[cellName] = {
+            pieceSymbol: fenRowItem as PieceSymbol,
+            pointed: false,
+          };
+          column++;
+        }
+        row++;
+      }
+      this.boardCells.set(boardCells);
+    });
   }
 
   private addStockFishTurnListener(): void {
@@ -175,14 +181,6 @@ export class StockfishBoardComponent implements OnInit {
     this.selectedFromPieceCell.set(null);
   }
 
-  private applyMoveOnBoard(move: Move, selectedPieceCell: boardCellNotation) {
-    this.setBoardCellPieceSymbol(
-      move.to,
-      this.getBoardCellPieceSymbol(selectedPieceCell),
-    );
-    this.setBoardCellPieceSymbol(move.from, null);
-  }
-
   private playStockFishTurn(): void {
     this.chessService
       .applyStockfishMove()
@@ -201,7 +199,6 @@ export class StockfishBoardComponent implements OnInit {
             capturedPiece: this.getBoardCellPieceSymbol(move.to),
           },
         ]);
-        this.applyMoveOnBoard(move, move.from);
         this.updatePlayerTurnState.next();
       });
   }
@@ -345,7 +342,7 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onEmptyCellClick(cellClicked: boardCellNotation): void {
-    if (!this.stateValid) return;
+    if (!this.stateValid()) return;
     const selectedPieceCell = this.selectedFromPieceCell();
     if (selectedPieceCell) {
       const move = this.getNextPotentialMoveFromCoordinateCells(
@@ -372,7 +369,6 @@ export class StockfishBoardComponent implements OnInit {
                 capturedPiece: this.getBoardCellPieceSymbol(move.to),
               },
             ]);
-            this.applyMoveOnBoard(move, selectedPieceCell);
             this.updatePlayerTurnState.next();
           });
       }
@@ -385,7 +381,7 @@ export class StockfishBoardComponent implements OnInit {
     console.log(this.playerTurn());
     console.log(this.moveList());
     console.log(cellClicked);
-    if (!this.stateValid) return;
+    if (!this.stateValid()) return;
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
     if (!this.selectedFromPieceCell()) {
       this.selectedFromPieceCell.set(cellClicked);
@@ -418,7 +414,6 @@ export class StockfishBoardComponent implements OnInit {
                 capturedPiece: this.getBoardCellPieceSymbol(move.to),
               },
             ]);
-            this.applyMoveOnBoard(move, selectedPieceCell);
             this.updatePlayerTurnState.next();
           });
         this.resetPointedCells();
@@ -433,7 +428,7 @@ export class StockfishBoardComponent implements OnInit {
   onPromotionPieceClick(promotionPiece: PieceSymbol): void {
     const selectedPieceCell = this.selectedFromPieceCell();
     const promotionPieceCell = this.promotionCellName();
-    if (!this.stateValid || !selectedPieceCell || !promotionPieceCell) return;
+    if (!this.stateValid() || !selectedPieceCell || !promotionPieceCell) return;
     const move = this.getNextPotentialMoveFromCoordinateCells(
       selectedPieceCell,
       promotionPieceCell,
@@ -455,8 +450,6 @@ export class StockfishBoardComponent implements OnInit {
             capturedPiece: this.getBoardCellPieceSymbol(move.to),
           },
         ]);
-        this.setBoardCellPieceSymbol(move.to, promotionPiece);
-        this.setBoardCellPieceSymbol(move.from, null);
         this.updatePlayerTurnState.next();
       });
     this.isNextMoveAPromotion.set(false);
@@ -466,7 +459,7 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onPieceDrag(event: DragEvent): void {
-    if (!this.stateValid) return;
+    if (!this.stateValid()) return;
     const cellClicked = (event.target as HTMLDivElement)
       .id as boardCellNotation;
     const moves = this.getChessBoardMoveListFromCell(cellClicked);
@@ -478,7 +471,7 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   onPieceDrop(): void {
-    if (!this.stateValid) return;
+    if (!this.stateValid()) return;
 
     const boardCell = this.selectedPieceDropCell();
 
@@ -556,12 +549,11 @@ export class StockfishBoardComponent implements OnInit {
   handleMouseWheel(event: WheelEvent): void {
     if (event.deltaY > 0) {
       //scroll on bottom
-      this.displayedMoveList.update((displayedMoveList) => {
-        displayedMoveList.pop();
-        return displayedMoveList;
-      });
       const lastMove = this.displayedMoveList().pop();
       if (lastMove) {
+        this.displayedMoveList.update((displayedMoveList) =>
+          displayedMoveList.splice(-1),
+        );
         const fromPiece = this.getBoardCellPieceSymbol(lastMove.to);
         const toPiece = lastMove.capturedPiece;
 
@@ -574,10 +566,13 @@ export class StockfishBoardComponent implements OnInit {
         const redoMove = this.moveMadeList()[this.displayedMoveList().length];
         const piece = this.getBoardCellPieceSymbol(redoMove.from);
 
-        this.displayedMoveList().push({
-          ...redoMove,
-          capturedPiece: this.getBoardCellPieceSymbol(redoMove.to),
-        });
+        this.displayedMoveList.update((displayedMoveList) => [
+          ...displayedMoveList,
+          {
+            ...redoMove,
+            capturedPiece: this.getBoardCellPieceSymbol(redoMove.to),
+          },
+        ]);
         this.setBoardCellPieceSymbol(redoMove.to, piece);
         this.setBoardCellPieceSymbol(redoMove.from, null);
       } else {
