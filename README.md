@@ -3,6 +3,8 @@
 
 The purpose of this project is to build a website of chess, including normal game and variants.
 
+This tool is intended to be used only for training purpose, without any multiplayer games from now.
+
 
 ## State
 
@@ -12,7 +14,7 @@ The purpose of this project is to build a website of chess, including normal gam
 
 [![Generic badge](https://img.shields.io/badge/Python-3.12.3-green.svg)](https://shields.io/)
 
-[![Generic badge](https://img.shields.io/badge/Stockfish-Not_Yet_available-red.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/Stockfish-Available-green.svg)](https://shields.io/)
 
 ### Application
 
@@ -51,14 +53,11 @@ python -m flask --app src/backend/http-server-stockfish run -p 8080 --debug
 ## Features Status
 
 ### Chess Game Vs Stockfish
-- Normal Chess (In progress)
-- ... (Variants in comming after)
+- Standard Chess 
 
 ### Game Analysis (TODO)
 
 
 ### Custom Variant Editor (TODO)
-
-### MultiPlayer Game (TODO)
 
 ---------------------------------------------------
