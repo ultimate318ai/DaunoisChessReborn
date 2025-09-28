@@ -95,6 +95,7 @@ def fen():
         app.logger.debug("fen updated to %s", _fen)
         return {"App/Inf": "Ok"}, 200
     if request.method == "GET":
+        app.logger.debug("GET /fen: %s", __board.fen())
         return {"App/Inf": "Ok", "value": __board.fen()}, 200
     return {"App/Err": "Method not Supported"}, 504
 
@@ -190,18 +191,19 @@ def moves():
 @cross_origin()
 def board_information():
     """Current board state."""
+    app.logger.debug("Board Fen: %s", __board.fen())
     app.logger.debug("Board State:\n%s\n", __board.unicode(invert_color=True))
     if request.method == "GET":
         body = {
             "is_check": __board.is_check(),
             "turn": "w" if __board.turn else "b",
         }
-        app.logger.debug("boardInformation : %s", json.dumps(body))
+        app.logger.debug("GET /boardInformation : %s", json.dumps(body))
         return {"App/Inf": "Ok", "value": body}, 200
     if request.method == "DELETE":
         __board.reset_board()
         __stockfish.set_fen_position(DEFAULT_FEN)
-        app.logger.debug("boardInformation : Board reset")
+        app.logger.debug("DELETE /boardInformation : Board reset")
         return {"App/Inf": "Ok"}, 200
     if request.method == "PUT":
         __board.apply_mirror()
