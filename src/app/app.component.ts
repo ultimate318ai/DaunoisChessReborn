@@ -8,9 +8,11 @@ import { ChessGameSettings, GameStore } from './game.store';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  providers: [GameStore],
   imports: [GameMenuComponent, StockfishBoardComponent, GameStatusComponent],
 })
 export class AppComponent {
+  title = 'DaunoisChessReborn';
   private readonly store = inject(GameStore);
 
   readonly isGameSet = computed(() => this.store.isGameSet());
