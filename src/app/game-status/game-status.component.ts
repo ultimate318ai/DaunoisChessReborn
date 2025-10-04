@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, output } from '@angular/core';
 
 @Component({
   selector: 'app-game-status',
@@ -6,11 +6,14 @@ import { Component } from '@angular/core';
   styleUrls: ['./game-status.component.scss'],
 })
 export class GameStatusComponent {
-  get gameFinished(): boolean {
-    return false;
+  rematch = output<void>();
+  newGame = output<void>();
+
+  onRematch(): void {
+    this.rematch.emit();
   }
 
-  get gameStatus(): string {
-    return '';
+  onNewGame(): void {
+    this.newGame.emit();
   }
 }

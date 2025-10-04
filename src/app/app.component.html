@@ -1,21 +1,31 @@
 <div
   class="app"
   [style]="{
-    'background-image': !gameLaunched() ? 'url(../assets/home.png)' : 'unset',
+    'background-image': !isGameSet() ? 'url(../assets/home.png)' : 'unset',
   }"
 >
-  <app-game-menu
-    [style]="{ 'z-index': 50, display: gameLaunched() ? 'none' : '' }"
-    (gameLaunched)="gameStart($event)"
-  ></app-game-menu>
+  @if (!isGameSet()) {
+    <app-game-menu
+      [style]="{ 'z-index': 50 }"
+      (gameLaunched)="onGameStart($event)"
+    ></app-game-menu>
+  }
+
   <section
     id="game-content"
-    [style]="{ filter: gameLaunched() ? '' : 'blur(4px)' }"
+    [style]="{ filter: isGameLaunched() ? '' : 'blur(4px)' }"
   >
-    @let gameSettings = settings();
-    @if (gameLaunched() && gameSettings !== null) {
-      <app-stockfish-board [settings]="gameSettings"></app-stockfish-board>
+    @if (isGameLaunched()) {
+      <app-stockfish-board
+        [settings]="settings()"
+        (gameFinished)="onGameOver()"
+      ></app-stockfish-board>
     }
-    <app-game-status></app-game-status>
   </section>
+  @if (isGameOver()) {
+    <app-game-status
+      (rematch)="onRematch()"
+      (newGame)="onNewGame()"
+    ></app-game-status>
+  }
 </div>

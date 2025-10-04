@@ -8,6 +8,7 @@ import {
   OnInit,
   signal,
   inject,
+  output,
 } from '@angular/core';
 import { forkJoin, mergeMap, of, Subject } from 'rxjs';
 import { MoveBoardComponent } from 'src/app/move-board/move-board.component';
@@ -26,12 +27,13 @@ import {
 } from '../services/chessTypes';
 import { ChessGameSettings } from 'src/app/app.component';
 import { entries } from 'src/main';
+import { GameStatusComponent } from 'src/app/game-status/game-status.component';
 
 @Component({
   selector: 'app-stockfish-board',
   templateUrl: './stockfish-board.component.html',
   styleUrls: ['./stockfish-board.component.scss'],
-  imports: [NgStyle, MoveBoardComponent],
+  imports: [NgStyle, MoveBoardComponent, GameStatusComponent],
 })
 export class StockfishBoardComponent implements OnInit {
   private chessService = inject(chessApiService);
@@ -56,6 +58,8 @@ export class StockfishBoardComponent implements OnInit {
   moveList = signal<Move[]>([]);
 
   boardInformation = signal<BoardInformation | null>(null);
+
+  gameFinished = output<void>();
 
   boardCellEntries = computed(() =>
     this.playerColor() === 'w'
@@ -216,6 +220,9 @@ export class StockfishBoardComponent implements OnInit {
       .subscribe(({ moveList, boardInformation }) => {
         this.moveList.set(moveList);
         this.boardInformation.set(boardInformation);
+        if (boardInformation.game_over) {
+          this.gameFinished.emit();
+        }
       });
   }
 
@@ -332,7 +339,7 @@ export class StockfishBoardComponent implements OnInit {
     );
   }
 
-  isCellMoveDestinationFromSeletedPieceMove(
+  isCellMoveDestinationFromSelectedPieceMove(
     cellName: boardCellNotation,
   ): boolean {
     return this.moveList().some(
@@ -488,7 +495,7 @@ export class StockfishBoardComponent implements OnInit {
   onEmptyCellDragEnter(event: DragEvent): void {
     const cellClicked = event.target as HTMLDivElement;
     const cellId = cellClicked.id as boardCellNotation;
-    if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)) {
+    if (this.isCellMoveDestinationFromSelectedPieceMove(cellId)) {
       cellClicked.style.backgroundColor = 'rgb(0, 255, 0)';
       this.selectedPieceDropCell.set(cellId);
     }
@@ -498,7 +505,7 @@ export class StockfishBoardComponent implements OnInit {
     const cellClicked = event.target as HTMLDivElement;
     const cellId = cellClicked.id as boardCellNotation;
 
-    if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)) {
+    if (this.isCellMoveDestinationFromSelectedPieceMove(cellId)) {
       cellClicked.style.backgroundColor = 'unset';
     }
   }
@@ -506,7 +513,7 @@ export class StockfishBoardComponent implements OnInit {
   onCellDragEnter(event: DragEvent): void {
     const cellClicked = event.target as HTMLDivElement;
     const cellId = cellClicked.id as boardCellNotation;
-    if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)) {
+    if (this.isCellMoveDestinationFromSelectedPieceMove(cellId)) {
       cellClicked.style.backgroundColor = 'rgba(255, 77, 0, 1)';
       this.selectedPieceDropCell.set(cellId);
     }
@@ -516,7 +523,7 @@ export class StockfishBoardComponent implements OnInit {
     const cellClicked = event.target as HTMLDivElement;
     const cellId = cellClicked.id as boardCellNotation;
 
-    if (this.isCellMoveDestinationFromSeletedPieceMove(cellId)) {
+    if (this.isCellMoveDestinationFromSelectedPieceMove(cellId)) {
       cellClicked.style.backgroundColor = 'unset';
     }
   }
@@ -559,8 +566,8 @@ export class StockfishBoardComponent implements OnInit {
 
         this.setBoardCellPieceSymbol(lastMove.from, fromPiece);
         this.setBoardCellPieceSymbol(lastMove.to, toPiece);
+        this.stateValid.set(false);
       }
-      this.stateValid.set(false);
     } else {
       if (this.displayedMoveList().length < this.moveMadeList().length) {
         const redoMove = this.moveMadeList()[this.displayedMoveList().length];

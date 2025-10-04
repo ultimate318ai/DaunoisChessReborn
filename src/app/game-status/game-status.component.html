@@ -1,5 +1,4 @@
-@if (gameFinished) {
-  <div>
-    <span>{{ gameStatus }}</span>
-  </div>
-}
+<section id="endGame">
+  <button (click)="onNewGame()">New Game</button>
+  <button (click)="onRematch()">Rematch</button>
+</section>

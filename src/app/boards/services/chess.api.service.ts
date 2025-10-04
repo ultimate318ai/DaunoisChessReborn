@@ -25,6 +25,7 @@ export type BoardMove = Move & {
 export interface BoardInformation {
   is_check: boolean;
   turn: 'w' | 'b';
+  game_over: boolean;
 }
 
 interface BackendGetResponse<T> {
