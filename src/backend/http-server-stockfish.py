@@ -197,6 +197,7 @@ def board_information():
         body = {
             "is_check": __board.is_check(),
             "turn": "w" if __board.turn else "b",
+            "game_over": __board.is_game_over(),
         }
         app.logger.debug("GET /boardInformation : %s", json.dumps(body))
         return {"App/Inf": "Ok", "value": body}, 200
