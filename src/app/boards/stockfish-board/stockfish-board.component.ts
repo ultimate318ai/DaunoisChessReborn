@@ -25,15 +25,14 @@ import {
   boardCells,
   PieceSymbol,
 } from '../services/chessTypes';
-import { ChessGameSettings } from 'src/app/app.component';
 import { entries } from 'src/main';
-import { GameStatusComponent } from 'src/app/game-status/game-status.component';
+import { ChessGameSettings } from 'src/app/game.store';
 
 @Component({
   selector: 'app-stockfish-board',
   templateUrl: './stockfish-board.component.html',
   styleUrls: ['./stockfish-board.component.scss'],
-  imports: [NgStyle, MoveBoardComponent, GameStatusComponent],
+  imports: [NgStyle, MoveBoardComponent],
 })
 export class StockfishBoardComponent implements OnInit {
   private chessService = inject(chessApiService);
@@ -67,7 +66,7 @@ export class StockfishBoardComponent implements OnInit {
       : entries(this.boardCells()).reverse(),
   );
 
-  playerColor = computed(() => this.settings().playerColor);
+  playerColor = computed(() => this.settings().playerSymbol);
 
   playerTurn = computed(() => {
     const fenPlayerTurnPart = this.fen().split(' ')[1];
