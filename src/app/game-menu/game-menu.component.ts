@@ -6,15 +6,19 @@ import {
   Validators,
 } from '@angular/forms';
 import { fenValidator } from './fen-validator.directive';
-import {
-  GAME_TYPES,
-  GameType,
-  PLAYER_COLORS,
-  PlayerColor,
-  SKILL_LEVEL,
-  SkillLevel,
-} from './gameSettings';
-import { ChessGameSettings } from '../app.component';
+import { ChessGameSettings } from '../game.store';
+
+const GAME_TYPES = ['Chess'] as const;
+
+const PLAYER_COLORS = ['White', 'Black'] as const;
+
+const SKILL_LEVEL = [...Array(20).keys()];
+
+export type GameType = (typeof GAME_TYPES)[number];
+
+export type PlayerColor = (typeof PLAYER_COLORS)[number];
+
+export type SkillLevel = (typeof SKILL_LEVEL)[number];
 
 @Component({
   selector: 'app-game-menu',
@@ -77,7 +81,7 @@ export class GameMenuComponent {
       fen: this.fen,
       gameType: this.gameType,
       skillLevel: this.skillLevel,
-      playerColor: this.playerColor === 'White' ? 'w' : 'b',
+      playerSymbol: this.playerColor === 'White' ? 'w' : 'b',
     });
   }
 }

@@ -60,4 +60,4 @@ export const PieceSymbolList = [
 export const DEFAULT_FEN =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
-export type PlayerColor = 'w' | 'b';
+export type PlayerColorSymbol = 'w' | 'b';
