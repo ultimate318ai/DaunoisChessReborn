@@ -24,6 +24,7 @@ import {
   boardCellNotation,
   boardCells,
   PieceSymbol,
+  PlayerColorSymbol,
 } from '../services/chessTypes';
 import { entries } from 'src/main';
 import { ChessGameSettings } from 'src/app/game.store';
@@ -43,6 +44,7 @@ export class StockfishBoardComponent implements OnInit {
   public moveMadeList = signal<Move[]>([]);
 
   fen = signal('');
+  playerColorSymbol = signal<PlayerColorSymbol>('w');
 
   private displayedMoveList = signal<BoardMove[]>([]);
   private pointedCells = signal<boardCellNotation[]>([]);
@@ -61,12 +63,10 @@ export class StockfishBoardComponent implements OnInit {
   gameFinished = output<void>();
 
   boardCellEntries = computed(() =>
-    this.playerColor() === 'w'
+    this.playerColorSymbol() === 'w'
       ? entries(this.boardCells())
       : entries(this.boardCells()).reverse(),
   );
-
-  playerColor = computed(() => this.settings().playerSymbol);
 
   playerTurn = computed(() => {
     const fenPlayerTurnPart = this.fen().split(' ')[1];
@@ -76,7 +76,7 @@ export class StockfishBoardComponent implements OnInit {
     return fenPlayerTurnPart;
   });
 
-  isPlayerTurn = computed(() => this.playerColor() === this.playerTurn());
+  isPlayerTurn = computed(() => this.playerColorSymbol() === this.playerTurn());
 
   lastMove = computed(
     () => this.displayedMoveList()[this.displayedMoveList().length - 1] ?? null,
@@ -108,12 +108,13 @@ export class StockfishBoardComponent implements OnInit {
     this.addPlayerTurnListener();
     this.addStockFishTurnListener();
     this.addFenUpdateListener();
+    this.addPlayerColorSymbolUpdate();
   }
 
   ngOnInit(): void {
-    const initialFen = this.settings().fen;
+    const initialSettings = this.settings();
     const stockfishSettings: StockFishSettings = {
-      skillLevel: this.settings().skillLevel,
+      skillLevel: initialSettings.skillLevel,
       threads: 1,
       hash: 16,
     };
@@ -123,11 +124,13 @@ export class StockfishBoardComponent implements OnInit {
         mergeMap(() =>
           this.chessService.updateStockfishSettings(stockfishSettings),
         ),
-        mergeMap(() => this.chessService.updateFen(initialFen)),
+        mergeMap(() => this.chessService.updateFen(initialSettings.fen)),
       )
       .subscribe(() => {
         this.arrowService.initializeCanvas();
-        this.fen.set(initialFen);
+        this.fen.set(initialSettings.fen);
+        this.playerColorSymbol.set(initialSettings.playerSymbol);
+        this.displayedMoveList.set([]);
       });
   }
 
@@ -167,9 +170,36 @@ export class StockfishBoardComponent implements OnInit {
     });
   }
 
+  private addPlayerColorSymbolUpdate(): void {
+    effect(() => {
+      const currentSettings = this.settings();
+      if (currentSettings.playerSymbol !== this.playerColorSymbol()) {
+        const stockfishSettings: StockFishSettings = {
+          skillLevel: currentSettings.skillLevel,
+          threads: 1,
+          hash: 16,
+        };
+        this.chessService
+          .resetBoardState()
+          .pipe(
+            mergeMap(() =>
+              this.chessService.updateStockfishSettings(stockfishSettings),
+            ),
+            mergeMap(() => this.chessService.updateFen(currentSettings.fen)),
+          )
+          .subscribe(() => {
+            this.arrowService.initializeCanvas();
+            this.fen.set(currentSettings.fen);
+            this.playerColorSymbol.set(currentSettings.playerSymbol);
+            this.displayedMoveList.set([]);
+          });
+      }
+    });
+  }
+
   private addStockFishTurnListener(): void {
     effect(() => {
-      if (this.playerTurn() === this.playerColor()) {
+      if (this.playerTurn() === this.playerColorSymbol()) {
         this.updatePlayerTurnState.next();
       } else {
         this.playStockFishTurn();

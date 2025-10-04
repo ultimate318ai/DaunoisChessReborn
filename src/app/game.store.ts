@@ -50,7 +50,10 @@ export const GameStore = signalStore(
         settings: {
           ...state.settings,
           fen: DEFAULT_FEN,
-          playerColor: state.settings.playerSymbol === 'w' ? 'b' : 'w',
+          playerSymbol:
+            state.settings.playerSymbol === 'w'
+              ? 'b'
+              : ('w' as PlayerColorSymbol),
         },
         isGameSet: true,
         isGameLaunched: true,
