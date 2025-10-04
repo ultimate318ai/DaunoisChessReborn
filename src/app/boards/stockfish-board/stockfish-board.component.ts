@@ -111,6 +111,7 @@ export class StockfishBoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const initialFen = this.settings().fen;
     const stockfishSettings: StockFishSettings = {
       skillLevel: this.settings().skillLevel,
       threads: 1,
@@ -122,10 +123,11 @@ export class StockfishBoardComponent implements OnInit {
         mergeMap(() =>
           this.chessService.updateStockfishSettings(stockfishSettings),
         ),
+        mergeMap(() => this.chessService.updateFen(initialFen)),
       )
       .subscribe(() => {
         this.arrowService.initializeCanvas();
-        this.fen.set(this.settings().fen);
+        this.fen.set(initialFen);
       });
   }
 
