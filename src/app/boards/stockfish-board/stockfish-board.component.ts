@@ -28,12 +28,13 @@ import {
 } from '../services/chessTypes';
 import { entries } from 'src/main';
 import { ChessGameSettings } from 'src/app/game.store';
+import { GameBarComponent } from 'src/app/game-bar/game-bar.component';
 
 @Component({
   selector: 'app-stockfish-board',
   templateUrl: './stockfish-board.component.html',
   styleUrls: ['./stockfish-board.component.scss'],
-  imports: [NgStyle, MoveBoardComponent],
+  imports: [NgStyle, MoveBoardComponent, GameBarComponent],
 })
 export class StockfishBoardComponent implements OnInit {
   private chessService = inject(chessApiService);

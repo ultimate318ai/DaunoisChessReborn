@@ -1,4 +1,7 @@
 <section class="chessGame">
+  <section id="statusgame" class="statusGameBar">
+    <app-game-bar [lastMoveMade]="lastMove()"></app-game-bar>
+  </section>
   <section id="chessBoard" class="column">
     <div class="board">
       <div class="wrapper">
@@ -113,8 +116,5 @@
   </section>
   <section id="chessMoves" class="column">
     <app-move-board [moves]="moveMadeList()"></app-move-board>
-  </section>
-  <section id="statusgame" class="statusGameBar">
-    <!--TODO: add status bar with backend-->
   </section>
 </section>

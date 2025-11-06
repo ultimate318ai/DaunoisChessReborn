@@ -238,3 +238,13 @@ def stockfish_parameters():
         )
         return {"App/Inf": "Ok"}, 200
     return {"App/Err": "Method not Supported"}, 504
+
+@app.route("/evaluation", methods=["GET"])
+@cross_origin()
+def evaluation():
+    """Endpoint for game position evaluation"""
+    if request.method == "GET":
+        evaluation = __stockfish.get_evaluation()
+        app.logger.debug(f"Game evaluation : {evaluation}")
+        return {"App/Inf": "Ok", "value": evaluation['value'] }, 200
+    return {"App/Err": "Method not Supported"}, 504

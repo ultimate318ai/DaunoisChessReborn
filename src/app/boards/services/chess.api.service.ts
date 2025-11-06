@@ -86,6 +86,10 @@ export class chessApiService {
     return this.getOnBackendServer('boardInformation');
   }
 
+  public fetchPositionEvaluation(): Observable<number> {
+    return this.getOnBackendServer("evaluation");
+  }
+
   public updateFen(fen: string): Observable<null> {
     return this.putOnBackendServer('fen', fen).pipe(mergeMap(() => of(null)));
   }
