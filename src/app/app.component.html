@@ -22,7 +22,7 @@
       ></app-stockfish-board>
     }
   </section>
-  @if (isGameOver()) {
+  @if (isGameLaunched()) {
     <app-game-status
       (rematch)="onRematch()"
       (newGame)="onNewGame()"
